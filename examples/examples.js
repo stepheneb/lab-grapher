@@ -64,7 +64,7 @@ function selectDataHandler() {
   hash = "#" + interactive_url;
   document.location.hash = hash;
   if (!graph) {
-    graph = Lab.grapher.Graph('#chart');
+    graph = LabGrapher('#chart');
   }
   switch(selectData.value) {
   case "fake":

@@ -1,0 +1,19 @@
+{
+  "name": "lab-grapher",
+  "version": "0.1.0",
+  "description": "JavaScript fast graphing library",
+  "main": "event-router.js",
+  "dependencies": {},
+  "devDependencies": {
+    "browserify": ">= 2.35 < 3.0"
+  },
+  "scripts": {
+    "build": "mkdir -p dist && browserify main.js --standalone Lab-grapher  > dist/lab-grapher.js"
+  },
+  "author": "Stepchen Bannasch <stephen.bannasch@gmail.com>",
+  "licenses": [
+    "MIT",
+    "Simplified BSD",
+    "Apache 2.0"
+  ]
+}
