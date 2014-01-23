@@ -95,11 +95,13 @@ function selectDataHandler() {
       fontScaleRelativeToParent: false,
       dataType: 'points',
       dataPoints: [
-        [0, 10], [2, 10],
-        [2, 12], [4, 12],
-        [4, 14], [6, 14],
-        [6, 16], [8, 16],
-        [8, 18], [10, 18]
+        [
+          [0, 10], [2, 10],
+          [2, 12], [4, 12],
+          [4, 14], [6, 14],
+          [6, 16], [8, 16],
+          [8, 18], [10, 18]
+        ]
       ],
 
       markAllDataPoints: true,
@@ -110,9 +112,11 @@ function selectDataHandler() {
 
   case "earth-surface-temperature":
     d3.json("data/surface-temperature-data.json", function (data) {
-      var surfaceTemperatures = data.global_temperatures.temperature_anomolies.map(function (e) {
+      var surfaceTemperatures = [
+        data.global_temperatures.temperature_anomolies.map(function (e) {
           return [e[0], e[1] + data.global_temperatures.global_surface_temperature_1961_1990];
-        });
+        })
+      ];
       graph.reset('#chart', {
         title:  "Earth's Surface Temperature: years 500-2009",
         xlabel: "Year",
@@ -137,7 +141,7 @@ function selectDataHandler() {
 
   case "world-population":
     d3.json("data/world-population.json", function(data) {
-      var worldPopulation = data.worldPopulation.data;
+      var worldPopulation = [data.worldPopulation.data];
       graph.reset('#chart', {
         title:  "World Population, Historical and Projected: 10,000 BCE to 2050",
         xlabel: "Year",
@@ -160,7 +164,7 @@ function selectDataHandler() {
 
   case "world-population-semi-log":
     d3.json("data/world-population.json", function(data) {
-      var worldPopulation = data.worldPopulation.data;
+      var worldPopulation = [data.worldPopulation.data];
       graph.reset('#chart', {
         title:  "World Population, Historical and Projected: 10,000 BCE to 2050 (semi-log)",
         xlabel: "Year",
@@ -182,12 +186,12 @@ function selectDataHandler() {
       });
     });
     break;
-
+    
   case "md2d-center-of-mass":
     d3.text("data/cm-random-walk.csv", "text/csv", function(text) {
       var data = d3.csv.parseRows(text);
       data.length = 5000;
-      var randomWalk = data.map(function(e) { return [e[1], e[2]]; });
+      var randomWalk = [data.map(function(e) { return [Number(e[1]), Number(e[2])]; })];
       graph.reset('#chart', {
         title:  [
           "Constrained random walk of center of mass of Lab molecular simulation",
@@ -257,9 +261,11 @@ function selectDataHandler() {
 
   case "earth-surface-temperature-samples":
     d3.json("data/surface-temperature-data.json", function(data) {
-      var surfaceTemperatures = data.global_temperatures.temperature_anomolies.map(function(e) {
+      var surfaceTemperatures = [
+        data.global_temperatures.temperature_anomolies.map(function(e) {
           return e[1] + data.global_temperatures.global_surface_temperature_1961_1990;
-        });
+        })
+      ];
       graph.reset('#chart', {
         title:  "Earth's Surface Temperature: years 500-2009",
         xlabel: "Year",
