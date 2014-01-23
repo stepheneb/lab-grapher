@@ -2068,7 +2068,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
           gctx.lineWidth = lineWidth/2;
           // temporary hack ...
           var previousPx = 0;
-          for (; index < pointsLength-1; index++) {
+          for (; index < pointsLength; index++) {
             dx = points[index][0];
             px = xScale(dx);
             if (px < previousPx) { break; }
