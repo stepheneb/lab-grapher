@@ -2225,15 +2225,19 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
 
   // Add an array (or arrays) of points.
   function addDataPoints(datapoints, index) {
+    var points;
     for (var i = 0, len = datapoints.length; i < len; i++) {
       points = pointArray[i];
+      if (points == null) {
+        // Create a new data series dynamically in case of need.
+        points = pointArray[i] = [];
+      }
       if (index == null) {
         points.push(datapoints[i]);
       } else {
         points[index] = datapoints[i];
       }
     }
-    points = pointArray[0];
   }
 
   // Add an array of points by processing an array of samples (Y values)
