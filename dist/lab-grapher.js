@@ -285,14 +285,6 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       // An array containing 1 or more points arrays to be plotted.
       pointArray,
 
-      // When additional dataseries are added to the graph via addPoints(datapoints)
-      // newDataSeries contains the number of series in dataPoints
-      // Each series is a separate stream of data consisting of [x, y] pairs.
-      // Additional static dataseries can be graphed along with the new series that
-      // are streaming in as samples by pushing extra series into the array of data
-      // setup with resetPoints().
-      newDataSeries,
-
       // Index into points array for current sample/point.
       // Normally references data point last added.
       // Current sample can refer to earlier points. This is
@@ -2038,54 +2030,34 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         gctx.moveTo(px, py);
         dx = points[index][0];
         index++;
-        if (i < newDataSeries) {
-          // plot all ... or until one point past xAxisEnd
-          // or until we reach currentSample
-          for (; index < samplePoint; index++) {
-            // Support fake points (they are undefined and can be updated later).
-            if (points[index] == null) continue;
-            dx = points[index][0];
-            px = xScale(dx);
-            py = yScale(points[index][1]);
-            gctx.lineTo(px, py);
-            if (dx >= xAxisEnd) { break; }
-          }
-          gctx.stroke();
-          // now plot in a desaturated style all the rest of the points
-          // ... or until one point past xAxisEnd
-          if (index < pointsLength && dx < xAxisEnd) {
-            setStrokeColor(i, true);
-            gctx.lineWidth = lineWidth/2;
-            for (;index < pointsLength; index++) {
-              // Support fake points (they are undefined and can be updated later).
-              if (points[index] == null) continue;
-              dx = points[index][0];
-              px = xScale(dx);
-              py = yScale(points[index][1]);
-              gctx.lineTo(px, py);
-              if (dx >= xAxisEnd) { break; }
-            }
-            gctx.stroke();
-          }
-        } else {
-          // else we are plotting older complete datasets
-          // plot all ... or until one point past xAxisEnd
+        // plot all ... or until one point past xAxisEnd
+        // or until we reach currentSample
+        for (; index < samplePoint; index++) {
+          // Support fake points (they are undefined and can be updated later).
+          if (points[index] == null) continue;
+          dx = points[index][0];
+          px = xScale(dx);
+          py = yScale(points[index][1]);
+          gctx.lineTo(px, py);
+          if (dx >= xAxisEnd) { break; }
+        }
+        gctx.stroke();
+        // now plot in a desaturated style all the rest of the points
+        // ... or until one point past xAxisEnd
+        if (index < pointsLength && dx < xAxisEnd) {
           setStrokeColor(i, true);
           gctx.lineWidth = lineWidth/2;
-          // temporary hack ...
-          var previousPx = 0;
-          for (; index < pointsLength; index++) {
+          for (;index < pointsLength; index++) {
             // Support fake points (they are undefined and can be updated later).
             if (points[index] == null) continue;
             dx = points[index][0];
             px = xScale(dx);
-            if (px < previousPx) { break; }
-            previousPx = px;
             py = yScale(points[index][1]);
             gctx.lineTo(px, py);
             if (dx >= xAxisEnd) { break; }
           }
           gctx.stroke();
+          gctx.lineWidth = lineWidth;
         }
       }
     } else if (bars) {
@@ -2214,14 +2186,12 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
 
   // Add an array of points then update the graph.
   function addPoints(datapoints) {
-    newDataSeries = datapoints.length;
     addDataPoints(datapoints);
     setCurrentSample(points.length);
     updateOrRescale();
   }
 
   function replacePoints(datapoints, index) {
-    newDataSeries = datapoints.length;
     addDataPoints(datapoints, index);
     setCurrentSample(points.length);
     updateOrRescale();
@@ -2255,20 +2225,15 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
 
   // Add an array (or arrays) of points.
   function addDataPoints(datapoints, index) {
-    if (Object.prototype.toString.call(datapoints[0]) === "[object Array]") {
-      for (var i = 0; i < datapoints.length; i++) {
-        points = pointArray[i];
-        if (index == null) {
-          points.push(datapoints[i]);
-        } else {
-          points[index] = datapoints[i];
-        }
+    for (var i = 0, len = datapoints.length; i < len; i++) {
+      points = pointArray[i];
+      if (index == null) {
+        points.push(datapoints[i]);
+      } else {
+        points[index] = datapoints[i];
       }
-      points = pointArray[0];
-    } else {
-      points.push.apply(points, datapoints);
-      pointArray = [points];
     }
+    points = pointArray[0];
   }
 
   // Add an array of points by processing an array of samples (Y values)
