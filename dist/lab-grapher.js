@@ -1420,9 +1420,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
     }
     if (markedPoints !== null) {
       updateMarkerRadius();
-      marker = vis.select("svg").selectAll("circle").data(markedPoints.filter(function (d) {
-        return d != null;
-      }));
+      marker = vis.select("svg").selectAll("circle").data(markedPoints);
       marker.enter().append("circle")
           .attr("class", circleClasses)
           .attr("cx",    function(d) { return xScale(d[0]); })
@@ -2036,17 +2034,11 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         index = 0;
         // find first point >= xAxisStart
         for (j = 0; j < pointsLength; j++) {
-          // Support fake points (they are undefined and can be updated later).
-          if (points[j] != null && points[j][0] >= xAxisStart) { break; }
+          if (points[j][0] >= xAxisStart) { break; }
           index++;
         }
         if (index >= pointsLength) { continue; }
-        if (index > 0) {
-          // Look for the previous, non-null point.
-          j = index - 1;
-          while (points[j] == null && j >= 0) j--;
-          if (j >= 0) index = j;
-        }
+        if (index > 0) { index--; }
         px = xScale(points[index][0]);
         py = yScale(points[index][1]);
         setStrokeColor(i);
@@ -2056,9 +2048,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         index++;
         // plot all ... or until one point past xAxisEnd
         // or until we reach currentSample
-        for (; index < samplePoint; index++) {
-          // Support fake points (they are undefined and can be updated later).
-          if (points[index] == null) continue;
+        for (var len = Math.min(samplePoint, pointsLength); index < len; index++) {
           dx = points[index][0];
           px = xScale(dx);
           py = yScale(points[index][1]);
@@ -2072,8 +2062,6 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
           setStrokeColor(i, true);
           gctx.lineWidth = lineWidth/2;
           for (;index < pointsLength; index++) {
-            // Support fake points (they are undefined and can be updated later).
-            if (points[index] == null) continue;
             dx = points[index][0];
             px = xScale(dx);
             py = yScale(points[index][1]);
@@ -2091,8 +2079,6 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         setStrokeColor(i);
         pointStop = samplePoint - 1;
         for (index=start; index < pointStop; index++) {
-          // Support fake points (they are undefined and can be updated later).
-          if (points[index] == null) continue;
           px = xScale(points[index][0]);
           py = yScale(points[index][1]);
           if (py === 0) {
@@ -2107,8 +2093,6 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         if (index < pointStop) {
           setStrokeColor(i, true);
           for (;index < pointStop; index++) {
-            // Support fake points (they are undefined and can be updated later).
-            if (points[index] == null) continue;
             px = xScale(points[index][0]);
             py = yScale(points[index][1]);
             gctx.beginPath();
@@ -2125,13 +2109,11 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         index = 0;
         // find first point >= xAxisStart
         for (j = 0; j < pointsLength; j++) {
-          // Support fake points (they are undefined and can be updated later).
-          if (points[index] == null) continue;
           if (points[j][0] >= xAxisStart) { break; }
           index++;
         }
         if (index > 0) { --index; }
-        if (index >= pointsLength) { break; }
+        if (index >= pointsLength) { continue; }
         px = xScale(points[index][0]);
         py = yScale(points[index][1]);
         setFillColor(i);
@@ -2139,9 +2121,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         index++;
         // plot all ... or until one point past xAxisEnd
         // or until we reach currentSample
-        for (; index < samplePoint; index++) {
-          // Support fake points (they are undefined and can be updated later).
-          if (points[index] == null) continue;
+        for (var len = Math.min(samplePoint, pointsLength); index < len; index++) {
           dx = points[index][0];
           px = xScale(dx);
           py = yScale(points[index][1]);
@@ -2153,8 +2133,6 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         if (index < pointsLength && dx < xAxisEnd) {
           setFillColor(i, true);
           for (;index < pointsLength; index++) {
-            // Support fake points (they are undefined and can be updated later).
-            if (points[index] == null) continue;
             dx = points[index][0];
             px = xScale(dx);
             py = yScale(points[index][1]);
