@@ -172,20 +172,6 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       gctx,
       canvasFillStyle = "rgba(255,255,255, 0.0)",
 
-      // Function dynamically created when X axis domain shift is in progress
-      domainShift,
-      // Boolean indicating X axis domain shif is in progress
-      shiftingX = false,
-      // Easing function used during X axis domain shift
-      cubicEase = d3.ease('cubic'),
-      // These are used to implement fluid X axis domain shifting.
-      // This is used when plotting samples/points and extent of plotted
-      // data approach extent of X axis.
-      // Domain shifting can also occur when the current sample point is moved.
-      // This most often occurs when using a graph to examine data from a model
-      // and movingthe current sample point backwards and forwards in data that
-      // have already been collected.
-
       // The style of the cursor when hovering over a sample.point marker.
       // The cursor changes depending on the operations that can be performed.
       markerCursorStyle,
@@ -290,6 +276,12 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       // indexing instead.
       pointArrayIndexed,
 
+      // Current extent of points plotted by graph.
+      pointsXMin,
+      pointsXMax,
+      pointsYMin,
+      pointsYMax,
+
       // Index into points array for current sample/point.
       // Normally references data point last added.
       // Current sample can refer to earlier points. This is
@@ -364,6 +356,11 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         xmin:            0,
         ymax:            10,
         ymin:            0,
+
+        // Auto-scaling of X axis when at least one point exceeds current domain.
+        autoScaleX:       true,
+        autoScaleY:       true,
+        autoScalePadding: 0.3,
 
         // Approximate values for how many gridlines should appear on the axes.
         xTickCount:      10,
@@ -772,22 +769,29 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
   function setupScales() {
     function domainObservingScale(scale, callback) {
       var domain = scale.domain;
-      scale.domain = function(_) {
+      var nice = scale.nice;
+      scale.domain = function() {
+        var result = domain.apply(scale, arguments);
         if (arguments.length) {
-          callback(_);
+          callback();
         }
-        return domain.apply(scale, arguments);
+        return result;
+      };
+      scale.nice = function() {
+        var result = nice.apply(scale, arguments);
+        callback();
+        return result;
       };
       return scale;
     }
 
-    xScale = domainObservingScale(d3.scale[options.xscale](), function(_) {
-      options.xmin = _[0];
-      options.xmax = _[1];
+    xScale = domainObservingScale(d3.scale[options.xscale](), function() {
+      options.xmin = xScale.domain()[0];
+      options.xmax = xScale.domain()[1];
     });
-    yScale = domainObservingScale(d3.scale[options.yscale](), function(_) {
-      options.ymin = _[0];
-      options.ymax = _[1];
+    yScale = domainObservingScale(d3.scale[options.yscale](), function() {
+      options.ymin = yScale.domain()[0];
+      options.ymax = yScale.domain()[1];
     });
     updateScales();
   }
@@ -801,7 +805,6 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
   function updateXScale() {
     xScale.domain([options.xmin, options.xmax])
           .range([0, size.width]);
-    cancelDomainShift();
   }
 
   // Update the y-scale.
@@ -881,7 +884,8 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
             "title": tooltips.autoscale
           })
           .on("click", function() {
-            autoscale();
+            autoscaleAxes(true);
+            redraw();
           })
           .append("i")
             .attr("class", "icon-picture");
@@ -1304,86 +1308,11 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
   // samplePoint is optional argument
   function updateOrRescale(samplePoint) {
     setCurrentSample(samplePoint);
-    updateOrRescalePoints();
-  }
 
-  // samplePoint is optional argument
-  function updateOrRescalePoints(samplePoint) {
-    var domain = xScale.domain(),
-        xAxisStart = Math.round(domain[0]),
-        xAxisEnd = Math.round(domain[1]),
-        start = Math.max(0, xAxisStart),
-        xextent = domain[1] - domain[0],
-        shiftPoint = xextent * 0.95,
-        currentExtent = -Infinity;
-
-    pointArray.forEach(function (arr) {
-      var lastPoint = arr[arr.length - 1];
-      if (lastPoint && lastPoint[0] > currentExtent) {
-        currentExtent = lastPoint[0];
-      }
-    });
-    if (currentExtent === -Infinity) return;
-
-    if (shiftingX) {
-      shiftingX = domainShift();
-      if (shiftingX) {
-        cancelAxisRescale();
-        redraw();
-      } else {
-        update(currentSample);
-      }
+    if (autoscaleAxes()) {
+      redraw();
     } else {
-      if (currentExtent > domain[0] + shiftPoint) {
-        domainShift = shiftXDomainRealTime(shiftPoint*0.9, options.axisShift);
-        shiftingX = domainShift();
-        redraw();
-      } else if ( currentExtent < domain[1] - shiftPoint && currentSample < points.length && xAxisStart > 0) {
-        domainShift = shiftXDomainRealTime(shiftPoint*0.9, options.axisShift, -1);
-        shiftingX = domainShift();
-        redraw();
-      } else if (currentExtent < domain[0]) {
-        domainShift = shiftXDomainRealTime(shiftPoint*0.1, 1, -1);
-        shiftingX = domainShift();
-        redraw();
-      } else {
-        update(currentSample);
-      }
-    }
-  }
-
-  function shiftXDomainRealTime(shift, steps, direction) {
-    var d0 = xScale.domain()[0],
-        d1 = xScale.domain()[1],
-        increment = 1/steps,
-        index = 0;
-    return function() {
-      var factor;
-      direction = direction || 1;
-      index += increment;
-      factor = shift * cubicEase(index);
-      if (direction > 0) {
-        xScale.domain([d0 + factor, d1 + factor]);
-        return xScale.domain()[0] < (d0 + shift);
-      } else {
-        xScale.domain([d0 - factor, d1 - factor]);
-        return xScale.domain()[0] > (d0 - shift);
-      }
-    };
-  }
-
-  function cancelDomainShift() {
-    shiftingX = false;
-    // effectively asserts that we don't call domainShift until a new domain shift is required
-    domainShift = null;
-  }
-
-  function cancelAxisRescale() {
-    if (!isNaN(downx)) {
-      downx = NaN;
-    }
-    if (!isNaN(downy)) {
-      downy = NaN;
+      update(currentSample);
     }
   }
 
@@ -1643,11 +1572,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
     if (!isNaN(downx)) {
       d3.select('body').style("cursor", "col-resize");
       plot.style("cursor", "col-resize");
-      if (shiftingX) {
-        xScale.domain(axis.axisProcessDrag(downx, xScale.invert(p[0]), xScale.domain()));
-      } else {
-        xScale.domain(axis.axisProcessDrag(downx, xScale.invert(p[0]), xScale.domain()));
-      }
+      xScale.domain(axis.axisProcessDrag(downx, xScale.invert(p[0]), xScale.domain()));
       updateMarkerRadius();
       redraw();
       d3.event.stopPropagation();
@@ -1684,69 +1609,73 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
   // ------------------------------------------------------------
 
   /**
-    If there are more than 1 data points, scale the x axis to contain all x values,
-    and scale the y axis so that the y values lie in the middle 80% of the visible y range.
+    If there are more than 1 data points, scale axes. Default behavior is to expand domain only when
+    corresponding "autoScaleX" and "autoScaleY" options are set to true.
 
-    Then nice() the x and y scales (which means that the x and y domains will likely expand
-    somewhat).
+    However if you pass <true> as an argument, it will enforce scaling of axes so the fit data.
   */
-  function autoscale() {
-    var i,
-        j,
-        len,
-        point,
-        x,
-        y,
-        xmin = Infinity,
-        xmax = -Infinity,
-        ymin = Infinity,
-        ymax = -Infinity,
-        transform,
-        pow;
+  function autoscaleAxes(fit) {
+    var maxPointsLen = -Infinity;
+    pointArray.forEach(function (arr) {
+      if (arr.length > maxPointsLen) maxPointsLen = arr.length;
+    });
+    if (maxPointsLen < 2) return;
 
-    if (points.length < 2) return;
+    var domainXChanged;
+    var domainYChanged;
 
-    for (i = 0; i < pointArray.length; i++) {
-      points = pointArray[i];
-      for (j = 0, len = points.length; j < len; j++){
-        point = points[j];
-        if (!point) continue;
-        x = point[0];
-        y = point[1];
-
-        if (x < xmin) xmin = x;
-        if (x > xmax) xmax = x;
-        if (y < ymin) ymin = y;
-        if (y > ymax) ymax = y;
-      }
+    if (options.autoScaleX || fit) {
+      var xPadding = fit ? 0 : options.autoScalePadding;
+      domainXChanged = scaleAxis("x", pointsXMin, pointsXMax, xPadding, fit);
     }
+    if (options.autoScaleY || fit) {
+      domainYChanged = scaleAxis("y", pointsYMin, pointsYMax, options.autoScalePadding, fit);
+    }
+    return domainXChanged || domainYChanged;
+  }
 
+  function scaleAxis(axis, minVal, maxVal, padding, fit) {
+    // axis argument is expected to be "x" or "y".
+    var scale = axis === "x" ? xScale : yScale;
+    var dMin = scale.domain()[0];
+    var dMax = scale.domain()[1];
+    var domainChanged = false;
     // Like Math.pow but returns a value with the same sign as x: pow(-1, 0.5) -> -1
-    pow = function(x, exponent) {
+    var pow = function(x, exponent) {
       return x < 0 ? -Math.pow(-x, exponent) : Math.pow(x, exponent);
     };
-
-    // convert ymin, ymax to a linear scale, and set 'transform' to the function that
+    // Convert min, max to a linear scale, and set 'transform' to the function that
     // converts the new min, max to the relevant scale.
-    switch (options.yscale) {
+    var transform;
+    switch (options[axis + "scale"]) {
       case 'linear':
         transform = function(x) { return x; };
         break;
       case 'log':
-        ymin = Math.log(ymin) / Math.log(10);
-        ymax = Math.log(ymax) / Math.log(10);
+        minVal = Math.log(minVal) / Math.log(10);
+        maxVal = Math.log(maxVal) / Math.log(10);
         transform = function(x) { return Math.pow(10, x); };
         break;
       case 'pow':
-        ymin = pow(ymin, options.yscaleExponent);
-        ymax = pow(ymax, options.yscaleExponent);
-        transform = function(x) { return pow(x, 1/options.yscaleExponent); };
+        var scaleExponent = options[axis + "scaleExponent"];
+        minVal = pow(minVal, scaleExponent);
+        maxVal = pow(maxVal, scaleExponent);
+        transform = function(x) { return pow(x, 1 / scaleExponent); };
         break;
     }
 
-    xScale.domain([xmin, xmax]).nice();
-    yScale.domain([transform(ymin - 0.15*(ymax-ymin)), transform(ymax + 0.15*(ymax-ymin))]).nice();
-    redraw();
+    if (maxVal > dMax || fit) {
+      dMax = maxVal + padding * (maxVal - minVal);
+      domainChanged = true;
+    }
+    if (minVal < dMin || fit) {
+      dMin = minVal - padding * (maxVal - minVal);
+      domainChanged = true;
+    }
+    if (domainChanged) {
+      scale.domain([transform(dMin), transform(dMax)]).nice();
+    }
+    return domainChanged;
   }
 
   // ------------------------------------------------------------
@@ -2250,6 +2179,13 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
     }
   }
 
+  function updatePointsExtent(newPoint) {
+    if (newPoint[0] < pointsXMin) pointsXMin = newPoint[0];
+    if (newPoint[1] < pointsYMin) pointsYMin = newPoint[1];
+    if (newPoint[0] > pointsXMax) pointsXMax = newPoint[0];
+    if (newPoint[1] > pointsYMax) pointsYMax = newPoint[1];
+  }
+
   // Add an array (or arrays) of points.
   function addDataPoints(datapoints) {
     var point;
@@ -2267,6 +2203,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       point = datapoints[i];
       points.push(point);
       pointsIndexed.push(point);
+      updatePointsExtent(point);
       checkPointsOrder(points, points.length - 1);
     }
   }
@@ -2302,6 +2239,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         oldPoint[1] = newPoint[1];
         checkPointsOrder(points);
       }
+      updatePointsExtent(newPoint);
     }
   }
 
@@ -2338,6 +2276,8 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       return ret;
     }
 
+    pointsXMin = pointsYMin =  Infinity;
+    pointsXMax = pointsYMax = -Infinity;
     pointArray = [];
     pointArrayIndexed = [];
     if (!datapoints || datapoints.length === 0) {
@@ -2348,16 +2288,18 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       for (var i = 0; i < datapoints.length; i++) {
         pointArray.push(copy(datapoints[i]));
         pointArrayIndexed.push(copy(datapoints[i]));
+        datapoints[i].forEach(updatePointsExtent);
       }
       points = pointArray[0];
     } else {
       points = datapoints;
       pointArray = [copy(points)];
       pointArrayIndexed = [copy(points)];
+      points.forEach(updatePointsExtent);
     }
 
+    autoscaleAxes();
     setCurrentSample(points.length - 1);
-    cancelDomainShift();
   }
 
   function resetDataSamples(datasamples, interval, start) {
