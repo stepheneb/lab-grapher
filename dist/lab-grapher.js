@@ -1964,7 +1964,14 @@ module.exports = function Graph(idOrElement, options, message) {
       for (i = 0; i < numberOfLines; i++) {
         points = pointArray[i];
         pointsLength = points.length;
-        if (pointsLength === 0) { continue; }
+        if (pointsLength === 0) {
+          continue;
+        } else if (pointsLength === 1) {
+          // Draw just single point.
+          setFillColor(i);
+          gctx.fillRect(xScale(points[0][0]), yScale(points[0][1]), lineWidth, lineWidth);
+          continue;
+        }
         index = 0;
         // find first point >= xAxisStart
         for (j = 0; j < pointsLength; j++) {
@@ -2048,11 +2055,7 @@ module.exports = function Graph(idOrElement, options, message) {
         }
         if (index > 0) { --index; }
         if (index >= pointsLength) { continue; }
-        px = xScale(points[index][0]);
-        py = yScale(points[index][1]);
         setFillColor(i);
-        dx = points[index][0];
-        index++;
         // plot all ... or until one point past xAxisEnd
         // or until we reach currentSample
         for (len = Math.min(samplePoint, pointsLength); index < len; index++) {
@@ -2331,7 +2334,7 @@ module.exports = function Graph(idOrElement, options, message) {
     points = pointArray[0];
 
     autoscaleAxes();
-    setCurrentSample(points.length - 1);
+    setCurrentSample("last");
   }
 
   function resetDataSamples(datasamples, interval, start) {
