@@ -1532,6 +1532,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function mousemove() {
     var p = d3.mouse(vis.node()),
+        points,
         index,
         px,
         x,
@@ -1548,7 +1549,14 @@ module.exports = function Graph(idOrElement, options, message) {
       if (options.dataChange) {
         draggedPoint[1] = yScale.invert(Math.max(0, Math.min(size.height, p[1])));
       } else {
-        index = points.indexOf(draggedPoint);
+        pointArray.forEach(function (arr) {
+          var i = arr.indexOf(draggedPoint);
+          if (i !== -1) {
+            points = arr;
+            index = i;
+          }
+        });
+
         if (index && index < (points.length-1)) {
           px = xScale.invert(p[0]);
           x = draggedPoint[0];
