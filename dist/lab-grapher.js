@@ -1626,17 +1626,18 @@ module.exports = function Graph(idOrElement, options, message) {
     pointArray.forEach(function (arr) {
       if (arr.length > maxPointsLen) maxPointsLen = arr.length;
     });
-    if (maxPointsLen < 2) return;
+    if (maxPointsLen < 1) return;
 
     var domainXChanged;
     var domainYChanged;
 
     if (options.autoScaleX || fit) {
-      var xPadding = fit ? 0 : options.autoScalePadding;
+      var xPadding = fit ? 0.05 : options.autoScalePadding;
       domainXChanged = scaleAxis("x", pointsXMin, pointsXMax, xPadding, fit);
     }
     if (options.autoScaleY || fit) {
-      domainYChanged = scaleAxis("y", pointsYMin, pointsYMax, options.autoScalePadding, fit);
+      var yPadding = fit ? 0.05 : options.autoScalePadding;
+      domainYChanged = scaleAxis("y", pointsYMin, pointsYMax, yPadding, fit);
     }
     return domainXChanged || domainYChanged;
   }
@@ -1671,12 +1672,14 @@ module.exports = function Graph(idOrElement, options, message) {
         break;
     }
 
+    // When there is one point, maxVal - minVal will be 0. Then try to use current domain of scale.
+    var pad = maxVal - minVal !== 0 ? (maxVal - minVal) * padding : (dMax - dMin) * padding;
     if (maxVal > dMax || fit) {
-      dMax = maxVal + padding * (maxVal - minVal);
+      dMax = maxVal + pad;
       domainChanged = true;
     }
     if (minVal < dMin || fit) {
-      dMin = minVal - padding * (maxVal - minVal);
+      dMin = minVal - pad;
       domainChanged = true;
     }
     if (domainChanged) {
@@ -2221,6 +2224,7 @@ module.exports = function Graph(idOrElement, options, message) {
     var newPoint;
     var points;
     var pointsIndexed;
+    var pointModified = false;
     for (var i = 0, len = datapoints.length; i < len; i++) {
       if (datapoints[i] == null) continue;
       points = pointArray[i];
@@ -2237,6 +2241,7 @@ module.exports = function Graph(idOrElement, options, message) {
         points.push(newPoint);
         pointsIndexed[index] = newPoint;
         checkPointsOrder(points, points.length - 1);
+        updatePointsExtent(newPoint);
       } else {
         // Update coordinates manually. We can't simply say:
         // pointsInexed[index] = newPoint;
@@ -2246,8 +2251,16 @@ module.exports = function Graph(idOrElement, options, message) {
         oldPoint[0] = newPoint[0];
         oldPoint[1] = newPoint[1];
         checkPointsOrder(points);
+        pointModified = true;
       }
-      updatePointsExtent(newPoint);
+    }
+    if (pointModified) {
+      // Recalculate points extent as old point could contain min/max values.
+      pointsXMin = pointsYMin = Infinity;
+      pointsXMax = pointsYMax = -Infinity;
+      pointArray.forEach(function (points) {
+        points.forEach(updatePointsExtent);
+      });
     }
   }
 
