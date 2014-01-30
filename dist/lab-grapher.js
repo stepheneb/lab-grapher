@@ -85,7 +85,7 @@ var tooltips = {
   selection: "Select data for export"
 };
 
-module.exports = function Graph(idOrElement, options, message, tabindex) {
+module.exports = function Graph(idOrElement, options, message) {
   var api = {},   // Public API object to be returned.
 
       // D3 selection of the containing DOM element the graph is placed in
@@ -120,8 +120,6 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       // Strings used as tooltips when labels are visible but are truncated because
       // they are too big to be rendered into the space the graph allocates
       titleTooltip,
-      xlabelTooltip,
-      ylabelTooltip,
 
       // Instantiated D3 scale functions
       // currently either d3.scale.linear, d3.scale.log, or d3.scale.pow
@@ -587,7 +585,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
     calculateSizeType();
   }
 
-  function calculateLayout(forceUpdate) {
+  function calculateLayout() {
     scale();
 
     fontSizeInPixels = parseFloat($node.css("font-size"));
@@ -974,8 +972,8 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       .attr("stroke-dasharray", "2,2")
       .attr("y1", 0)
       .attr("y2", size.height)
-      .attr("x1", function(d) { return selected === null ? 0 : selected[0]; } )
-      .attr("x2", function(d) { return selected === null ? 0 : selected[0]; } )
+      .attr("x1", function() { return selected === null ? 0 : selected[0]; } )
+      .attr("x2", function() { return selected === null ? 0 : selected[0]; } )
       .attr("class", "ruler hidden");
 
     selectedRulerY = viewbox.append("line")
@@ -983,8 +981,8 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       .attr("stroke-dasharray", "2,2")
       .attr("x1", 0)
       .attr("x2", size.width)
-      .attr("y1", function(d) { return selected === null ? 0 : selected[1]; } )
-      .attr("y2", function(d) { return selected === null ? 0 : selected[1]; } )
+      .attr("y1", function() { return selected === null ? 0 : selected[1]; } )
+      .attr("y2", function() { return selected === null ? 0 : selected[1]; } )
       .attr("class", "ruler hidden");
 
     yAxisDraggable = svg.append("rect")
@@ -1035,7 +1033,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       title.enter().append("text")
           .attr("class", "title")
           .text(function(d) { return d; })
-          .attr("x", function(d) { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; })
+          .attr("x", function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; })
           .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
       titleTooltip = title.append("title")
           .text("");
@@ -1132,7 +1130,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
 
     if (options.title && sizeType.value > 0) {
       title
-          .attr("x", function(d) { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; })
+          .attr("x", function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; })
           .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
       titleTooltip
           .text("");
@@ -1381,16 +1379,16 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
       selectedRulerX
         .attr("y1", 0)
         .attr("y2", size.height)
-        .attr("x1", function(d) { return selected === null ? 0 : xScale(selected[0]); } )
-        .attr("x2", function(d) { return selected === null ? 0 : xScale(selected[0]); } )
-        .attr("class", function(d) { return "ruler" + (selected === null ? " hidden" : ""); } );
+        .attr("x1", function() { return selected === null ? 0 : xScale(selected[0]); } )
+        .attr("x2", function() { return selected === null ? 0 : xScale(selected[0]); } )
+        .attr("class", function() { return "ruler" + (selected === null ? " hidden" : ""); } );
 
       selectedRulerY
         .attr("x1", 0)
         .attr("x2", size.width)
-        .attr("y1", function(d) { return selected === null ? 0 : yScale(selected[1]); } )
-        .attr("y2", function(d) { return selected === null ? 0 : yScale(selected[1]); } )
-        .attr("class", function(d) { return "ruler" + (selected === null ? " hidden" : ""); } );
+        .attr("y1", function() { return selected === null ? 0 : yScale(selected[1]); } )
+        .attr("y2", function() { return selected === null ? 0 : yScale(selected[1]); } )
+        .attr("class", function() { return "ruler" + (selected === null ? " hidden" : ""); } );
     } else {
       selectedRulerX.attr("class", "ruler hidden");
       selectedRulerY.attr("class", "ruler hidden");
@@ -1438,7 +1436,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
     if (points.length === 0) { return null; }
     var min = 0,
         max = points.length - 1,
-        mid, diff, p1, p2, p3;
+        mid, p1, p2, p3;
     while (min < max) {
       mid = Math.floor((min + max)/2.0);
       if (points[mid][0] < x) {
@@ -1930,21 +1928,19 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
   // Update Canvas plotted data from [x, y] data points
   //
   function updateCanvasFromPoints(samplePoint) {
-    var i, j, k,
+    var i, j, len,
         dx,
         px, py,
         index,
         yOrigin = yScale(0.00001),
         lines = options.lines,
         bars = options.bars,
-        twopi = 2 * Math.PI,
         pointsLength,
         numberOfLines = pointArray.length,
         xAxisStart,
         xAxisEnd,
         pointStop,
-        start,
-        lengthX;
+        start;
 
     // hack for lack of canvas support in jsdom tests
     if (typeof gcanvas.getContext === "undefined" ) { return; }
@@ -1978,7 +1974,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         index++;
         // plot all ... or until one point past xAxisEnd
         // or until we reach currentSample
-        for (var len = Math.min(samplePoint, pointsLength); index < len; index++) {
+        for (len = Math.min(samplePoint, pointsLength); index < len; index++) {
           dx = points[index][0];
           px = xScale(dx);
           py = yScale(points[index][1]);
@@ -2051,7 +2047,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
         index++;
         // plot all ... or until one point past xAxisEnd
         // or until we reach currentSample
-        for (var len = Math.min(samplePoint, pointsLength); index < len; index++) {
+        for (len = Math.min(samplePoint, pointsLength); index < len; index++) {
           dx = points[index][0];
           px = xScale(dx);
           py = yScale(points[index][1]);
@@ -2608,7 +2604,7 @@ module.exports = function Graph(idOrElement, options, message, tabindex) {
     elem: function(_) {
       if (!arguments.length) return elem;
       elem = d3.select(_);
-      graph(elem);
+      initialize(elem);
       return api;
     },
 
