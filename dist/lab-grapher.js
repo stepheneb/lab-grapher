@@ -1,4 +1,4 @@
-!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.LabGrapher=e():"undefined"!=typeof global?global.LabGrapher=e():"undefined"!=typeof self&&(self.LabGrapher=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.LabGrapher=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 module.exports.numberWidthUsingFormatter = function(elem, cx, cy, fontSizeInPixels, numberStr) {
   var testSVG,
       testText,
@@ -78,8 +78,8 @@ module.exports.axisProcessDrag = function(dragstart, currentdrag, domain) {
   return newdomain;
 };
 
-},{}],2:[function(require,module,exports){
-var axis = require('./axis');
+},{}],2:[function(_dereq_,module,exports){
+var axis = _dereq_('./axis');
 var tooltips = {
   autoscale: "Show all data (autoscale)",
   selection: "Select data for export"
@@ -153,11 +153,17 @@ module.exports = function Graph(idOrElement, options, message) {
       buttonLayer,
       selectionButton,
 
+      // div created above everything but the button layer for holding annotations
+      annotationLayer,
+
       // Div created and placed with z-index under all other graph layers
       background,
 
       // Optional string which can be displayed in background of interior plot area of graph.
       notification,
+
+      // Optonal set of annotations that can be added dynamically to call out features of a graph
+      annotations = [],
 
       // An array of strings holding 0 or more lines for the title of the graph
       titles = [],
@@ -915,6 +921,26 @@ module.exports = function Graph(idOrElement, options, message) {
       });
   }
 
+  function createAnnotationLayer() {
+    annotationLayer = elem.append("div");
+
+    annotationLayer
+      .attr("class", "annotation-layer")
+      .style("z-index", 3);
+
+    resizeAnnotationLayer();
+  }
+
+  function resizeAnnotationLayer() {
+    annotationLayer
+      .style({
+        "width": size.width + "px",
+        "height": size.height + "px",
+        "top": padding.top + "px",
+        "left": padding.left + "px"
+      });
+  }
+
   // ------------------------------------------------------------
   //
   // Rendering
@@ -1279,6 +1305,22 @@ module.exports = function Graph(idOrElement, options, message) {
     }
 
     gy.exit().remove();
+
+    // add any annotations if they exist
+    vis.selectAll("g.annotation").remove();
+    vis.selectAll("g.annotation")
+      .data(annotations)
+      .enter().append("g")
+        .attr("class", "annotation")
+        //.append("line")
+        //  .attr(function(d){ return annotationAttributes(d.type, d.data); })
+        .append("line")
+          .attr("stroke", function(d){ return d.data.hasOwnProperty("stroke") ? d.data.stroke : "#f00"; } )
+          .attr("x1", function(d){ return d.data.hasOwnProperty('x1') ? xScale(d.data.x1) : 0; } )
+          .attr("x2", function(d){ return d.data.hasOwnProperty('x2') ? xScale(d.data.x2) : size.width; } )
+          .attr("y1", function(d){ return d.data.hasOwnProperty('y1') ? yScale(d.data.y1) : 0; } )
+          .attr("y2", function(d){ return d.data.hasOwnProperty('y2') ? yScale(d.data.y2) : size.height; } );
+
     plot.call(d3.behavior.zoom().x(xScale).y(yScale).on("zoom", redraw));
     update();
   }
@@ -2640,6 +2682,16 @@ module.exports = function Graph(idOrElement, options, message) {
       }
     },
 
+    addAnnotation: function(annotation) {
+      annotations.push(annotation);
+      redraw();
+    },
+
+    resetAnnotations: function() {
+      annotations.length = 0;
+      redraw();
+    },
+
     // Point data consist of an array (or arrays) of [x,y] arrays.
     addPoints:     addPoints,
     replacePoints: replacePoints,
@@ -2667,10 +2719,9 @@ module.exports = function Graph(idOrElement, options, message) {
   return api;
 };
 
-},{"./axis":1}],3:[function(require,module,exports){
-module.exports = require('./lib/graph');
+},{"./axis":1}],3:[function(_dereq_,module,exports){
+module.exports = _dereq_('./lib/graph');
 
 },{"./lib/graph":2}]},{},[3])
 (3)
 });
-;
