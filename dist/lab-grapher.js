@@ -1,4 +1,4 @@
-!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.LabGrapher=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.LabGrapher=e():"undefined"!=typeof global?global.LabGrapher=e():"undefined"!=typeof self&&(self.LabGrapher=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports.numberWidthUsingFormatter = function(elem, cx, cy, fontSizeInPixels, numberStr) {
   var testSVG,
       testText,
@@ -78,8 +78,8 @@ module.exports.axisProcessDrag = function(dragstart, currentdrag, domain) {
   return newdomain;
 };
 
-},{}],2:[function(_dereq_,module,exports){
-var axis = _dereq_('./axis');
+},{}],2:[function(require,module,exports){
+var axis = require('./axis');
 var tooltips = {
   autoscale: "Show all data (autoscale)",
   selection: "Select data for export"
@@ -1306,20 +1306,37 @@ module.exports = function Graph(idOrElement, options, message) {
 
     gy.exit().remove();
 
-    // add any annotations if they exist
-    vis.selectAll("g.annotation").remove();
-    vis.selectAll("g.annotation")
-      .data(annotations)
-      .enter().append("g")
-        .attr("class", "annotation")
-        //.append("line")
-        //  .attr(function(d){ return annotationAttributes(d.type, d.data); })
-        .append("line")
-          .attr("stroke", function(d){ return d.data.hasOwnProperty("stroke") ? d.data.stroke : "#f00"; } )
-          .attr("x1", function(d){ return d.data.hasOwnProperty('x1') ? xScale(d.data.x1) : 0; } )
-          .attr("x2", function(d){ return d.data.hasOwnProperty('x2') ? xScale(d.data.x2) : size.width; } )
-          .attr("y1", function(d){ return d.data.hasOwnProperty('y1') ? yScale(d.data.y1) : 0; } )
-          .attr("y2", function(d){ return d.data.hasOwnProperty('y2') ? yScale(d.data.y2) : size.height; } );
+    var annotationsSelection = vis.selectAll("g.annotation")
+      .data(annotations);
+
+    // For now, only annotations are of annotation.type === 'line' are supported
+    // so only generate attribute hash for lines and assume that we can directly 
+    // append svg nodes of annotation.type
+
+    function annotationAttributes(d) {
+      switch(d.type) {
+      case "line":
+        return {
+          stroke: d.data.hasOwnProperty("stroke") ? d.data.stroke : "#f00",
+          x1: d.data.hasOwnProperty('x1') ? xScale(d.data.x1) : 0,
+          x2: d.data.hasOwnProperty('x2') ? xScale(d.data.x2) : size.width,
+          y1: d.data.hasOwnProperty('y1') ? yScale(d.data.y1) : 0,
+          y2: d.data.hasOwnProperty('y2') ? yScale(d.data.y2) : size.height
+        };
+      }
+      return {};
+    }
+
+    annotationsSelection.enter()
+      .append("g")
+      .attr("class", "annotation")
+      .each(function(d,i){
+        d3.select(this)
+          .append(d.type)
+          .attr(annotationAttributes(d));
+      });
+
+    annotationsSelection.exit().remove();
 
     plot.call(d3.behavior.zoom().x(xScale).y(yScale).on("zoom", redraw));
     update();
@@ -2719,9 +2736,10 @@ module.exports = function Graph(idOrElement, options, message) {
   return api;
 };
 
-},{"./axis":1}],3:[function(_dereq_,module,exports){
-module.exports = _dereq_('./lib/graph');
+},{"./axis":1}],3:[function(require,module,exports){
+module.exports = require('./lib/graph');
 
 },{"./lib/graph":2}]},{},[3])
 (3)
 });
+;
