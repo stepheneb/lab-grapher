@@ -398,6 +398,30 @@ selectData.onchange = selectDataHandler;
 responsiveLayout.onchange = selectDataHandler;
 selectDataHandler();
 
+function addVerticalAnnotation() {
+  var x = graph.xmin() + Math.random()*(graph.xmax() - graph.xmin());
+  graph.addAnnotation({
+    type: "line",
+    data: {
+      x1: x,
+      x2: x,
+      stroke: "rgb(" + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + ")"
+    }
+  });
+}
+
+function addHorizontalAnnotation() {
+  var y = graph.ymin() + Math.random()*(graph.ymax() - graph.ymin());
+  graph.addAnnotation({
+    type: "line",
+    data: {
+      y1: y,
+      y2: y,
+      stroke: "rgb(" + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + ")"
+    }
+  });
+}
+
 $(window).bind('hashchange', function () {
   if (document.location.hash !== hash) {
     selectDataHandler();

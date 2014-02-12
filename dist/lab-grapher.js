@@ -153,11 +153,17 @@ module.exports = function Graph(idOrElement, options, message) {
       buttonLayer,
       selectionButton,
 
+      // div created above everything but the button layer for holding annotations
+      annotationLayer,
+
       // Div created and placed with z-index under all other graph layers
       background,
 
       // Optional string which can be displayed in background of interior plot area of graph.
       notification,
+
+      // Optonal set of annotations that can be added dynamically to call out features of a graph
+      annotations = [],
 
       // An array of strings holding 0 or more lines for the title of the graph
       titles = [],
@@ -915,6 +921,26 @@ module.exports = function Graph(idOrElement, options, message) {
       });
   }
 
+  function createAnnotationLayer() {
+    annotationLayer = elem.append("div");
+
+    annotationLayer
+      .attr("class", "annotation-layer")
+      .style("z-index", 3);
+
+    resizeAnnotationLayer();
+  }
+
+  function resizeAnnotationLayer() {
+    annotationLayer
+      .style({
+        "width": size.width + "px",
+        "height": size.height + "px",
+        "top": padding.top + "px",
+        "left": padding.left + "px"
+      });
+  }
+
   // ------------------------------------------------------------
   //
   // Rendering
@@ -1279,6 +1305,43 @@ module.exports = function Graph(idOrElement, options, message) {
     }
 
     gy.exit().remove();
+
+    // For now, only annotations are of annotation.type === 'line' are supported
+    // so only generate attribute hash for lines and assume that we can directly 
+    // append svg nodes of annotation.type
+
+    function annotationAttributes(d) {
+      switch(d.type) {
+      case "line":
+        return {
+          stroke: d.data.hasOwnProperty("stroke") ? d.data.stroke : "#f00",
+          x1: d.data.hasOwnProperty('x1') ? xScale(d.data.x1) : 0,
+          x2: d.data.hasOwnProperty('x2') ? xScale(d.data.x2) : size.width,
+          y1: d.data.hasOwnProperty('y1') ? yScale(d.data.y1) : 0,
+          y2: d.data.hasOwnProperty('y2') ? yScale(d.data.y2) : size.height
+        };
+      }
+      return {};
+    }
+
+    var annotationsSelection = vis.selectAll("g.annotation")
+      .data(annotations);
+
+    // create annotation objects if necessary
+    annotationsSelection.enter()
+      .append("g")
+      .attr("class", "annotation")
+      .each(function(d,i){
+        d3.select(this).append(d.type);
+      });
+
+    // update annotation attributes to reflect current graph state
+    annotationsSelection.each(function(d,i){
+      d3.select(this.children[0]).attr(annotationAttributes(d));
+    });
+
+    annotationsSelection.exit().remove();
+
     plot.call(d3.behavior.zoom().x(xScale).y(yScale).on("zoom", redraw));
     update();
   }
@@ -2638,6 +2701,16 @@ module.exports = function Graph(idOrElement, options, message) {
       } else {
         return false;
       }
+    },
+
+    addAnnotation: function(annotation) {
+      annotations.push(annotation);
+      redraw();
+    },
+
+    resetAnnotations: function() {
+      annotations.length = 0;
+      redraw();
     },
 
     // Point data consist of an array (or arrays) of [x,y] arrays.
