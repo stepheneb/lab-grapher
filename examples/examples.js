@@ -79,6 +79,10 @@ function selectDataHandler() {
       dataChange: true,
       addData: true
     });
+    graph.clearPointListeners();
+    graph.addPointListener(function(point){
+      console.log("clicked point: " + point);
+    });
     break;
 
   case "stair-steps":
