@@ -1,7 +1,7 @@
 lab-grapher
 ===========
 
-## dependancies ##
+## dependencies ##
 
 lab-grapher depends on the following libraries:
 
