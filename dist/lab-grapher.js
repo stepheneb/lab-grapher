@@ -2214,7 +2214,7 @@ module.exports = function Graph(idOrElement, options, message) {
   // X value from sampleInterval and number of points
   function addSample(sample) {
     var index = points.length,
-        xvalue = (index + dataSampleStart) * sampleInterval,
+        xvalue = (index * sampleInterval) + dataSampleStart,
         point = [ xvalue, sample ];
     points.push(point);
     setCurrentSample("last");
