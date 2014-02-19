@@ -272,6 +272,9 @@ module.exports = function Graph(idOrElement, options, message) {
       // An array containing two-element arrays consisting of X and Y values for samples/points
       points = [],
 
+      // Consumers of points that have been added by user clicks
+      pointListeners = [],
+
       // An array containing 1 or more points arrays to be plotted. Data is not indexed here
       // and sorted when "sortPoints" option is enabled.
       pointArray,
@@ -1538,6 +1541,9 @@ module.exports = function Graph(idOrElement, options, message) {
           newpoint[0] = xScale.invert(Math.max(0, Math.min(size.width,  p[0])));
           newpoint[1] = yScale.invert(Math.max(0, Math.min(size.height, p[1])));
           points.push(newpoint);
+          pointListeners.forEach(function(callback) {
+            callback.call(null,newpoint);
+          });
           points.sort(function(a, b) {
             if (a[0] < b[0]) { return -1; }
             if (a[0] > b[0]) { return  1; }
@@ -2583,6 +2589,17 @@ module.exports = function Graph(idOrElement, options, message) {
     */
     brushListener: function() {
       return brushListener;
+    },
+
+    /**
+      Allow consumption of points added to graph through clicking
+      */
+    addPointListener: function(callback) {
+      pointListeners.push(callback);
+    },
+
+    clearPointListeners: function() {
+      pointListeners.length = 0;
     },
 
     // specific update functions ???
