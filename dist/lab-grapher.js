@@ -908,7 +908,7 @@ module.exports = function Graph(idOrElement, options, message) {
             "title": tooltips.autoscale
           })
           .on("click", function() {
-            autoscaleAxes(true);
+            autoscale(true);
             redraw();
           })
           .append("i")
@@ -1390,7 +1390,7 @@ module.exports = function Graph(idOrElement, options, message) {
   function updateOrRescale(samplePoint) {
     setCurrentSample(samplePoint);
 
-    if (autoscaleAxes()) {
+    if (autoscale()) {
       redraw();
     } else {
       update(currentSample);
@@ -1707,7 +1707,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
     However if you pass <true> as an argument, it will enforce scaling of axes so the fit data.
   */
-  function autoscaleAxes(fit) {
+  function autoscale(fit) {
     var maxPointsLen = -Infinity;
     pointArray.forEach(function (arr) {
       if (arr.length > maxPointsLen) maxPointsLen = arr.length;
@@ -2413,7 +2413,7 @@ module.exports = function Graph(idOrElement, options, message) {
     }
     points = pointArray[0];
 
-    autoscaleAxes();
+    autoscale();
     setCurrentSample("last");
   }
 
@@ -2730,6 +2730,12 @@ module.exports = function Graph(idOrElement, options, message) {
     resetAnnotations: function() {
       annotations.length = 0;
       redraw();
+    },
+
+    // Programmatically the same actions as clicking the autoscale button. Note that we sometimes
+    // use autoscale internally with its 'fit' argument set to false.
+    autoscale: function() {
+      autoscale(true);
     },
 
     // Point data consist of an array (or arrays) of [x,y] arrays.
