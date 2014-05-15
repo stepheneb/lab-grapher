@@ -1,0 +1,14 @@
+{
+  "en-US": {
+    "tooltips": {
+        "autoscale": "Show all data (autoscale)",
+        "selection": "Select data for export"
+    }
+  },
+  "pl": {
+    "tooltips": {
+        "autoscale": "Pokaż cały wykres (autoskalowanie)",
+        "selection": "Zaznacz dane do wyeksportowania"
+    }
+  }
+}

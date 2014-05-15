@@ -80,10 +80,7 @@ module.exports.axisProcessDrag = function(dragstart, currentdrag, domain) {
 
 },{}],2:[function(require,module,exports){
 var axis = require('./axis');
-var tooltips = {
-  autoscale: "Show all data (autoscale)",
-  selection: "Select data for export"
-};
+var i18n = require('./i18n');
 
 module.exports = function Graph(idOrElement, options, message) {
   var api = {},   // Public API object to be returned.
@@ -908,7 +905,7 @@ module.exports = function Graph(idOrElement, options, message) {
       buttonLayer.append('a')
           .attr({
             "class": "autoscale-button",
-            "title": tooltips.autoscale
+            "title": i18n.t("tooltips.autoscale")
           })
           .on("click", function() {
             autoscale(true);
@@ -922,7 +919,7 @@ module.exports = function Graph(idOrElement, options, message) {
       selectionButton = buttonLayer.append('a');
       selectionButton.attr({
             "class": "selection-button",
-            "title": tooltips.selection
+            "title": i18n.t("tooltips.selection")
           })
           .on("click", function() {
             toggleSelection();
@@ -2780,10 +2777,60 @@ module.exports = function Graph(idOrElement, options, message) {
   return api;
 };
 
-},{"./axis":1}],3:[function(require,module,exports){
-module.exports = require('./lib/graph');
+},{"./axis":1,"./i18n":3}],3:[function(require,module,exports){
+var DEFAULT_LANG = 'en-US';
 
-},{"./lib/graph":2}]},{},[3])
-(3)
+module.exports.translations = require('../locales/translations.json');
+
+module.exports.lang = DEFAULT_LANG;
+module.exports.fallback = DEFAULT_LANG;
+
+module.exports.t = function(key) {
+  var lang = module.exports.lang;
+  return getTranslation(lang, key) ||
+         getTranslation(lang.split("-")[0], key) ||
+         getTranslation(lang.split("_")[0], key) ||
+         getTranslation(module.exports.fallback, key) ||
+         key;
+};
+
+function getTranslation(lang, key) {
+  var translations = module.exports.translations;
+  var keys = key.split(".");
+  var t = translations[lang];
+  var i = 0;
+  var k = keys[i];
+  while (k && typeof t === "object") {
+    t = t[k];
+    k = keys[++i];
+  }
+  return t;
+}
+
+},{"../locales/translations.json":4}],4:[function(require,module,exports){
+module.exports={
+  "en-US": {
+    "tooltips": {
+        "autoscale": "Show all data (autoscale)",
+        "selection": "Select data for export"
+    }
+  },
+  "pl": {
+    "tooltips": {
+        "autoscale": "Pokaż cały wykres (autoskalowanie)",
+        "selection": "Zaznacz dane do wyeksportowania"
+    }
+  }
+}
+},{}],5:[function(require,module,exports){
+// Graph constructor.
+module.exports = require('./lib/graph');
+// Setup access to i18n settings. To use language different from 'en-US', just set:
+//   LabGrapher.i18n.lang = "some-language-code";
+// before calling Graph constructor.
+module.exports.i18n = require('./lib/i18n');
+
+},{"./lib/graph":2,"./lib/i18n":3}]},{},[5])
+(5)
 });
 ;
