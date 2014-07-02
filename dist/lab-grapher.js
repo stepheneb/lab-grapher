@@ -149,6 +149,7 @@ module.exports = function Graph(idOrElement, options, message) {
       // graph action/mode buttons.
       buttonLayer,
       selectionButton,
+      drawButton,
 
       // div created above everything but the button layer for holding annotations
       annotationLayer,
@@ -323,6 +324,8 @@ module.exports = function Graph(idOrElement, options, message) {
         enableSelectionButton: false,
         clearSelectionOnLeavingSelectMode: false,
 
+        enableDrawButton: false,
+
         //
         // dataType can be either 'points or 'samples'
         //
@@ -448,6 +451,7 @@ module.exports = function Graph(idOrElement, options, message) {
       selection_visible = false,
       selection_enabled = true,
       selection_listener,
+      draw_enabled = false,
       brush_element,
       brush_control;
 
@@ -926,6 +930,19 @@ module.exports = function Graph(idOrElement, options, message) {
           })
           .append("i")
             .attr("class", "icon-cut");
+    }
+
+    if (options.enableDrawButton) {
+      drawButton = buttonLayer.append('a');
+      drawButton.attr({
+            "class": "draw-button",
+            "title": i18n.t("tooltips.draw")
+          })
+          .on("click", function() {
+            toggleDraw();
+          })
+          .append("i")
+            .attr("class", "icon-pencil");
     }
 
     resizeButtonLayer();
@@ -1546,28 +1563,20 @@ module.exports = function Graph(idOrElement, options, message) {
   }
 
   function plotDrag() {
-    if(options.enableAxisScaling) {
-      var p;
+    var p;
+    if (draw_enabled) {
+      d3.event.preventDefault();
+      p = d3.mouse(vis.node());
+      addPointAtMouse(p);
+      downx = p[0];
+      draggedPoint = false;
+    } else if(options.enableAxisScaling) {
       d3.event.preventDefault();
       d3.select('body').style("cursor", "move");
       if (d3.event.altKey) {
         plot.style("cursor", "nesw-resize");
         if (d3.event.shiftKey && options.addData) {
-          p = d3.mouse(vis.node());
-          var newpoint = [];
-          newpoint[0] = xScale.invert(Math.max(0, Math.min(size.width,  p[0])));
-          newpoint[1] = yScale.invert(Math.max(0, Math.min(size.height, p[1])));
-          points.push(newpoint);
-          pointListeners.forEach(function(callback) {
-            callback.call(null,newpoint);
-          });
-          points.sort(function(a, b) {
-            if (a[0] < b[0]) { return -1; }
-            if (a[0] > b[0]) { return  1; }
-            return 0;
-          });
-          selected = newpoint;
-          update();
+          addPointAtMouse();
         } else {
           p = d3.mouse(vis.node());
           downx = xScale.invert(p[0]);
@@ -1577,6 +1586,61 @@ module.exports = function Graph(idOrElement, options, message) {
         }
         // d3.event.stopPropagation();
       }
+    }
+  }
+
+  function addPointAtMouse(p) {
+    if (!p) {
+      p = d3.mouse(vis.node());
+    }
+    var newpoint = [];
+    newpoint[0] = xScale.invert(Math.max(0, Math.min(size.width,  p[0])));
+    newpoint[1] = yScale.invert(Math.max(0, Math.min(size.height, p[1])));
+    points.push(newpoint);
+    pointListeners.forEach(function(callback) {
+      callback.call(null,newpoint);
+    });
+    points.sort(function(a, b) {
+      if (a[0] < b[0]) { return -1; }
+      if (a[0] > b[0]) { return  1; }
+      return 0;
+    });
+    selected = newpoint;
+    update();
+  }
+
+  function isBetween(a,b,p) {
+    return a < p && p <= b;
+  }
+
+  function isBetweenReversed(a,b,p) {
+    return a <= p && p < b;
+  }
+
+  function clearPointsBetween(x1, x2) {
+    var a = x1,
+        b = x2,
+        needsUpdate = false,
+        between = isBetween,
+        i, p;
+
+    // Check to make sure a is always smaller than b
+    if (x1 > x2) {
+      a = x2;
+      b = x1;
+      between = isBetweenReversed;
+    }
+
+    // modify the points array in place, since we can't just replace the points array wholesale
+    for (i = points.length-1; i >= 0; i--) {
+      p = points[i];
+      if (between(a,b,p[0])) {
+        points.splice(i,1);
+        needsUpdate = true;
+      }
+    };
+    if (needsUpdate) {
+      update();
     }
   }
 
@@ -1662,21 +1726,30 @@ module.exports = function Graph(idOrElement, options, message) {
       update();
     }
 
-    if (!isNaN(downx)) {
-      d3.select('body').style("cursor", "col-resize");
-      plot.style("cursor", "col-resize");
-      xScale.domain(axis.axisProcessDrag(downx, xScale.invert(p[0]), xScale.domain()));
-      updateMarkerRadius();
-      redraw();
+    if (draw_enabled && !isNaN(downx)) {
+      clearPointsBetween(xScale.invert(Math.max(0, Math.min(size.width,  downx))), xScale.invert(Math.max(0, Math.min(size.width,  p[0]))));
+      addPointAtMouse(p);
+      downx = p[0];
       d3.event.stopPropagation();
-    }
+    } else {
+      if (!isNaN(downx)) {
+        console.log("mousemove");
+        d3.select('body').style("cursor", "col-resize");
+        plot.style("cursor", "col-resize");
+        xScale.domain(axis.axisProcessDrag(downx, xScale.invert(p[0]), xScale.domain()));
+        updateMarkerRadius();
+        redraw();
+        d3.event.stopPropagation();
+      }
 
-    if (!isNaN(downy)) {
-      d3.select('body').style("cursor", "row-resize");
-      plot.style("cursor", "row-resize");
-      yScale.domain(axis.axisProcessDrag(downy, yScale.invert(p[1]), yScale.domain()));
-      redraw();
-      d3.event.stopPropagation();
+      if (!isNaN(downy)) {
+        console.log("mousemove");
+        d3.select('body').style("cursor", "row-resize");
+        plot.style("cursor", "row-resize");
+        yScale.domain(axis.axisProcessDrag(downy, yScale.invert(p[1]), yScale.domain()));
+        redraw();
+        d3.event.stopPropagation();
+      }
     }
   }
 
@@ -1793,6 +1866,7 @@ module.exports = function Graph(idOrElement, options, message) {
   // ------------------------------------------------------------
 
   function toggleSelection() {
+    drawEnabled(false);
     if (!selectionVisible()) {
       // The graph model defaults to visible=false and enabled=true.
       // Reset these so that this first click turns on selection correctly.
@@ -1978,6 +2052,40 @@ module.exports = function Graph(idOrElement, options, message) {
     } else {
       brush_element.style('display', 'none');
     }
+  }
+
+  // ------------------------------------------------------------
+  //
+  // Drawing
+  //
+  // ------------------------------------------------------------
+
+  function toggleDraw() {
+    if (has_selection && selection_visible) {
+      toggleSelection();
+    }
+    drawEnabled(!draw_enabled);
+  }
+
+  function drawEnabled(val) {
+    if (!arguments.length) {
+      return draw_enabled;
+    }
+
+    // setter
+    val = !!val;
+    if (draw_enabled !== val) {
+      draw_enabled = val;
+
+      if (drawButton) {
+        if (val) {
+          drawButton.attr("style", "color: #aa0000;");
+        } else {
+          drawButton.attr("style", "");
+        }
+      }
+    }
+    return api;
   }
 
   // ------------------------------------------------------------
@@ -2819,6 +2927,7 @@ module.exports={
   "en-US": {
     "tooltips": {
         "autoscale": "Show all data (autoscale)",
+        "draw"     : "Draw new data points",
         "selection": "Select data for export"
     }
   },
@@ -2829,6 +2938,7 @@ module.exports={
     }
   }
 }
+
 },{}],5:[function(require,module,exports){
 // Graph constructor.
 module.exports = require('./lib/graph');

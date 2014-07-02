@@ -85,6 +85,24 @@ function selectDataHandler() {
     });
     break;
 
+  case "fake-drawable":
+    graph.reset('#chart', {
+      title:  "Fake Data (drawable)",
+
+      responsiveLayout: responsiveLayout.checked,
+      fontScaleRelativeToParent: false,
+      dataType: 'fake',
+
+      enableDrawButton: true,
+      enableAutoScaleButton: false,
+
+      markAllDataPoints: true,
+      dataChange: true,
+      addData: true
+    });
+    graph.clearPointListeners();
+    break;
+
   case "stair-steps":
     graph.reset('#chart', {
       title:  "Stair-Step Data",
