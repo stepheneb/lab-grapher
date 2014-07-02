@@ -2548,6 +2548,13 @@ module.exports = function Graph(idOrElement, options, message) {
     } else {
       initialize();
     }
+
+    // fully reset the buttons, in case which ones are enabled has changed
+    if (buttonLayer) {
+      buttonLayer.remove();
+      buttonLayer = null;
+    }
+
     renderGraph();
     // and then render again using actual size of SVG text elements are
     renderGraph();
