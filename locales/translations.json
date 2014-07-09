@@ -3,7 +3,8 @@
     "tooltips": {
         "autoscale": "Show all data (autoscale)",
         "draw"     : "Draw new data points",
-        "selection": "Select data for export"
+        "selection": "Select data for export",
+        "legend"   : "Show/hide the legend"
     }
   },
   "pl": {

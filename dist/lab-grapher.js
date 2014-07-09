@@ -1,4 +1,4 @@
-!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.LabGrapher=e():"undefined"!=typeof global?global.LabGrapher=e():"undefined"!=typeof self&&(self.LabGrapher=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.LabGrapher=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 module.exports.numberWidthUsingFormatter = function(elem, cx, cy, fontSizeInPixels, numberStr) {
   var testSVG,
       testText,
@@ -78,9 +78,9 @@ module.exports.axisProcessDrag = function(dragstart, currentdrag, domain) {
   return newdomain;
 };
 
-},{}],2:[function(require,module,exports){
-var axis = require('./axis');
-var i18n = require('./i18n');
+},{}],2:[function(_dereq_,module,exports){
+var axis = _dereq_('./axis');
+var i18n = _dereq_('./i18n');
 
 module.exports = function Graph(idOrElement, options, message) {
   var api = {},   // Public API object to be returned.
@@ -148,6 +148,8 @@ module.exports = function Graph(idOrElement, options, message) {
       // Div created and placed with z-index above all other graph layers that holds
       // graph action/mode buttons.
       buttonLayer,
+      legendLayer,
+      legendButton,
       selectionButton,
       drawButton,
 
@@ -307,6 +309,9 @@ module.exports = function Graph(idOrElement, options, message) {
         // Enables the button layer with: AutoScale ...
         showButtons:    true,
 
+        // Whether or not to show the graph's legend
+        legendVisible: false,
+
         // Responsive Layout provides pregressive removal of
         // graph elements when size gets smaller
         responsiveLayout: false,
@@ -325,6 +330,7 @@ module.exports = function Graph(idOrElement, options, message) {
         clearSelectionOnLeavingSelectMode: false,
 
         enableDrawButton: false,
+        enableLegendButton: true,
 
         //
         // dataType can be either 'points or 'samples'
@@ -437,7 +443,10 @@ module.exports = function Graph(idOrElement, options, message) {
           [160,   0,   0],         // channel 0   (red)
           [ 44, 160,   0],         // channel 1   (green-yellow)
           [ 44,   0, 160]          // channels 2+ (blue-purple)
-        ]
+        ],
+        
+        // An array of strings to be paired with the data colors to build a legend
+        legendLabels: []
       },
 
       // brush selection variables
@@ -900,6 +909,19 @@ module.exports = function Graph(idOrElement, options, message) {
       .attr("class", "button-layer")
       .style("z-index", 3);
 
+    if (options.enableLegendButton && options.legendLabels.length > 0) {
+      legendButton = buttonLayer.append('a');
+      legendButton.attr({
+            "class": "legend-button",
+            "title": i18n.t("tooltips.legend")
+          })
+          .on("click", function() {
+            toggleLegend();
+          })
+          .append("i")
+            .attr("class", "icon-list");
+    }
+
     if (options.enableAutoScaleButton) {
       buttonLayer.append('a')
           .attr({
@@ -950,6 +972,37 @@ module.exports = function Graph(idOrElement, options, message) {
         "height":  fontSizeInPixels*1.25 + "px",
         "top":     padding.top + halfFontSizeInPixels + "px",
         "left":    padding.left + (size.width - fontSizeInPixels*2.0) + "px"
+      });
+  }
+  function createLegendLayer() {
+    var color = [0, 0, 0], item;
+    legendLayer = elem.append("ol");
+
+    legendLayer
+      .attr("class", "legend-layer")
+      .style("z-index", 3);
+
+    for(var i = 0; i < options.legendLabels.length; i++){
+      if(options.dataColors.length > i){
+        color = options.dataColors[i];
+      }
+      item = legendLayer.append("li");
+      item.append("div")
+        .attr("class", "legend-colorsquare")
+        .style("background-color", "rgb(" + color.join(", ") + ")");
+      item.append("label")
+        .text(options.legendLabels[i]);
+    }
+    repositionLegendLayer();
+    legendVisible(options.legendVisible);
+  }
+
+  function repositionLegendLayer() {
+    // Should be consistent with button layer
+    legendLayer
+      .style({
+        "top":     padding.top + halfFontSizeInPixels + "px",
+        "right":   padding.right + (options.showButtons ? fontSizeInPixels*2.0 : halfFontSizeInPixels) + "px"
       });
   }
 
@@ -1728,7 +1781,6 @@ module.exports = function Graph(idOrElement, options, message) {
       d3.event.stopPropagation();
     } else {
       if (!isNaN(downx)) {
-        console.log("mousemove");
         d3.select('body').style("cursor", "col-resize");
         plot.style("cursor", "col-resize");
         xScale.domain(axis.axisProcessDrag(downx, xScale.invert(p[0]), xScale.domain()));
@@ -1738,7 +1790,6 @@ module.exports = function Graph(idOrElement, options, message) {
       }
 
       if (!isNaN(downy)) {
-        console.log("mousemove");
         d3.select('body').style("cursor", "row-resize");
         plot.style("cursor", "row-resize");
         yScale.domain(axis.axisProcessDrag(downy, yScale.invert(p[1]), yScale.domain()));
@@ -1992,7 +2043,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
       if (selectionButton) {
         if (val) {
-          selectionButton.attr("style", "color: #aa0000;");
+          selectionButton.attr("style", "color: #00b4d6;");
         } else {
           selectionButton.attr("style", "");
         }
@@ -2074,10 +2125,44 @@ module.exports = function Graph(idOrElement, options, message) {
 
       if (drawButton) {
         if (val) {
-          drawButton.attr("style", "color: #aa0000;");
+          drawButton.attr("style", "color: #00b4d6;");
         } else {
           drawButton.attr("style", "");
         }
+      }
+    }
+    return api;
+  }
+
+  // ------------------------------------------------------------
+  //
+  // Legend
+  //
+  // ------------------------------------------------------------
+
+  function toggleLegend() {
+    legendVisible(!options.legendVisible);
+  }
+
+  function legendVisible(val) {
+    if (!arguments.length) {
+      return options.legendVisible;
+    }
+    // setter
+    options.legendVisible = val;
+    val = !!val;
+    if (legendButton) {
+      if (val) {
+        legendButton.attr("style", "color: #00b4d6;");
+      } else {
+        legendButton.attr("style", "");
+      }
+    }
+    if (legendLayer) {
+      if (val) {
+        legendLayer.classed("legend-invisible", false);
+      } else {
+        legendLayer.classed("legend-invisible", true);
       }
     }
     return api;
@@ -2642,6 +2727,14 @@ module.exports = function Graph(idOrElement, options, message) {
       if (!buttonLayer) createButtonLayer();
       resizeButtonLayer();
     }
+    if(options.legendLabels.length > 0){
+      if (!legendLayer){
+        createLegendLayer();
+      }
+      if(options.legendVisible){
+        repositionLegendLayer();
+      }
+    }
     redraw();
   }
 
@@ -2887,10 +2980,10 @@ module.exports = function Graph(idOrElement, options, message) {
   return api;
 };
 
-},{"./axis":1,"./i18n":3}],3:[function(require,module,exports){
+},{"./axis":1,"./i18n":3}],3:[function(_dereq_,module,exports){
 var DEFAULT_LANG = 'en-US';
 
-module.exports.translations = require('../locales/translations.json');
+module.exports.translations = _dereq_('../locales/translations.json');
 
 module.exports.lang = DEFAULT_LANG;
 module.exports.fallback = DEFAULT_LANG;
@@ -2917,13 +3010,14 @@ function getTranslation(lang, key) {
   return t;
 }
 
-},{"../locales/translations.json":4}],4:[function(require,module,exports){
+},{"../locales/translations.json":4}],4:[function(_dereq_,module,exports){
 module.exports={
   "en-US": {
     "tooltips": {
         "autoscale": "Show all data (autoscale)",
         "draw"     : "Draw new data points",
-        "selection": "Select data for export"
+        "selection": "Select data for export",
+        "legend"   : "Show/hide the legend"
     }
   },
   "pl": {
@@ -2934,15 +3028,14 @@ module.exports={
   }
 }
 
-},{}],5:[function(require,module,exports){
+},{}],5:[function(_dereq_,module,exports){
 // Graph constructor.
-module.exports = require('./lib/graph');
+module.exports = _dereq_('./lib/graph');
 // Setup access to i18n settings. To use language different from 'en-US', just set:
 //   LabGrapher.i18n.lang = "some-language-code";
 // before calling Graph constructor.
-module.exports.i18n = require('./lib/i18n');
+module.exports.i18n = _dereq_('./lib/i18n');
 
 },{"./lib/graph":2,"./lib/i18n":3}]},{},[5])
 (5)
 });
-;

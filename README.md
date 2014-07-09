@@ -1,7 +1,16 @@
 lab-grapher
 ===========
 
-## dependencies ##
+## Building ##
+
+In order to build, you need to install (if you haven't already):
+
+1. [Node](http://nodejs.org/)
+2. [Browserify](http://browserify.org/)
+
+After that, just run `npm run build`.
+
+## Dependencies ##
 
 lab-grapher depends on the following libraries:
 
