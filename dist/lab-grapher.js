@@ -444,7 +444,7 @@ module.exports = function Graph(idOrElement, options, message) {
           [ 44, 160,   0],         // channel 1   (green-yellow)
           [ 44,   0, 160]          // channels 2+ (blue-purple)
         ],
-        
+
         // An array of strings to be paired with the data colors to build a legend
         legendLabels: []
       },
@@ -919,7 +919,7 @@ module.exports = function Graph(idOrElement, options, message) {
             toggleLegend();
           })
           .append("i")
-            .attr("class", "icon-list");
+            .attr("class", "icon-list-ul");
     }
 
     if (options.enableAutoScaleButton) {
@@ -976,7 +976,7 @@ module.exports = function Graph(idOrElement, options, message) {
   }
   function createLegendLayer() {
     var color = [0, 0, 0], item;
-    legendLayer = elem.append("ol");
+    legendLayer = elem.append("ul");
 
     legendLayer
       .attr("class", "legend-layer")
@@ -993,17 +993,6 @@ module.exports = function Graph(idOrElement, options, message) {
       item.append("label")
         .text(options.legendLabels[i]);
     }
-    repositionLegendLayer();
-    legendVisible(options.legendVisible);
-  }
-
-  function repositionLegendLayer() {
-    // Should be consistent with button layer
-    legendLayer
-      .style({
-        "top":     padding.top + halfFontSizeInPixels + "px",
-        "right":   padding.right + (options.showButtons ? fontSizeInPixels*2.0 : halfFontSizeInPixels) + "px"
-      });
   }
 
   function createAnnotationLayer() {
@@ -2043,9 +2032,9 @@ module.exports = function Graph(idOrElement, options, message) {
 
       if (selectionButton) {
         if (val) {
-          selectionButton.attr("style", "color: #00b4d6;");
+          selectionButton.classed("active", true);
         } else {
-          selectionButton.attr("style", "");
+          selectionButton.classed("active", false);
         }
       }
 
@@ -2125,9 +2114,9 @@ module.exports = function Graph(idOrElement, options, message) {
 
       if (drawButton) {
         if (val) {
-          drawButton.attr("style", "color: #00b4d6;");
+          drawButton.classed("active", true);
         } else {
-          drawButton.attr("style", "");
+          drawButton.classed("active", false);
         }
       }
     }
@@ -2141,26 +2130,27 @@ module.exports = function Graph(idOrElement, options, message) {
   // ------------------------------------------------------------
 
   function toggleLegend() {
-    legendVisible(!options.legendVisible);
+    options.legendVisible = !options.legendVisible;
+    updateLegendVisibility();
   }
 
-  function legendVisible(val) {
-    if (!arguments.length) {
-      return options.legendVisible;
-    }
-    // setter
-    options.legendVisible = val;
-    val = !!val;
+  function updateLegendVisibility() {
     if (legendButton) {
-      if (val) {
-        legendButton.attr("style", "color: #00b4d6;");
+      if (!!options.legendVisible) {
+        legendButton.classed("active", true);
       } else {
-        legendButton.attr("style", "");
+        legendButton.classed("active", false);
       }
     }
     if (legendLayer) {
-      if (val) {
+      if (!!options.legendVisible) {
         legendLayer.classed("legend-invisible", false);
+        // Reposition while we're at it
+        legendLayer
+          .style({
+            "top":     padding.top + halfFontSizeInPixels + "px",
+            "right":   padding.right + (options.showButtons ? fontSizeInPixels*2.0 : halfFontSizeInPixels) + "px"
+          });
       } else {
         legendLayer.classed("legend-invisible", true);
       }
@@ -2731,9 +2721,7 @@ module.exports = function Graph(idOrElement, options, message) {
       if (!legendLayer){
         createLegendLayer();
       }
-      if(options.legendVisible){
-        repositionLegendLayer();
-      }
+      updateLegendVisibility();
     }
     redraw();
   }
