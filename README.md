@@ -3,12 +3,11 @@ lab-grapher
 
 ## Building ##
 
-In order to build, you need to install (if you haven't already):
+Prerequisites
+1. You'll need [Node](http://nodejs.org/), if you don't have it already.
+2. Once you have node, run `npm install`.
 
-1. [Node](http://nodejs.org/)
-2. [Browserify](http://browserify.org/)
-
-After that, just run `npm run build`.
+To build, just run `npm run build`.
 
 ## Dependencies ##
 

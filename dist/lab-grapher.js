@@ -982,8 +982,8 @@ module.exports = function Graph(idOrElement, options, message) {
       .attr("class", "legend-layer")
       .style("z-index", 3);
 
-    for(var i = 0; i < options.legendLabels.length; i++){
-      if(options.dataColors.length > i){
+    for (var i = 0; i < options.legendLabels.length; i++) {
+      if (options.dataColors.length > i) {
         color = options.dataColors[i];
       }
       item = legendLayer.append("li");
@@ -2717,8 +2717,8 @@ module.exports = function Graph(idOrElement, options, message) {
       if (!buttonLayer) createButtonLayer();
       resizeButtonLayer();
     }
-    if(options.legendLabels.length > 0){
-      if (!legendLayer){
+    if (options.legendLabels.length > 0) {
+      if (!legendLayer) {
         createLegendLayer();
       }
       updateLegendVisibility();
