@@ -1,7 +1,15 @@
 lab-grapher
 ===========
 
-## dependencies ##
+## Building ##
+
+Prerequisites
+1. You'll need [Node](http://nodejs.org/), if you don't have it already.
+2. Once you have node, run `npm install`.
+
+To build, just run `npm run build`.
+
+## Dependencies ##
 
 lab-grapher depends on the following libraries:
 

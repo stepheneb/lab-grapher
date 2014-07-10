@@ -21,6 +21,48 @@
 .graph div.button-layer a:hover {
     opacity: 1;
 }
+.graph div.button-layer a:active {
+    opacity: 0.6;
+}
+.graph div.button-layer .active {
+  color: #00b4d6;
+}
+
+.graph ul.legend-layer {
+    position: absolute;
+    text-align: left;
+    margin: 0;
+    border: 1px solid #bcbcbc;
+    background-color: rgba(255, 255, 255, 0.8);
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, transparent), color-stop(100%, rgba(230, 230, 230, 0.5)));
+    background-image: -webkit-linear-gradient(top, transparent, rgba(230, 230, 230, 0.5));
+    background-image: -moz-linear-gradient(top, transparent, rgba(230, 230, 230, 0.5));
+    background-image: -ms-linear-gradient(top, transparent, rgba(230, 230, 230, 0.5));
+    background-image: -o-linear-gradient(top, transparent, rgba(230, 230, 230, 0.5));
+    background-image: linear-gradient(top, transparent, rgba(230, 230, 230, 0.5));
+    padding: 0.15em 0.3em;
+    color: #333333;
+    border-radius: 0.4em;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+    list-style: none;
+}
+.graph .legend-layer li{
+  margin: 0.15em 0 0.15em 0;
+}
+.graph .legend-layer label{
+  margin-left: 0.2em;
+}
+.graph div.legend-colorsquare{
+  vertical-align: middle;
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin: 0.1em;
+  border-radius:100%;
+}
+.graph ul.legend-layer.legend-invisible{
+  display:none;
+}
 .graph canvas.overlay {
     position: absolute;
     background: rgba(0, 255, 0, 0.05);
