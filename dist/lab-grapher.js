@@ -1642,6 +1642,7 @@ module.exports = function Graph(idOrElement, options, message) {
       if (a[0] > b[0]) { return  1; }
       return 0;
     });
+    points.forEach(updatePointsExtent);
     selected = newpoint;
     update();
   }
