@@ -80,8 +80,8 @@ function selectDataHandler() {
       addData: true
     });
     graph.clearPointListeners();
-    graph.addPointListener(function(point){
-      console.log("clicked point: " + point);
+    graph.addPointListener(function(evt){
+      console.log("clicked point (" + evt.action + "): " + evt.point);
     });
     break;
 

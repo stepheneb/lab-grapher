@@ -1626,6 +1626,12 @@ module.exports = function Graph(idOrElement, options, message) {
     }
   }
 
+  function notifyPointListeners(action, point) {
+    pointListeners.forEach(function(callback) {
+      callback.call(null,{action: action, point: point});
+    });
+  }
+
   function addPointAtMouse(p) {
     if (!p) {
       p = d3.mouse(vis.node());
@@ -1634,9 +1640,7 @@ module.exports = function Graph(idOrElement, options, message) {
     newpoint[0] = xScale.invert(Math.max(0, Math.min(size.width,  p[0])));
     newpoint[1] = yScale.invert(Math.max(0, Math.min(size.height, p[1])));
     points.push(newpoint);
-    pointListeners.forEach(function(callback) {
-      callback.call(null,newpoint);
-    });
+    notifyPointListeners("added", newpoint);
     points.sort(function(a, b) {
       if (a[0] < b[0]) { return -1; }
       if (a[0] > b[0]) { return  1; }
@@ -1660,7 +1664,7 @@ module.exports = function Graph(idOrElement, options, message) {
         b = x2,
         needsUpdate = false,
         between = isBetween,
-        i, p;
+        i, p, removed;
 
     // Check to make sure a is always smaller than b
     if (x1 > x2) {
@@ -1673,7 +1677,9 @@ module.exports = function Graph(idOrElement, options, message) {
     for (i = points.length-1; i >= 0; i--) {
       p = points[i];
       if (between(a,b,p[0])) {
-        points.splice(i,1);
+        // remove the point
+        removed = points.splice(i,1)[0];
+        notifyPointListeners("removed", removed);
         needsUpdate = true;
       }
     };
@@ -2802,7 +2808,7 @@ module.exports = function Graph(idOrElement, options, message) {
     },
 
     /**
-      Allow consumption of points added to graph through clicking
+      Allow consumption of points added/removed to graph through clicking
       */
     addPointListener: function(callback) {
       pointListeners.push(callback);
