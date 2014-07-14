@@ -1,4 +1,4 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.LabGrapher=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.LabGrapher=e():"undefined"!=typeof global?global.LabGrapher=e():"undefined"!=typeof self&&(self.LabGrapher=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports.numberWidthUsingFormatter = function(elem, cx, cy, fontSizeInPixels, numberStr) {
   var testSVG,
       testText,
@@ -78,9 +78,9 @@ module.exports.axisProcessDrag = function(dragstart, currentdrag, domain) {
   return newdomain;
 };
 
-},{}],2:[function(_dereq_,module,exports){
-var axis = _dereq_('./axis');
-var i18n = _dereq_('./i18n');
+},{}],2:[function(require,module,exports){
+var axis = require('./axis');
+var i18n = require('./i18n');
 
 module.exports = function Graph(idOrElement, options, message) {
   var api = {},   // Public API object to be returned.
@@ -1636,7 +1636,7 @@ module.exports = function Graph(idOrElement, options, message) {
     if (!p) {
       p = d3.mouse(vis.node());
     }
-    var newpoint = [];
+    var newpoint = [], newpointIdx;
     newpoint[0] = xScale.invert(Math.max(0, Math.min(size.width,  p[0])));
     newpoint[1] = yScale.invert(Math.max(0, Math.min(size.height, p[1])));
     points.push(newpoint);
@@ -1648,6 +1648,14 @@ module.exports = function Graph(idOrElement, options, message) {
     });
     points.forEach(updatePointsExtent);
     selected = newpoint;
+
+    // update currentSample
+    newpointIdx = points.indexOf(newpoint);
+    if (currentSample == points.length-2 || currentSample >= newpointIdx) {
+      // currentSample was pointing to the last point, so keep it at the last point
+      currentSample++;
+    }
+
     update();
   }
 
@@ -1677,6 +1685,11 @@ module.exports = function Graph(idOrElement, options, message) {
     for (i = points.length-1; i >= 0; i--) {
       p = points[i];
       if (between(a,b,p[0])) {
+        // update currentSample
+        if (i == points.length-1 || currentSample >= i) {
+          // currentSample was pointing to the last point, so keep it at the last point
+          currentSample--;
+        }
         // remove the point
         removed = points.splice(i,1)[0];
         notifyPointListeners("removed", removed);
@@ -2979,10 +2992,10 @@ module.exports = function Graph(idOrElement, options, message) {
   return api;
 };
 
-},{"./axis":1,"./i18n":3}],3:[function(_dereq_,module,exports){
+},{"./axis":1,"./i18n":3}],3:[function(require,module,exports){
 var DEFAULT_LANG = 'en-US';
 
-module.exports.translations = _dereq_('../locales/translations.json');
+module.exports.translations = require('../locales/translations.json');
 
 module.exports.lang = DEFAULT_LANG;
 module.exports.fallback = DEFAULT_LANG;
@@ -3009,7 +3022,7 @@ function getTranslation(lang, key) {
   return t;
 }
 
-},{"../locales/translations.json":4}],4:[function(_dereq_,module,exports){
+},{"../locales/translations.json":4}],4:[function(require,module,exports){
 module.exports={
   "en-US": {
     "tooltips": {
@@ -3027,14 +3040,15 @@ module.exports={
   }
 }
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],5:[function(require,module,exports){
 // Graph constructor.
-module.exports = _dereq_('./lib/graph');
+module.exports = require('./lib/graph');
 // Setup access to i18n settings. To use language different from 'en-US', just set:
 //   LabGrapher.i18n.lang = "some-language-code";
 // before calling Graph constructor.
-module.exports.i18n = _dereq_('./lib/i18n');
+module.exports.i18n = require('./lib/i18n');
 
 },{"./lib/graph":2,"./lib/i18n":3}]},{},[5])
 (5)
 });
+;
