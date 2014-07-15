@@ -332,6 +332,8 @@ module.exports = function Graph(idOrElement, options, message) {
         enableDrawButton: false,
         enableLegendButton: true,
 
+        drawIndex: 0,
+
         //
         // dataType can be either 'points or 'samples'
         //
@@ -1636,9 +1638,11 @@ module.exports = function Graph(idOrElement, options, message) {
     if (!p) {
       p = d3.mouse(vis.node());
     }
+
     var newpoint = [],
         newpointIdx,
-        pointsIndexed = pointArrayIndexed[0];
+        pointsIndexed = pointArrayIndexed[options.drawIndex];
+    points = pointArray[options.drawIndex];
     newpoint[0] = xScale.invert(Math.max(0, Math.min(size.width,  p[0])));
     newpoint[1] = yScale.invert(Math.max(0, Math.min(size.height, p[1])));
     points.push(newpoint);
@@ -1654,6 +1658,7 @@ module.exports = function Graph(idOrElement, options, message) {
       currentSample++;
     }
 
+    points = pointArray[0];
     update();
   }
 
@@ -1679,19 +1684,13 @@ module.exports = function Graph(idOrElement, options, message) {
       between = isBetweenReversed;
     }
 
-    pointsIndexed = pointArrayIndexed[0];
+    pointsIndexed = pointArrayIndexed[options.drawIndex];
 
     // for (i = points.length-1; i >= 0; i--) {
     for (i = 0; i < pointsIndexed.length; i++) {
       p = pointsIndexed[i];
       if (between(a,b,p[0])) {
-        // update currentSample
-        // if (i == points.length-1 || currentSample >= i) {
-        //   // currentSample was pointing to the last point, so keep it at the last point
-        //   currentSample--;
-        // }
-        // remove the point
-        // removed = points.splice(i,1)[0];
+        // null the point
         removed = pointsIndexed[i].slice();
         pointsIndexed[i][0] = null;
         pointsIndexed[i][1] = null;
@@ -1702,7 +1701,7 @@ module.exports = function Graph(idOrElement, options, message) {
     if (needsUpdate) {
       newPoints = copyNonNull(pointsIndexed);
       processPointsArray(newPoints);
-      pointArray[0] = newPoints;
+      pointArray[options.drawIndex] = newPoints;
       points = pointArray[0];
       update();
     }
