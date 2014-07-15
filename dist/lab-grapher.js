@@ -1636,17 +1636,15 @@ module.exports = function Graph(idOrElement, options, message) {
     if (!p) {
       p = d3.mouse(vis.node());
     }
-    var newpoint = [], newpointIdx;
+    var newpoint = [],
+        newpointIdx,
+        pointsIndexed = pointArrayIndexed[0];
     newpoint[0] = xScale.invert(Math.max(0, Math.min(size.width,  p[0])));
     newpoint[1] = yScale.invert(Math.max(0, Math.min(size.height, p[1])));
     points.push(newpoint);
+    pointsIndexed.push(newpoint);
     notifyPointListeners("added", newpoint);
-    points.sort(function(a, b) {
-      if (a[0] < b[0]) { return -1; }
-      if (a[0] > b[0]) { return  1; }
-      return 0;
-    });
-    points.forEach(updatePointsExtent);
+    processPointsArray(points);
     selected = newpoint;
 
     // update currentSample
@@ -1672,7 +1670,7 @@ module.exports = function Graph(idOrElement, options, message) {
         b = x2,
         needsUpdate = false,
         between = isBetween,
-        i, p, removed;
+        i, p, removed, pointsIndexed, newPoints;
 
     // Check to make sure a is always smaller than b
     if (x1 > x2) {
@@ -1681,22 +1679,31 @@ module.exports = function Graph(idOrElement, options, message) {
       between = isBetweenReversed;
     }
 
-    // modify the points array in place, since we can't just replace the points array wholesale
-    for (i = points.length-1; i >= 0; i--) {
-      p = points[i];
+    pointsIndexed = pointArrayIndexed[0];
+
+    // for (i = points.length-1; i >= 0; i--) {
+    for (i = 0; i < pointsIndexed.length; i++) {
+      p = pointsIndexed[i];
       if (between(a,b,p[0])) {
         // update currentSample
-        if (i == points.length-1 || currentSample >= i) {
-          // currentSample was pointing to the last point, so keep it at the last point
-          currentSample--;
-        }
+        // if (i == points.length-1 || currentSample >= i) {
+        //   // currentSample was pointing to the last point, so keep it at the last point
+        //   currentSample--;
+        // }
         // remove the point
-        removed = points.splice(i,1)[0];
+        // removed = points.splice(i,1)[0];
+        removed = pointsIndexed[i].slice();
+        pointsIndexed[i][0] = null;
+        pointsIndexed[i][1] = null;
         notifyPointListeners("removed", removed);
         needsUpdate = true;
       }
     };
     if (needsUpdate) {
+      newPoints = copyNonNull(pointsIndexed);
+      processPointsArray(newPoints);
+      pointArray[0] = newPoints;
+      points = pointArray[0];
       update();
     }
   }
@@ -2574,44 +2581,44 @@ module.exports = function Graph(idOrElement, options, message) {
     }
   }
 
+  function copyNonNull(array) {
+    var ret = [];
+    array.forEach(function(element) {
+      if (element == null || element[0] == null || element[1] == null) return;
+      ret.push(element);
+    });
+    return ret;
+  }
+
+  function copyNonNullKeepIndexing(array) {
+    var ret = [];
+    array.forEach(function(element, idx) {
+      if (element == null || element[0] == null || element[1] == null) return;
+      ret[idx] = element;
+    });
+    return ret;
+  }
+
+  // Each points array should be processed:
+  // - points extent need to be updated,
+  // - points may be sorted if "sortPoints" option is enabled.
+  function processPointsArray(array) {
+    // Update point extent and check if the points array is sorted by X coordinates.
+    function checkPoint(point, idx, array) {
+      updatePointsExtent(point);
+      if (sorted && idx > 0 && point[0] < array[idx - 1][0]) {
+        sorted = false;
+      }
+    }
+    // If options.sortPoints is disabled, we won't executed check in the if statement above.
+    var sorted = options.sortPoints;
+    array.forEach(checkPoint);
+    if (!sorted && options.sortPoints) {
+      array.sort(comparePoints);
+    }
+  }
+
   function resetDataPoints(datapoints) {
-
-    function copyNonNull(array) {
-      var ret = [];
-      array.forEach(function(element) {
-        if (element == null || element[0] == null || element[1] == null) return;
-        ret.push(element);
-      });
-      return ret;
-    }
-
-    function copyNonNullKeepIndexing(array) {
-      var ret = [];
-      array.forEach(function(element, idx) {
-        if (element == null || element[0] == null || element[1] == null) return;
-        ret[idx] = element;
-      });
-      return ret;
-    }
-
-    // Each points array should be processed:
-    // - points extent need to be updated,
-    // - points may be sorted if "sortPoints" option is enabled.
-    function processPointsArray(array) {
-      // Update point extent and check if the points array is sorted by X coordinates.
-      function checkPoint(point, idx, array) {
-        updatePointsExtent(point);
-        if (sorted && idx > 0 && point[0] < array[idx - 1][0]) {
-          sorted = false;
-        }
-      }
-      // If options.sortPoints is disabled, we won't executed check in the if statement above.
-      var sorted = options.sortPoints;
-      array.forEach(checkPoint);
-      if (!sorted && options.sortPoints) {
-        array.sort(comparePoints);
-      }
-    }
 
     pointsXMin = pointsYMin =  Infinity;
     pointsXMax = pointsYMax = -Infinity;
@@ -2661,13 +2668,24 @@ module.exports = function Graph(idOrElement, options, message) {
     resetDataSamples(datasamples, sampleInterval, dataSampleStart);
   }
 
-  function deletePoint(i) {
-    if (points.length) {
-      points.splice(i, 1);
+  function deletePoint(pointIndex, arrayIndex) {
+    if (!arrayIndex) { arrayIndex = 0; }
+    var pointsIndexed = pointArrayIndexed[arrayIndex],
+        origPts = points.slice(),
+        deleted, newPoints;
+    if (pointsIndexed.length) {
+      deleted = pointsIndexed[pointIndex].slice();
+      pointsIndexed[pointIndex][0] = null;
+      pointsIndexed[pointIndex][1] = null;
+      pointArrayIndexed[arrayIndex] = pointsIndexed;
+      newPoints = copyNonNull(pointsIndexed);
+      processPointsArray(newPoints);
+      pointArray[arrayIndex] = newPoints;
       if (currentSample >= points.length) {
         currentSample = points.length-1;
       }
     }
+    points = pointArray[0];
   }
 
   // ------------------------------------------------------------
@@ -2976,6 +2994,10 @@ module.exports = function Graph(idOrElement, options, message) {
     replacePoints: replacePoints,
     addPoint:      addPoint,
     resetPoints:   resetDataPoints,
+    deletePoint:   function(i, idx) {
+      deletePoint(i, idx);
+      update();
+    },
 
     // Sample data consists of an array (or an array or arrays) of samples.
     // The interval between samples is assumed to have already been set
