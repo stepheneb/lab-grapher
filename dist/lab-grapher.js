@@ -2276,7 +2276,7 @@ module.exports = function Graph(idOrElement, options, message) {
         index = 0;
         // find first point >= xAxisStart
         for (j = 0; j < pointsLength; j++) {
-          if (points[j][0] >= xAxisStart) { break; }
+          if (points[j][0] != null && points[j][1] != null && points[j][0] >= xAxisStart) { break; }
           index++;
         }
         if (index >= pointsLength) { continue; }
@@ -2291,6 +2291,7 @@ module.exports = function Graph(idOrElement, options, message) {
         // plot all ... or until one point past xAxisEnd
         // or until we reach currentSample
         for (len = Math.min(samplePoint, pointsLength); index < len; index++) {
+          if (points[index][0] == null || points[index][1] == null) { continue; }
           dx = points[index][0];
           px = xScale(dx);
           py = yScale(points[index][1]);
@@ -2304,6 +2305,7 @@ module.exports = function Graph(idOrElement, options, message) {
           setStrokeColor(i, true);
           gctx.lineWidth = lineWidth/2;
           for (;index < pointsLength; index++) {
+            if (points[index][0] == null || points[index][1] == null) { continue; }
             dx = points[index][0];
             px = xScale(dx);
             py = yScale(points[index][1]);
@@ -2321,6 +2323,7 @@ module.exports = function Graph(idOrElement, options, message) {
         setStrokeColor(i);
         pointStop = samplePoint - 1;
         for (index=start; index < pointStop; index++) {
+          if (points[index][0] == null || points[index][1] == null) { continue; }
           px = xScale(points[index][0]);
           py = yScale(points[index][1]);
           if (py === 0) {
@@ -2335,6 +2338,7 @@ module.exports = function Graph(idOrElement, options, message) {
         if (index < pointStop) {
           setStrokeColor(i, true);
           for (;index < pointStop; index++) {
+            if (points[index][0] == null || points[index][1] == null) { continue; }
             px = xScale(points[index][0]);
             py = yScale(points[index][1]);
             gctx.beginPath();
@@ -2351,7 +2355,7 @@ module.exports = function Graph(idOrElement, options, message) {
         index = 0;
         // find first point >= xAxisStart
         for (j = 0; j < pointsLength; j++) {
-          if (points[j][0] >= xAxisStart) { break; }
+          if (points[j][0] != null && points[j][1] != null && points[j][0] >= xAxisStart) { break; }
           index++;
         }
         if (index > 0) { --index; }
@@ -2360,6 +2364,7 @@ module.exports = function Graph(idOrElement, options, message) {
         // plot all ... or until one point past xAxisEnd
         // or until we reach currentSample
         for (len = Math.min(samplePoint, pointsLength); index < len; index++) {
+          if (points[index][0] == null || points[index][1] == null) { continue; }
           dx = points[index][0];
           px = xScale(dx);
           py = yScale(points[index][1]);
@@ -2371,6 +2376,7 @@ module.exports = function Graph(idOrElement, options, message) {
         if (index < pointsLength && dx < xAxisEnd) {
           setFillColor(i, true);
           for (;index < pointsLength; index++) {
+            if (points[index][0] == null || points[index][1] == null) { continue; }
             dx = points[index][0];
             px = xScale(dx);
             py = yScale(points[index][1]);
