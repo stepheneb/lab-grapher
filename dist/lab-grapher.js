@@ -1635,6 +1635,17 @@ module.exports = function Graph(idOrElement, options, message) {
     });
   }
 
+  function isPointInsideGraph(p) {
+    var graphx = xScale.invert(p[0]),
+        graphy = yScale.invert(p[1]),
+        xAxisStart = xScale.domain()[0],
+        xAxisEnd =   xScale.domain()[1],
+        yAxisStart = yScale.domain()[0],
+        yAxisEnd =   yScale.domain()[1];
+
+    return graphx >= xAxisStart && graphx <= xAxisEnd && graphy >= yAxisStart && graphy <= yAxisEnd;
+  }
+
   function addPointAtMouse(p) {
     if (!p) {
       p = d3.mouse(vis.node());
@@ -1791,10 +1802,14 @@ module.exports = function Graph(idOrElement, options, message) {
     }
 
     if (draw_enabled && !isNaN(downx) && !isNaN(downy)) {
-      clearPointsBetween(xScale.invert(Math.max(0, Math.min(size.width,  downx))), xScale.invert(Math.max(0, Math.min(size.width,  p[0]))));
-      addPointAtMouse(p);
-      downx = p[0];
-      downy = p[0];
+      if (isPointInsideGraph(p)) {
+        clearPointsBetween(xScale.invert(Math.max(0, Math.min(size.width,  downx))), xScale.invert(Math.max(0, Math.min(size.width,  p[0]))));
+        addPointAtMouse(p);
+        downx = p[0];
+        downy = p[0];
+      } else {
+        mouseup();
+      }
       d3.event.stopPropagation();
     } else {
       if (!isNaN(downx)) {
