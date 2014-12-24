@@ -7,7 +7,7 @@
 }
 .graph div.background {
     position: absolute;
-    background: #efefef;
+    background: #E3EFE3;
 }
 .graph div.button-layer {
     position: absolute;
@@ -65,7 +65,6 @@
 }
 .graph canvas.overlay {
     position: absolute;
-    background: rgba(0, 255, 0, 0.05);
 }
 svg.graph:focus {
     outline: #76d2b8 solid 0.2em;
