@@ -1901,6 +1901,10 @@ module.exports = function Graph(idOrElement, options, message) {
   }
 
   function scaleAxis(axis, minVal, maxVal, padding, fit) {
+    if (minVal === maxVal) {
+      // Simply skip scaling when min === max.
+      return false;
+    }
     // axis argument is expected to be "x" or "y".
     var scale = axis === "x" ? xScale : yScale;
     var dMin = scale.domain()[0];
@@ -1930,8 +1934,7 @@ module.exports = function Graph(idOrElement, options, message) {
         break;
     }
 
-    // When there is one point, maxVal - minVal will be 0. Then try to use current domain of scale.
-    var pad = maxVal - minVal !== 0 ? (maxVal - minVal) * padding : (dMax - dMin) * padding;
+    var pad = (maxVal - minVal) * padding;
     if (maxVal > dMax || fit) {
       dMax = maxVal + pad;
       domainChanged = true;
