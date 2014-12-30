@@ -150,6 +150,14 @@ function selectDataHandler() {
         xFormatter: ".3r",
         yFormatter: ".1f",
 
+
+        onXDomainChange: function (min, max) {
+          console.log('X domain changed: [' + min + ', ' + max + ']');
+        },
+        onYDomainChange: function (min, max) {
+          console.log('Y domain changed: [' + min + ', ' + max + ']');
+        },
+
         responsiveLayout: responsiveLayout.checked,
         fontScaleRelativeToParent: false,
         dataType: 'points',
@@ -208,7 +216,7 @@ function selectDataHandler() {
       });
     });
     break;
-    
+
   case "md2d-center-of-mass":
     d3.text("data/cm-random-walk.csv", "text/csv", function(text) {
       var data = d3.csv.parseRows(text);

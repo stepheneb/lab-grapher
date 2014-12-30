@@ -435,7 +435,11 @@ module.exports = function Graph(idOrElement, options, message) {
         bars:            false,
 
         // Callback, called after autoscale button is clicked
-        onAutoscale:     function() {},
+        onAutoscale:     null,
+
+        // Callack, called after X or Y axis is changed (due to any reason, e.g. manual or auto-scaling)
+        onXDomainChange: null,
+        onYDomainChange: null,
 
         // The R, G, and B values to be used to plot samples in each data channel. This default can
         // be overridden at construction time, but the caller must provide colors for each channel.
@@ -822,10 +826,16 @@ module.exports = function Graph(idOrElement, options, message) {
     xScale = domainObservingScale(d3.scale[options.xscale](), function() {
       options.xmin = xScale.domain()[0];
       options.xmax = xScale.domain()[1];
+      if (options.onXDomainChange) {
+        options.onXDomainChange.call(null, options.xmin, options.xmax);
+      }
     });
     yScale = domainObservingScale(d3.scale[options.yscale](), function() {
       options.ymin = yScale.domain()[0];
       options.ymax = yScale.domain()[1];
+      if (options.onYDomainChange) {
+        options.onYDomainChange.call(null, options.ymin, options.ymax);
+      }
     });
     updateScales();
   }
@@ -1417,7 +1427,6 @@ module.exports = function Graph(idOrElement, options, message) {
     });
 
     annotationsSelection.exit().remove();
-
     plot.call(d3.behavior.zoom().x(xScale).y(yScale).on("zoom", redraw));
     update();
   }
@@ -1884,7 +1893,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
     // Only call callback if there's what we think of as an "autoscale was clicked" event, which
     // specifically means the case that fit == true
-    if (fit) {
+    if (fit && options.onAutoscale) {
       options.onAutoscale.call(null);
     }
 
