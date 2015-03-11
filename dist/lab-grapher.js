@@ -1439,7 +1439,8 @@ module.exports = function Graph(idOrElement, options, message) {
 
     // update annotation attributes to reflect current graph state
     annotationsSelection.each(function(d,i){
-      d3.select(this.childNodes[0]).attr(annotationAttributes(d));
+      d3.select(this.childNodes[0]).attr(annotationAttributes(d))
+        .call(d3.behavior.zoom().x(xScale).y(yScale).on("zoom", redraw));
     });
 
     annotationsSelection.exit().remove();
