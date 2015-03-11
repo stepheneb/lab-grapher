@@ -556,6 +556,32 @@ function addHorizontalAnnotation() {
   });
 }
 
+function addVerticalBarAnnotation() {
+  var x1 = graph.xmin() + Math.random()*(graph.xmax() - graph.xmin()),
+      x2 = x1 + Math.random()*(graph.xmax() - x1);
+  graph.addAnnotation({
+    type: "bar",
+    data: {
+      x1: x1,
+      x2: x2,
+      stroke: "rgb(" + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + ")"
+    }
+  });
+}
+
+function addHorizontalBarAnnotation() {
+  var y1 = graph.ymin() + Math.random()*(graph.ymax() - graph.ymin()),
+      y2 = y1 + Math.random()*(graph.ymax() - y1);
+  graph.addAnnotation({
+    type: "bar",
+    data: {
+      y1: y1,
+      y2: y2,
+      stroke: "rgb(" + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + ")"
+    }
+  });
+}
+
 $(window).bind('hashchange', function () {
   if (document.location.hash !== hash) {
     selectDataHandler();
