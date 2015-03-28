@@ -10,6 +10,7 @@ var graph,
     selectSize = document.getElementById('select-size'),
     selectData = document.getElementById('select-data'),
     responsiveLayout = document.getElementById('responsive-layout'),
+    hideAxisValues = document.getElementById('hide-Axis'),
     DEFAULT_GRAPH = "earth-surface-temperature",
     hash = document.location.hash || "#" + DEFAULT_GRAPH,
     interactive_url = hash.substr(1, hash.length),
@@ -72,6 +73,7 @@ function selectDataHandler() {
       title:  "Fake Data",
 
       responsiveLayout: responsiveLayout.checked,
+      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
       dataType: 'fake',
 
@@ -90,6 +92,7 @@ function selectDataHandler() {
       title:  "Fake Data (drawable)",
 
       responsiveLayout: responsiveLayout.checked,
+      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
       dataType: 'fake',
 
@@ -114,6 +117,7 @@ function selectDataHandler() {
       ymin:   8,
 
       responsiveLayout: responsiveLayout.checked,
+      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
       dataType: 'points',
       dataPoints: [
@@ -159,6 +163,7 @@ function selectDataHandler() {
         },
 
         responsiveLayout: responsiveLayout.checked,
+        hideAxisValues: hideAxisValues.checked,
         fontScaleRelativeToParent: false,
         dataType: 'points',
         dataPoints: surfaceTemperatures,
@@ -182,6 +187,7 @@ function selectDataHandler() {
         ymin:   0,
 
         responsiveLayout: responsiveLayout.checked,
+        hideAxisValues: hideAxisValues.checked,
         fontScaleRelativeToParent: false,
         dataType: 'points',
         dataPoints: worldPopulation,
@@ -207,6 +213,7 @@ function selectDataHandler() {
         yscale: "log",
 
         responsiveLayout: responsiveLayout.checked,
+        hideAxisValues: hideAxisValues.checked,
         fontScaleRelativeToParent: false,
         dataType: 'points',
         dataPoints: worldPopulation,
@@ -231,6 +238,7 @@ function selectDataHandler() {
         ylabel: "y-location of center of mas",
 
         responsiveLayout: responsiveLayout.checked,
+        hideAxisValues: hideAxisValues.checked,
         fontScaleRelativeToParent: false,
         dataType: 'points',
         dataPoints: randomWalk,
@@ -258,6 +266,7 @@ function selectDataHandler() {
       ymin:   -2,
 
       responsiveLayout: responsiveLayout.checked,
+      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
       dataType: 'points',
       dataPoints: [],
@@ -308,6 +317,7 @@ function selectDataHandler() {
         yFormatter: ".1f",
 
         responsiveLayout: responsiveLayout.checked,
+        hideAxisValues: hideAxisValues.checked,
         fontScaleRelativeToParent: false,
 
         dataType: 'samples',
@@ -335,6 +345,7 @@ function selectDataHandler() {
       ymin:   -1.6,
 
       responsiveLayout: responsiveLayout.checked,
+      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
 
       dataType: 'samples',
@@ -385,6 +396,7 @@ function selectDataHandler() {
       ymin:   -1.6,
 
       responsiveLayout: responsiveLayout.checked,
+      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
 
       dataType: 'samples',
@@ -437,6 +449,7 @@ function selectDataHandler() {
       ymin:   -1.6,
 
       responsiveLayout: responsiveLayout.checked,
+      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
 
       dataType: 'samples',
@@ -487,6 +500,7 @@ function selectDataHandler() {
       ymin:   -1.6,
 
       responsiveLayout: responsiveLayout.checked,
+      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
 
       dataType: 'samples',
@@ -530,6 +544,7 @@ function selectDataHandler() {
 
 selectData.onchange = selectDataHandler;
 responsiveLayout.onchange = selectDataHandler;
+hideAxisValues.onchange = selectDataHandler;
 selectDataHandler();
 
 function addVerticalAnnotation() {
