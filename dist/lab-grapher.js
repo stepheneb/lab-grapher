@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.LabGrapher = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.LabGrapher=e():"undefined"!=typeof global?global.LabGrapher=e():"undefined"!=typeof self&&(self.LabGrapher=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports.numberWidthUsingFormatter = function(elem, cx, cy, fontSizeInPixels, numberStr) {
   var testSVG,
       testText,
@@ -701,8 +701,8 @@ module.exports = function Graph(idOrElement, options, message) {
     yAxisHorizontalPadding = yAxisDraggableWidth + yAxisNumberHeight;
     yAxisLabelBaseline     = -(yAxisDraggableWidth+yAxisNumberHeight/4);
     if (options.hideAxisValues) {
-     xAxisLabelBaseline = xAxisLabelBaseline - xAxisNumberHeight*1.3;
-     }
+      xAxisLabelBaseline = xAxisLabelBaseline - xAxisNumberHeight*1.3;
+    }
 
     switch(sizeType.value) {
       case 0:         // icon
@@ -1159,8 +1159,7 @@ module.exports = function Graph(idOrElement, options, message) {
     }
 
     // Add the x-axis label
-    if (sizeType.value > 2) {
-      if(!options.hideAxisValues){
+    if (!options.hideAxisValues && sizeType.value > 2) {
       xlabel = vis.append("text")
           .attr("class", "axis")
           .attr("class", "xlabel")
@@ -1177,7 +1176,6 @@ module.exports = function Graph(idOrElement, options, message) {
           .attr("y", size.height)
           .attr("dy", xAxisLabelBaseline + "px")
           .style("text-anchor","middle");
-      }
     }
 
     // add y-axis label
@@ -1278,18 +1276,12 @@ module.exports = function Graph(idOrElement, options, message) {
     }
 
     if (options.ylabel && sizeType.value > 2) {
-      if(!options.hideAxisValues){
+      var baseline = options.hideAxisValues ? yAxisLabelBaseline + 30 : yAxisLabelBaseline;
       ylabel
-          .attr("transform","translate(" + yAxisLabelBaseline + " " + size.height/2+") rotate(-90)");
+        .attr("transform","translate(" + baseline + " " + size.height/2+") rotate(-90)");
       yAxisDraggableTooltip
-          .text("");
-    }else {
-    ylabel
-          .attr("transform","translate(" + (yAxisLabelBaseline+30) + " " + size.height/2+") rotate(-90)");
-      yAxisDraggableTooltip
-          .text("");
-    }
-   } else {
+        .text("");
+    } else {
       yAxisDraggableTooltip
         .text(options.ylabel);
     }
@@ -1400,9 +1392,9 @@ module.exports = function Graph(idOrElement, options, message) {
             return !!d.toString().match(/(\.[0]*|^)[125]/);});
         }
       }
-      
+
       if(!options.hideAxisValues){
-      gye.append("text")
+        gye.append("text")
           .attr("class", "axis")
           .attr("x", -axisFontSizeInPixels/4 + "px")
           .attr("dy", ".35em")
@@ -3145,5 +3137,7 @@ module.exports = require('./lib/graph');
 // before calling Graph constructor.
 module.exports.i18n = require('./lib/i18n');
 
-},{"./lib/graph":2,"./lib/i18n":3}]},{},[5])(5)
+},{"./lib/graph":2,"./lib/i18n":3}]},{},[5])
+(5)
 });
+;
