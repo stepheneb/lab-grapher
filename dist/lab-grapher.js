@@ -1743,7 +1743,7 @@ module.exports = function Graph(idOrElement, options, message) {
     // for (i = points.length-1; i >= 0; i--) {
     for (i = 0; i < pointsIndexed.length; i++) {
       p = pointsIndexed[i];
-      if (between(a,b,p[0])) {
+      if (p && between(a, b, p[0])) {
         // null the point
         removed = pointsIndexed[i].slice();
         pointsIndexed[i][0] = null;
