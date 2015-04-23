@@ -702,6 +702,7 @@ module.exports = function Graph(idOrElement, options, message) {
     yAxisLabelBaseline     = -(yAxisDraggableWidth+yAxisNumberHeight/4);
     if (options.hideAxisValues) {
       xAxisLabelBaseline = xAxisLabelBaseline - xAxisNumberHeight*1.3;
+      yAxisLabelBaseline = -ylabelFontSizeInPixels/4;
     }
 
     switch(sizeType.value) {
@@ -709,8 +710,8 @@ module.exports = function Graph(idOrElement, options, message) {
       padding = {
         "top":    halfFontSizeInPixels,
         "right":  halfFontSizeInPixels,
-        "bottom": fontSizeInPixels,
-        "left":   fontSizeInPixels
+        "bottom": xlabelFontSizeInPixels*1.25,
+        "left":   ylabelFontSizeInPixels*1.25
       };
       break;
 
@@ -718,8 +719,8 @@ module.exports = function Graph(idOrElement, options, message) {
       padding = {
         "top":    options.title  ? titleFontSizeInPixels*1.8 : fontSizeInPixels,
         "right":  halfFontSizeInPixels,
-        "bottom": fontSizeInPixels,
-        "left":   fontSizeInPixels
+        "bottom": xlabelFontSizeInPixels*1.25,
+        "left":   ylabelFontSizeInPixels*1.25
       };
       break;
 
@@ -727,8 +728,8 @@ module.exports = function Graph(idOrElement, options, message) {
       padding = {
         "top":    options.title  ? titleFontSizeInPixels*1.8 : fontSizeInPixels,
         "right":  xAxisLabelHorizontalPadding,
-        "bottom": options.hideAxisValues ? xAxisNumberHeight*1.2 : axisFontSizeInPixels*1.25,
-        "left": options.hideAxisValues ? fontSizeInPixels : yAxisNumberWidth*1.25
+        "bottom": options.hideAxisValues ? xlabelFontSizeInPixels*1.25 : axisFontSizeInPixels*1.25,
+        "left": options.hideAxisValues ? ylabelFontSizeInPixels*1.25 : yAxisNumberWidth*1.25
       };
       xTickCount = Math.max(6, options.xTickCount/2);
       yTickCount = Math.max(6, options.yTickCount/2);
@@ -738,8 +739,8 @@ module.exports = function Graph(idOrElement, options, message) {
       padding = {
         "top":    options.title  ? titleFontSizeInPixels*1.8 : fontSizeInPixels,
         "right":  xAxisLabelHorizontalPadding,
-        "bottom": options.hideAxisValues ? xAxisNumberHeight*1.2 : (options.xlabel ? xAxisVerticalPadding : axisFontSizeInPixels*1.25),
-        "left": options.hideAxisValues ? xAxisNumberHeight*1.2 : (options.ylabel ? yAxisHorizontalPadding : yAxisNumberWidth)
+        "bottom": options.hideAxisValues ? xlabelFontSizeInPixels*1.25 : (options.xlabel ? xAxisVerticalPadding : axisFontSizeInPixels*1.25),
+        "left": options.hideAxisValues ? ylabelFontSizeInPixels*1.25 : (options.ylabel ? yAxisHorizontalPadding : yAxisNumberWidth)
       };
       break;
 
@@ -747,8 +748,8 @@ module.exports = function Graph(idOrElement, options, message) {
       padding = {
         "top":    options.title  ? titleFontSizeInPixels*1.8 : fontSizeInPixels,
         "right":  xAxisLabelHorizontalPadding,
-        "bottom": options.hideAxisValues ? fontSizeInPixels : (options.xlabel ? xAxisVerticalPadding : axisFontSizeInPixels*1.25),
-        "left": options.hideAxisValues ? fontSizeInPixels : (options.ylabel ? yAxisHorizontalPadding : yAxisNumberWidth)
+        "bottom": options.hideAxisValues ? xlabelFontSizeInPixels*1.25 : (options.xlabel ? xAxisVerticalPadding : axisFontSizeInPixels*1.25),
+        "left": options.hideAxisValues ? ylabelFontSizeInPixels*1.25 : (options.ylabel ? yAxisHorizontalPadding : yAxisNumberWidth)
       };
       break;
     }
@@ -1159,17 +1160,9 @@ module.exports = function Graph(idOrElement, options, message) {
     }
 
     // Add the x-axis label
-    if (!options.hideAxisValues && sizeType.value > 2) {
+    if (sizeType.value > 2) {
       xlabel = vis.append("text")
           .attr("class", "axis")
-          .attr("class", "xlabel")
-          .text(options.xlabel)
-          .attr("x", size.width/2)
-          .attr("y", size.height)
-          .attr("dy", xAxisLabelBaseline + "px")
-          .style("text-anchor","middle");}
-          else {
-      xlabel = vis.append("text")
           .attr("class", "xlabel")
           .text(options.xlabel)
           .attr("x", size.width/2)
@@ -1276,7 +1269,7 @@ module.exports = function Graph(idOrElement, options, message) {
     }
 
     if (options.ylabel && sizeType.value > 2) {
-      var baseline = options.hideAxisValues ? yAxisLabelBaseline + 30 : yAxisLabelBaseline;
+      var baseline = yAxisLabelBaseline;
       ylabel
         .attr("transform","translate(" + baseline + " " + size.height/2+") rotate(-90)");
       yAxisDraggableTooltip
@@ -1751,7 +1744,7 @@ module.exports = function Graph(idOrElement, options, message) {
         notifyPointListeners("removed", removed);
         needsUpdate = true;
       }
-    };
+    }
     if (needsUpdate) {
       newPoints = copyNonNull(pointsIndexed);
       processPointsArray(newPoints);
