@@ -83,11 +83,17 @@ svg.graph text.axis {
 svg.graph text.axis:focus {
     outline: #76d2b8 solid 0.2em;
 }
-svg.graph rect.draggable-axis {
+svg.graph rect.axis {
     fill: rgba(255, 255, 255, 0);
 }
-svg.graph rect.draggable-axis:hover {
+svg.graph rect.axis-draggable:hover {
     fill: rgba(196, 196, 196, 0.2);
+}
+svg.graph rect.axis-draggable.axis-x {
+    cursor: col-resize;
+}
+svg.graph rect.axis-draggable.axis-y {
+    cursor: row-resize;
 }
 svg.graph .ruler.hidden {
     visibility: hidden;

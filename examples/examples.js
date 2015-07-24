@@ -9,8 +9,6 @@
 var graph,
     selectSize = document.getElementById('select-size'),
     selectData = document.getElementById('select-data'),
-    responsiveLayout = document.getElementById('responsive-layout'),
-    hideAxisValues = document.getElementById('hide-Axis'),
     DEFAULT_GRAPH = "earth-surface-temperature",
     hash = document.location.hash || "#" + DEFAULT_GRAPH,
     interactive_url = hash.substr(1, hash.length),
@@ -69,18 +67,16 @@ function selectDataHandler() {
   }
   switch(selectData.value) {
   case "fake":
-    graph.reset('#chart', {
+    graph.reset('#chart', getOptions({
       title:  "Fake Data",
 
-      responsiveLayout: responsiveLayout.checked,
-      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
       dataType: 'fake',
 
       markAllDataPoints: true,
       dataChange: true,
       addData: true
-    });
+    }));
     graph.clearPointListeners();
     graph.addPointListener(function(evt){
       console.log("clicked point (" + evt.action + "): " + evt.point);
@@ -88,11 +84,9 @@ function selectDataHandler() {
     break;
 
   case "fake-drawable":
-    graph.reset('#chart', {
+    graph.reset('#chart', getOptions({
       title:  "Fake Data (drawable)",
 
-      responsiveLayout: responsiveLayout.checked,
-      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
       dataType: 'fake',
 
@@ -102,12 +96,12 @@ function selectDataHandler() {
       markAllDataPoints: true,
       dataChange: true,
       addData: true
-    });
+    }));
     graph.clearPointListeners();
     break;
 
   case "stair-steps":
-    graph.reset('#chart', {
+    graph.reset('#chart', getOptions({
       title:  "Stair-Step Data",
       xlabel: "Distance",
       ylabel: "Height",
@@ -116,8 +110,6 @@ function selectDataHandler() {
       ymax:   20,
       ymin:   8,
 
-      responsiveLayout: responsiveLayout.checked,
-      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
       dataType: 'points',
       dataPoints: [
@@ -133,7 +125,7 @@ function selectDataHandler() {
       markAllDataPoints: true,
       dataChange: true,
       addData: true
-    });
+    }));
     break;
 
   case "earth-surface-temperature":
@@ -143,7 +135,7 @@ function selectDataHandler() {
           return [e[0], e[1] + data.global_temperatures.global_surface_temperature_1961_1990];
         })
       ];
-      graph.reset('#chart', {
+      graph.reset('#chart', getOptions({
         title:  "Earth's Surface Temperature: years 500-2009",
         xlabel: "Year",
         ylabel: "Degrees C",
@@ -162,22 +154,20 @@ function selectDataHandler() {
           console.log('Y domain changed: [' + min + ', ' + max + ']');
         },
 
-        responsiveLayout: responsiveLayout.checked,
-        hideAxisValues: hideAxisValues.checked,
         fontScaleRelativeToParent: false,
         dataType: 'points',
         dataPoints: surfaceTemperatures,
 
         markAllDataPoints: false,
         dataChange: false
-      });
+      }));
     });
     break;
 
   case "world-population":
     d3.json("data/world-population.json", function(data) {
       var worldPopulation = [data.worldPopulation.data];
-      graph.reset('#chart', {
+      graph.reset('#chart', getOptions({
         title:  "World Population, Historical and Projected: 10,000 BCE to 2050",
         xlabel: "Year",
         ylabel: "Population (Millions)",
@@ -186,22 +176,20 @@ function selectDataHandler() {
         ymax:   20000,
         ymin:   0,
 
-        responsiveLayout: responsiveLayout.checked,
-        hideAxisValues: hideAxisValues.checked,
         fontScaleRelativeToParent: false,
         dataType: 'points',
         dataPoints: worldPopulation,
 
         markAllDataPoints: false,
         dataChange: false
-      });
+      }));
     });
     break;
 
   case "world-population-semi-log":
     d3.json("data/world-population.json", function(data) {
       var worldPopulation = [data.worldPopulation.data];
-      graph.reset('#chart', {
+      graph.reset('#chart', getOptions({
         title:  "World Population, Historical and Projected: 10,000 BCE to 2050 (semi-log)",
         xlabel: "Year",
         ylabel: "Population (Millions)",
@@ -212,15 +200,13 @@ function selectDataHandler() {
         xFormatter: ".3r",
         yscale: "log",
 
-        responsiveLayout: responsiveLayout.checked,
-        hideAxisValues: hideAxisValues.checked,
         fontScaleRelativeToParent: false,
         dataType: 'points',
         dataPoints: worldPopulation,
 
         markAllDataPoints: false,
         dataChange: false
-      });
+      }));
     });
     break;
 
@@ -229,7 +215,7 @@ function selectDataHandler() {
       var data = d3.csv.parseRows(text);
       data.length = 5000;
       var randomWalk = [data.map(function(e) { return [Number(e[1]), Number(e[2])]; })];
-      graph.reset('#chart', {
+      graph.reset('#chart', getOptions({
         title:  [
           "Constrained random walk of center of mass of Lab molecular simulation",
           "(L-J forces only; 50 atoms; no thermostat; initial temperature = \"5\")"
@@ -237,8 +223,6 @@ function selectDataHandler() {
         xlabel: "x-location of center of mass",
         ylabel: "y-location of center of mas",
 
-        responsiveLayout: responsiveLayout.checked,
-        hideAxisValues: hideAxisValues.checked,
         fontScaleRelativeToParent: false,
         dataType: 'points',
         dataPoints: randomWalk,
@@ -250,13 +234,13 @@ function selectDataHandler() {
         markAllDataPoints: false,
         strokeWidth: 1,
         dataChange: false
-      });
+      }));
     });
     break;
 
   case "streaming":
     maxtime = 20;
-    graph.reset('#chart', {
+    graph.reset('#chart', getOptions({
       title:  "Sin Waves",
       xlabel: "Time",
       ylabel: "Amplitude",
@@ -265,8 +249,6 @@ function selectDataHandler() {
       ymax:   2,
       ymin:   -2,
 
-      responsiveLayout: responsiveLayout.checked,
-      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
       dataType: 'points',
       dataPoints: [],
@@ -275,7 +257,7 @@ function selectDataHandler() {
       strokeWidth: 1,
       dataChange: false,
       addData: false
-    });
+    }));
 
     stopStreaming = false;
     frequency1 = 0.5;
@@ -305,7 +287,7 @@ function selectDataHandler() {
           return e[1] + data.global_temperatures.global_surface_temperature_1961_1990;
         })
       ];
-      graph.reset('#chart', {
+      graph.reset('#chart', getOptions({
         title:  "Earth's Surface Temperature: years 500-2009",
         xlabel: "Year",
         ylabel: "Degrees C",
@@ -316,8 +298,6 @@ function selectDataHandler() {
         xFormatter: ".3r",
         yFormatter: ".1f",
 
-        responsiveLayout: responsiveLayout.checked,
-        hideAxisValues: hideAxisValues.checked,
         fontScaleRelativeToParent: false,
 
         dataType: 'samples',
@@ -327,7 +307,7 @@ function selectDataHandler() {
 
         markAllDataPoints: false,
         dataChange: false
-      });
+      }));
     });
     break;
 
@@ -335,7 +315,7 @@ function selectDataHandler() {
   case "realtime-markers":
     maxtime = 10;
     sampleInterval = 0.05;
-    graph.reset('#chart', {
+    graph.reset('#chart', getOptions({
       title:  "Sin Waves",
       xlabel: "Time",
       ylabel: "Amplitude",
@@ -344,8 +324,6 @@ function selectDataHandler() {
       ymax:   1.6,
       ymin:   -1.6,
 
-      responsiveLayout: responsiveLayout.checked,
-      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
 
       dataType: 'samples',
@@ -361,7 +339,7 @@ function selectDataHandler() {
       strokeWidth: 5,
       dataChange: false,
       addData: false
-    });
+    }));
 
     stopStreaming = false;
     frequency1 = 0.102;
@@ -386,7 +364,7 @@ function selectDataHandler() {
   case "realtime-markers-drawable":
     maxtime = 10;
     sampleInterval = 0.05;
-    graph.reset('#chart', {
+    graph.reset('#chart', getOptions({
       title:  "Sin Waves",
       xlabel: "Time",
       ylabel: "Amplitude",
@@ -395,8 +373,6 @@ function selectDataHandler() {
       ymax:   1.6,
       ymin:   -1.6,
 
-      responsiveLayout: responsiveLayout.checked,
-      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
 
       dataType: 'samples',
@@ -414,7 +390,7 @@ function selectDataHandler() {
       strokeWidth: 5,
       dataChange: false,
       addData: false
-    });
+    }));
 
     stopStreaming = false;
     frequency1 = 0.102;
@@ -439,7 +415,7 @@ function selectDataHandler() {
   case "multiline-realtime-markers":
     maxtime = 10;
     sampleInterval = 0.05;
-    graph.reset('#chart', {
+    graph.reset('#chart', getOptions({
       title:  "Sin Waves",
       xlabel: "Time",
       ylabel: "Amplitude",
@@ -448,8 +424,6 @@ function selectDataHandler() {
       ymax:   1.6,
       ymin:   -1.6,
 
-      responsiveLayout: responsiveLayout.checked,
-      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
 
       dataType: 'samples',
@@ -465,7 +439,7 @@ function selectDataHandler() {
       strokeWidth: 5,
       dataChange: false,
       addData: false
-    });
+    }));
 
     stopStreaming = false;
     frequency1 = 0.102;
@@ -490,7 +464,7 @@ function selectDataHandler() {
   case "multiline-realtime-markers-drawable":
     maxtime = 10;
     sampleInterval = 0.05;
-    graph.reset('#chart', {
+    graph.reset('#chart', getOptions({
       title:  "Sin Waves",
       xlabel: "Time",
       ylabel: "Amplitude",
@@ -499,8 +473,6 @@ function selectDataHandler() {
       ymax:   1.6,
       ymin:   -1.6,
 
-      responsiveLayout: responsiveLayout.checked,
-      hideAxisValues: hideAxisValues.checked,
       fontScaleRelativeToParent: false,
 
       dataType: 'samples',
@@ -518,7 +490,7 @@ function selectDataHandler() {
       strokeWidth: 5,
       dataChange: false,
       addData: false
-    });
+    }));
 
     stopStreaming = false;
     frequency1 = 0.102;
@@ -543,9 +515,16 @@ function selectDataHandler() {
 }
 
 selectData.onchange = selectDataHandler;
-responsiveLayout.onchange = selectDataHandler;
-hideAxisValues.onchange = selectDataHandler;
 selectDataHandler();
+
+function getOptions(otherOptions) {
+  var result = {};
+  $("input.graph-option").each(function () {
+    result[this.name] = this.checked;
+  });
+  $.extend(result, otherOptions);
+  return result;
+}
 
 function addVerticalAnnotation() {
   var x = graph.xmin() + Math.random()*(graph.xmax() - graph.xmin());
@@ -601,4 +580,8 @@ $(window).bind('hashchange', function () {
   if (document.location.hash !== hash) {
     selectDataHandler();
   }
+});
+
+$("input.graph-option").each(function () {
+  $(this).on('change', selectDataHandler);
 });
