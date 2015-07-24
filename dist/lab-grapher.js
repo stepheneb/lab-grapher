@@ -1103,28 +1103,26 @@ module.exports = function Graph(idOrElement, options, message) {
       .attr("class", "ruler hidden");
 
     yAxisDraggable = svg.append("rect")
-      .attr("class", "draggable-axis")
+      .attr("class", "axis axis-y" + (options.enableAxisScaling ? " axis-draggable" : ""))
       .attr("x", padding.left-yAxisDraggableWidth)
       .attr("y", padding.top)
       .attr("rx", yAxisNumberHeight/6)
       .attr("width", yAxisDraggableWidth)
       .attr("height", size.height)
       .attr("pointer-events", "all")
-      .style("cursor", "row-resize")
       .on("mousedown", yAxisDrag)
       .on("touchstart", yAxisDrag);
 
     yAxisDraggableTooltip = yAxisDraggable.append("title");
 
     xAxisDraggable = svg.append("rect")
-      .attr("class", "draggable-axis")
+      .attr("class", "axis axis-x" + (options.enableAxisScaling ? " axis-draggable" : ""))
       .attr("x", padding.left)
       .attr("y", size.height+padding.top)
       .attr("rx", yAxisNumberHeight/6)
       .attr("width", size.width)
       .attr("height", xAxisDraggableHeight)
       .attr("pointer-events", "all")
-      .style("cursor", "col-resize")
       .on("mousedown", xAxisDrag)
       .on("touchstart", xAxisDrag);
 
