@@ -20,10 +20,6 @@
           <option value='tiny'>tiny</option>
           <option value='icon'>icon</option>
         </select>
-        Responsive Layout:
-        <input id='responsive-layout' type='checkbox'>
-        Hide Axes Values:
-	      <input id='hide-Axis' type='checkbox'>
         Select Data:
         <select id='select-data'>
           <option selected value='fake'>Fake Data</option>
@@ -62,6 +58,15 @@
             <li> <a href="javascript:addVerticalBarAnnotation();">draw vertical bar annotation</a> </li>
             <li> <a href="javascript:addHorizontalBarAnnotation();">draw horizontal bar annotation</a> </li>
             <li> <a href="javascript:graph.resetAnnotations();">reset</a></li>
+          </ul>
+        </p>
+        <p>
+          Other options:
+          <ul>
+            <li><label><input type='checkbox' class="graph-option" name="responsiveLayout">responsiveLayout</label></li>
+            <li><label><input type='checkbox' class="graph-option" name="hideAxisValues">hideAxisValues</label></li>
+            <li><label><input type='checkbox' class="graph-option" name="enableAxisScaling" checked> enableAxisScaling</label></li>
+            <li><label><input type='checkbox' class="graph-option" name="enablePanningAndZooming"> enablePanningAndZooming</label></li>
           </ul>
         </p>
       </div>
