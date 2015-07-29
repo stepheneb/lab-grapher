@@ -159,6 +159,10 @@ module.exports = function Graph(idOrElement, options, message) {
       // Div created and placed with z-index under all other graph layers
       background,
 
+      // Div created and placed with z-index under title.
+      // It isn't styled by default, but it can be done by custom theme.
+      titleBackground,
+
       // Optional string which can be displayed in background of interior plot area of graph.
       notification,
 
@@ -586,6 +590,11 @@ module.exports = function Graph(idOrElement, options, message) {
     if (background !== undefined) {
       background.remove();
       background = undefined;
+    }
+
+    if (titleBackground !== undefined) {
+      titleBackground.remove();
+      titleBackground = undefined;
     }
 
     if (graphCanvas !== undefined) {
@@ -1066,14 +1075,24 @@ module.exports = function Graph(idOrElement, options, message) {
     plot.call(zoomBehavior());
 
     background = elem.append("div")
-        .attr("class", "background")
-        .style({
-          "width":   size.width + "px",
-          "height":  size.height + "px",
-          "top":     padding.top + "px",
-          "left":    padding.left + "px",
-          "z-index": 0
-        });
+      .attr("class", "background")
+      .style({
+        "width": size.width + "px",
+        "height": size.height + "px",
+        "top": padding.top + "px",
+        "left": padding.left + "px",
+        "z-index": 0
+      });
+
+    titleBackground = elem.append("div")
+      .attr("class", "title-background")
+      .style({
+        "width": (size.width + padding.left) + "px",
+        "height": padding.top + "px",
+        "top": 0,
+        "left": 0,
+        "z-index": 0
+      });
 
     createGraphCanvas();
 
@@ -1220,6 +1239,15 @@ module.exports = function Graph(idOrElement, options, message) {
         "height":  size.height + "px",
         "top":     padding.top + "px",
         "left":    padding.left + "px",
+        "z-index": 0
+      });
+
+    titleBackground
+      .style({
+        "width":   (size.width + padding.left) + "px",
+        "height":  padding.top + "px",
+        "top":     0,
+        "left":    0,
         "z-index": 0
       });
 

@@ -5,9 +5,12 @@
 .graph:focus {
     outline: #76d2b8 solid 0.2em;
 }
-.graph div.background {
+.graph .background {
     position: absolute;
     background: #E3EFE3;
+}
+.graph .title-background {
+    position: absolute;
 }
 .graph div.button-layer {
     position: absolute;
