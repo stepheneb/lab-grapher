@@ -338,6 +338,8 @@ module.exports = function Graph(idOrElement, options, message) {
         enableDrawButton: false,
         enableLegendButton: true,
 
+        titlePosition: "left", // or "left"
+
         drawIndex: 0,
 
         //
@@ -1168,7 +1170,9 @@ module.exports = function Graph(idOrElement, options, message) {
       title.enter().append("text")
           .attr("class", "title")
           .text(function(d) { return d; })
-          .attr("x", function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; })
+          .attr("x", options.titlePosition === "center" ?
+                     function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } :
+                     -padding.left * 0.8)
           .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
       titleTooltip = title.append("title")
           .text("");
@@ -1274,7 +1278,9 @@ module.exports = function Graph(idOrElement, options, message) {
 
     if (options.title && sizeType.value > 0) {
       title
-          .attr("x", function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; })
+          .attr("x", options.titlePosition === "center" ?
+                     function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } :
+                     -padding.left * 0.8)
           .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
       titleTooltip
           .text("");
