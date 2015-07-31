@@ -10,7 +10,7 @@
     background: #E3EFE3;
 }
 .graph .title-background {
-    position: absolute;
+    fill: transparent;
 }
 .graph div.button-layer {
     position: absolute;

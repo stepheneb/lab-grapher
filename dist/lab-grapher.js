@@ -594,11 +594,6 @@ module.exports = function Graph(idOrElement, options, message) {
       background = undefined;
     }
 
-    if (titleBackground !== undefined) {
-      titleBackground.remove();
-      titleBackground = undefined;
-    }
-
     if (graphCanvas !== undefined) {
       graphCanvas.remove();
       graphCanvas = undefined;
@@ -1077,16 +1072,6 @@ module.exports = function Graph(idOrElement, options, message) {
         "z-index": 0
       });
 
-    titleBackground = elem.append("div")
-      .attr("class", "title-background")
-      .style({
-        "width": (size.width + padding.left) + "px",
-        "height": padding.top + "px",
-        "top": 0,
-        "left": 0,
-        "z-index": 0
-      });
-
     createGraphCanvas();
 
     viewbox = vis.append("svg")
@@ -1154,24 +1139,6 @@ module.exports = function Graph(idOrElement, options, message) {
     brush_element = viewbox.append("g")
           .attr("class", "brush");
 
-    // add Chart Title
-    if (options.title && sizeType.value > 0) {
-      title = vis.selectAll("text")
-        .data(titles, function(d) { return d; });
-      title.enter().append("text")
-          .attr("class", "title")
-          .text(function(d) { return d; })
-          .attr("x", options.titlePosition === "center" ?
-                     function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } :
-                     -padding.left + 10) // 10 - small margin
-          .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
-      titleTooltip = title.append("title")
-          .text("");
-    } else if (options.title) {
-      titleTooltip = plot.append("title")
-          .text(options.title);
-    }
-
     // Add the x-axis label
     if (sizeType.value > 2) {
       xlabel = vis.append("text")
@@ -1196,6 +1163,31 @@ module.exports = function Graph(idOrElement, options, message) {
         yAxisDraggable.append("title")
           .text(options.ylabel);
       }
+    }
+
+    // add Chart Title
+    if (options.title && sizeType.value > 0) {
+      titleBackground = svg.append("rect")
+        .attr("class", "title-background")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", size.width + padding.left)
+        .attr("height", padding.top);
+
+      title = svg.selectAll("text")
+        .data(titles, function(d) { return d; });
+      title.enter().append("text")
+        .attr("class", "title")
+        .text(function(d) { return d; })
+        .attr("x", options.titlePosition === "center" ?
+          function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : 10) // 10 - small margin
+        .attr("y", padding.top - halfFontSizeInPixels * 0.4)
+        .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
+      titleTooltip = title.append("title")
+        .text("");
+    } else if (options.title) {
+      titleTooltip = plot.append("title")
+        .text(options.title);
     }
 
     d3.select(node)
@@ -1237,15 +1229,6 @@ module.exports = function Graph(idOrElement, options, message) {
         "z-index": 0
       });
 
-    titleBackground
-      .style({
-        "width":   (size.width + padding.left) + "px",
-        "height":  padding.top + "px",
-        "top":     0,
-        "left":    0,
-        "z-index": 0
-      });
-
     viewbox
         .attr("top", 0)
         .attr("left", 0)
@@ -1268,10 +1251,15 @@ module.exports = function Graph(idOrElement, options, message) {
     adjustAxisDraggableFill();
 
     if (options.title && sizeType.value > 0) {
+      titleBackground
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", size.width + padding.left)
+        .attr("height", padding.top);
+
       title
           .attr("x", options.titlePosition === "center" ?
-                     function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } :
-                     -padding.left + 10) // 10 - small margin
+                     function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : 10) // 10 - small margin
           .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
       titleTooltip
           .text("");
