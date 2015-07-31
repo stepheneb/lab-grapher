@@ -338,7 +338,7 @@ module.exports = function Graph(idOrElement, options, message) {
         enableDrawButton: false,
         enableLegendButton: true,
 
-        titlePosition: "left", // or "left"
+        titlePosition: "center", // or "left"
 
         drawIndex: 0,
 
@@ -1180,8 +1180,8 @@ module.exports = function Graph(idOrElement, options, message) {
         .attr("class", "title")
         .text(function(d) { return d; })
         .attr("x", options.titlePosition === "center" ?
-          function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : 10) // 10 - small margin
-        .attr("y", padding.top - halfFontSizeInPixels * 0.4)
+          function() { return padding.left + size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : 10) // 10 - small margin
+        .attr("y", padding.top)
         .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
       titleTooltip = title.append("title")
         .text("");
@@ -1259,7 +1259,8 @@ module.exports = function Graph(idOrElement, options, message) {
 
       title
           .attr("x", options.titlePosition === "center" ?
-                     function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : 10) // 10 - small margin
+                     function() { return padding.left + size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : 10) // 10 - small margin
+          .attr("y", padding.top)
           .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
       titleTooltip
           .text("");
