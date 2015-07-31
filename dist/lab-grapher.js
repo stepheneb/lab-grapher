@@ -1,5 +1,5 @@
 !function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.LabGrapher=e():"undefined"!=typeof global?global.LabGrapher=e():"undefined"!=typeof self&&(self.LabGrapher=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports.numberWidthUsingFormatter = function(elem, cx, cy, fontSizeInPixels, numberStr) {
+module.exports.numberWidth = function(elem, cx, cy, fontSizeInPixels, numberStr) {
   var testSVG,
       testText,
       bbox,
@@ -691,11 +691,21 @@ module.exports = function Graph(idOrElement, options, message) {
       xlabelMetrics = [fontSizeInPixels, fontSizeInPixels];
       ylabelMetrics = [fontSizeInPixels*2, fontSizeInPixels];
     } else {
-      xlabelMetrics = axis.numberWidthUsingFormatter(elem, cx, cy, axisFontSizeInPixels,
-        longestNumber(xScale.ticks(xTickCount), fx));
+      // Find the last X axis label, as those metrics are going to be used
+      // to calculate right padding.
+      var xTicks = xScale.ticks(xTickCount);
+      var lastXTick = xTicks[xTicks.length - 1];
+      xlabelMetrics = axis.numberWidth(elem, cx, cy, axisFontSizeInPixels, fx(lastXTick));
 
-      ylabelMetrics = axis.numberWidthUsingFormatter(elem, cx, cy, axisFontSizeInPixels,
-        longestNumber(yScale.ticks(yTickCount), fy));
+      // Find the widest Y axis label, as those metrics are going to be used
+      // to calculate left padding.
+      ylabelMetrics = null;
+      yScale.ticks(yTickCount).forEach(function (tickVal) {
+        var metrics = axis.numberWidth(elem, cx, cy, axisFontSizeInPixels, fy(tickVal));
+        if (ylabelMetrics == null || metrics[0] > ylabelMetrics[0]) { // metrics[0] - width, metrics[1] - height
+          ylabelMetrics = metrics;
+        }
+      });
     }
 
     xAxisNumberWidth  = xlabelMetrics[0];
@@ -798,25 +808,6 @@ module.exports = function Graph(idOrElement, options, message) {
       sizeType.category = 'large';
       sizeType.value = 4;
     }
-  }
-
-  function longestNumber(array, formatter, precision) {
-    var longest = 0,
-        index = 0,
-        str,
-        len,
-        i;
-    precision = precision || 5;
-    for (i = 0; i < array.length; i++) {
-      str = formatter(+array[i].toPrecision(precision));
-      str = str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-      len = str.length;
-      if (len > longest) {
-        longest = len;
-        index = i;
-      }
-    }
-    return formatter(array[index]);
   }
 
   // Setup xScale, yScale, making sure that options.xmax/xmin/ymax/ymin always reflect changes to
@@ -1172,7 +1163,7 @@ module.exports = function Graph(idOrElement, options, message) {
           .text(function(d) { return d; })
           .attr("x", options.titlePosition === "center" ?
                      function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } :
-                     -padding.left * 0.8)
+                     -padding.left + 10) // 10 - small margin
           .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
       titleTooltip = title.append("title")
           .text("");
@@ -1280,7 +1271,7 @@ module.exports = function Graph(idOrElement, options, message) {
       title
           .attr("x", options.titlePosition === "center" ?
                      function() { return size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } :
-                     -padding.left * 0.8)
+                     -padding.left + 10) // 10 - small margin
           .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
       titleTooltip
           .text("");
