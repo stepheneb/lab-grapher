@@ -1172,7 +1172,8 @@ module.exports = function Graph(idOrElement, options, message) {
         .attr("x", 0)
         .attr("y", 0)
         .attr("width", size.width + padding.left)
-        .attr("height", padding.top);
+        // Leave some space for the last tick mark number.
+        .attr("height", padding.top - halfFontSizeInPixels * 0.8);
 
       title = svg.selectAll("text")
         .data(titles, function(d) { return d; });
@@ -1181,8 +1182,8 @@ module.exports = function Graph(idOrElement, options, message) {
         .text(function(d) { return d; })
         .attr("x", options.titlePosition === "center" ?
           function() { return padding.left + size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : 10) // 10 - small margin
-        .attr("y", padding.top)
-        .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
+        .attr("y", titleFontSizeInPixels * 1.1)
+        .attr("dy", function(d, i) { return -i * titleFontSizeInPixels + "px"; });
       titleTooltip = title.append("title")
         .text("");
     } else if (options.title) {
@@ -1255,13 +1256,14 @@ module.exports = function Graph(idOrElement, options, message) {
         .attr("x", 0)
         .attr("y", 0)
         .attr("width", size.width + padding.left)
-        .attr("height", padding.top);
+        // Leave some space for the last tick mark number.
+        .attr("height", padding.top - halfFontSizeInPixels * 0.8);
 
       title
           .attr("x", options.titlePosition === "center" ?
                      function() { return padding.left + size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : 10) // 10 - small margin
-          .attr("y", padding.top)
-          .attr("dy", function(d, i) { return -i * titleFontSizeInPixels - halfFontSizeInPixels + "px"; });
+          .attr("y", titleFontSizeInPixels * 1.1)
+          .attr("dy", function(d, i) { return -i * titleFontSizeInPixels + "px"; });
       titleTooltip
           .text("");
     } else if (options.title) {
