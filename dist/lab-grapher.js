@@ -250,6 +250,9 @@ module.exports = function Graph(idOrElement, options, message) {
         large: 1920
       },
 
+      // Padding of a title when it's placed on the left side.
+      titleLeftPadding = "10px",
+
       // State variables indicating whether an axis drag operation is in place.
       // NaN values are used to indicate operation not in progress and
       // checked like this: if (!isNaN(downx)) { resacle operation in progress }
@@ -310,13 +313,17 @@ module.exports = function Graph(idOrElement, options, message) {
 
       // The default options for a graph
       default_options = {
-        // Enables the button layer with: AutoScale ...
-        showButtons:    true,
+        // Enables the button layer with: AutoScale...
+        showButtons: true,
+        // "icons" or "text".
+        buttonsStyle: "icons",
+        // "vertical" (overlaps with the plotting area) or "horizontal" (right below the title).
+        buttonsLayout: "vertical",
 
         // Whether or not to show the graph's legend
         legendVisible: false,
 
-        // Responsive Layout provides pregressive removal of
+        // Responsive Layout provides progressive removal of
         // graph elements when size gets smaller
         responsiveLayout: false,
 
@@ -324,7 +331,7 @@ module.exports = function Graph(idOrElement, options, message) {
         // When fontScaleRelativeToParent to true the font-size of the
         // containing element is set based on the size of the containing
         // element. hs means whn the containing element is smaller the
-        // foint-size of the labels in thegraph will be smaller.
+        // font-size of the labels in the graph will be smaller.
         fontScaleRelativeToParent: true,
         hideAxisValues: false,
 
@@ -681,6 +688,18 @@ module.exports = function Graph(idOrElement, options, message) {
     return options;
   }
 
+  function getTopPadding() {
+    var topPadding = fontSizeInPixels;
+    if (options.title) {
+      topPadding = titleFontSizeInPixels * 1.8;
+    }
+    if (options.buttonsLayout === "horizontal") {
+      // Leave some space for buttons.
+      topPadding += fontSizeInPixels * 1.3;
+    }
+    return topPadding;
+  }
+
   function updateAxesAndSize() {
     xlabelMetrics = [fontSizeInPixels, fontSizeInPixels];
     ylabelMetrics = [fontSizeInPixels*2, fontSizeInPixels];
@@ -731,7 +750,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
       case 1:         // tiny
       padding = {
-        "top":    options.title  ? titleFontSizeInPixels*1.8 : fontSizeInPixels,
+        "top":    getTopPadding(),
         "right":  halfFontSizeInPixels,
         "bottom": xlabelFontSizeInPixels*1.25,
         "left":   ylabelFontSizeInPixels*1.25
@@ -740,7 +759,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
       case 2:         // small
       padding = {
-        "top":    options.title  ? titleFontSizeInPixels*1.8 : fontSizeInPixels,
+        "top":    getTopPadding(),
         "right":  xAxisLabelHorizontalPadding,
         "bottom": options.hideAxisValues ? xlabelFontSizeInPixels*1.25 : axisFontSizeInPixels*1.25,
         "left": options.hideAxisValues ? ylabelFontSizeInPixels*1.25 : yAxisNumberWidth*1.25
@@ -751,7 +770,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
       case 3:         // medium
       padding = {
-        "top":    options.title  ? titleFontSizeInPixels*1.8 : fontSizeInPixels,
+        "top":    getTopPadding(),
         "right":  xAxisLabelHorizontalPadding,
         "bottom": options.hideAxisValues ? xlabelFontSizeInPixels*1.25 : (options.xlabel ? xAxisVerticalPadding : axisFontSizeInPixels*1.25),
         "left": options.hideAxisValues ? ylabelFontSizeInPixels*1.25 : (options.ylabel ? yAxisHorizontalPadding : yAxisNumberWidth)
@@ -760,7 +779,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
       default:         // large
       padding = {
-        "top":    options.title  ? titleFontSizeInPixels*1.8 : fontSizeInPixels,
+        "top":    getTopPadding(),
         "right":  xAxisLabelHorizontalPadding,
         "bottom": options.hideAxisValues ? xlabelFontSizeInPixels*1.25 : (options.xlabel ? xAxisVerticalPadding : axisFontSizeInPixels*1.25),
         "left": options.hideAxisValues ? ylabelFontSizeInPixels*1.25 : (options.ylabel ? yAxisHorizontalPadding : yAxisNumberWidth)
@@ -924,67 +943,85 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableLegendButton && options.legendLabels.length > 0) {
       legendButton = buttonLayer.append('a');
       legendButton.attr({
-            "class": "legend-button",
+            "class": "graph-button",
             "title": i18n.t("tooltips.legend")
           })
           .on("click", function() {
             toggleLegend();
-          })
-          .append("i")
-            .attr("class", "icon-list-ul");
+          });
+      if (options.buttonsStyle === "icons") {
+        legendButton.append("i").attr("class", "icon-list-ul");
+      } else {
+        legendButton.text("Key");
+      }
     }
 
     if (options.enableAutoScaleButton) {
-      buttonLayer.append('a')
-          .attr({
-            "class": "autoscale-button",
+      var autoscaleButton = buttonLayer.append('a');
+      autoscaleButton.attr({
+            "class": "graph-button",
             "title": i18n.t("tooltips.autoscale")
           })
           .on("click", function() {
             autoscale(true);
             redraw();
-          })
-          .append("i")
-            .attr("class", "icon-picture");
+          });
+      if (options.buttonsStyle === "icons") {
+        autoscaleButton.append("i").attr("class", "icon-picture");
+      } else {
+        autoscaleButton.text("Zoom");
+      }
     }
 
     if (options.enableSelectionButton) {
       selectionButton = buttonLayer.append('a');
       selectionButton.attr({
-            "class": "selection-button",
+            "class": "graph-button",
             "title": i18n.t("tooltips.selection")
           })
           .on("click", function() {
             toggleSelection();
-          })
-          .append("i")
-            .attr("class", "icon-cut");
+          });
+      if (options.buttonsStyle === "icons") {
+        selectionButton.append("i").attr("class", "icon-cut");
+      } else {
+        selectionButton.text("Select");
+      }
     }
 
     if (options.enableDrawButton) {
       drawButton = buttonLayer.append('a');
       drawButton.attr({
-            "class": "draw-button",
+            "class": "graph-button",
             "title": i18n.t("tooltips.draw")
           })
           .on("click", function() {
             toggleDraw();
-          })
-          .append("i")
-            .attr("class", "icon-pencil");
+          });
+      if (options.buttonsStyle === "icons") {
+        drawButton.append("i").attr("class", "icon-pencil");
+      } else {
+        drawButton.text("Draw");
+      }
     }
 
     resizeButtonLayer();
   }
 
   function resizeButtonLayer() {
-    buttonLayer
-      .style({
-        "width":   fontSizeInPixels*1.75 + "px",
-        "height":  fontSizeInPixels*1.25 + "px",
-        "top":     padding.top + halfFontSizeInPixels + "px",
-        "left":    padding.left + (size.width - fontSizeInPixels*2.0) + "px"
+    if (options.buttonsLayout === "vertical") {
+      buttonLayer.style({
+        "top":   padding.top + halfFontSizeInPixels * 0.5 + "px",
+        "right": padding.right + halfFontSizeInPixels * 0.5 + "px"
       });
+      buttonLayer.classed("horizontal", false);
+    } else if (options.buttonsLayout === "horizontal") {
+      buttonLayer.style({
+        "top":  padding.top - fontSizeInPixels * 1.9 + "px",
+        "left": titleLeftPadding
+      });
+      buttonLayer.classed("horizontal", true);
+    }
   }
   function createLegendLayer() {
     var color = "black", item;
@@ -1178,7 +1215,7 @@ module.exports = function Graph(idOrElement, options, message) {
         .attr("class", "title")
         .text(function(d) { return d; })
         .attr("x", options.titlePosition === "center" ?
-          function() { return padding.left + size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : 10) // 10 - small margin
+          function() { return padding.left + size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : titleLeftPadding)
         .attr("y", titleFontSizeInPixels * 1.1)
         .attr("dy", function(d, i) { return -i * titleFontSizeInPixels + "px"; });
       titleTooltip = title.append("title")
@@ -1254,11 +1291,11 @@ module.exports = function Graph(idOrElement, options, message) {
         .attr("y", 0)
         .attr("width", size.width + padding.left)
         // Leave some space for the last tick mark number.
-        .attr("height", padding.top - halfFontSizeInPixels * 0.8);
+        .attr("height", titleFontSizeInPixels * 1.8 - halfFontSizeInPixels * 0.8);
 
       title
           .attr("x", options.titlePosition === "center" ?
-                     function() { return padding.left + size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : 10) // 10 - small margin
+                     function() { return padding.left + size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : titleLeftPadding)
           .attr("y", titleFontSizeInPixels * 1.1)
           .attr("dy", function(d, i) { return -i * titleFontSizeInPixels + "px"; });
       titleTooltip
@@ -2251,7 +2288,8 @@ module.exports = function Graph(idOrElement, options, message) {
         legendLayer
           .style({
             "top":     padding.top + halfFontSizeInPixels + "px",
-            "right":   padding.right + (options.showButtons ? fontSizeInPixels*2.0 : halfFontSizeInPixels) + "px"
+            "right":   padding.right + halfFontSizeInPixels +
+                       (options.showButtons && options.buttonsLayout === "vertical" ? buttonLayer.property('clientWidth') : 0) + "px"
           });
       } else {
         legendLayer.classed("legend-invisible", true);
@@ -2838,7 +2876,6 @@ module.exports = function Graph(idOrElement, options, message) {
     }
     if (options.showButtons) {
       if (!buttonLayer) createButtonLayer();
-      resizeButtonLayer();
     }
     if (options.legendLabels.length > 0) {
       if (!legendLayer) {
