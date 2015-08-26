@@ -145,7 +145,8 @@ function selectDataHandler() {
         ymin:   13,
         xFormatter: ".3r",
         yFormatter: ".1f",
-
+        legendLabels: ["temperature"],
+        enableSelectionButton: true,
 
         onXDomainChange: function (min, max) {
           console.log('X domain changed: [' + min + ', ' + max + ']');
@@ -522,6 +523,9 @@ function getOptions(otherOptions) {
   $("input.graph-option").each(function () {
     result[this.name] = this.checked;
   });
+  $("select.graph-option").each(function () {
+    result[this.name] = $(this).val();
+  });
   $.extend(result, otherOptions);
   return result;
 }
@@ -582,6 +586,6 @@ $(window).bind('hashchange', function () {
   }
 });
 
-$("input.graph-option").each(function () {
+$(".graph-option").each(function () {
   $(this).on('change', selectDataHandler);
 });
