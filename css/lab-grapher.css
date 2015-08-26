@@ -69,6 +69,8 @@
 }
 .graph .legend-layer label{
   margin-left: 0.2em;
+  vertical-align: middle;
+  font-size: 0.9em;
 }
 .graph div.legend-colorsquare{
   vertical-align: middle;
