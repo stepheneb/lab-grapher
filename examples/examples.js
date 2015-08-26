@@ -589,3 +589,11 @@ $(window).bind('hashchange', function () {
 $(".graph-option").each(function () {
   $(this).on('change', selectDataHandler);
 });
+
+function handleFontSizeChange() {
+  $("#graph-parent-container").css("font-size", $("#font-size-input").val());
+  graph.resize();
+}
+$("#font-size-input").on("change", handleFontSizeChange);
+handleFontSizeChange();
+

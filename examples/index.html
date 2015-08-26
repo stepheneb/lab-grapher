@@ -20,6 +20,7 @@
           <option value='tiny'>tiny</option>
           <option value='icon'>icon</option>
         </select>
+        <label>Font Size: <input type="text" id="font-size-input" value="15px" style="width: 5em"></label>
         Select Data:
         <select id='select-data'>
           <option selected value='fake'>Fake Data</option>
@@ -37,7 +38,9 @@
           <option value='multiline-realtime-markers-drawable'>Realtime Multiple Lines w/ Markers (drawable)</option>
         </select>
       </p>
-      <div class='graph' id='chart'></div>
+      <div id="graph-parent-container">
+        <div class='graph' id='chart'></div>
+      </div>
       <div class='description'>
         <h3>About the Graph</h3>
         <ul>
