@@ -15,7 +15,6 @@
 
 .graph .button-layer {
     position: absolute;
-    text-align: right;
 }
 .graph .button-layer a {
     opacity: 0.3;
@@ -31,6 +30,12 @@
     margin-right: 1.3em;
     opacity: 0.6;
     font-size: 0.8em;
+}
+.graph .button-layer.horizontal a:first-child {
+    margin-left: 10px;
+}
+.graph .button-layer.horizontal a:last-child {
+    margin-right: 0;
 }
 .graph .button-layer a i {
     font-size: 1.33em;
