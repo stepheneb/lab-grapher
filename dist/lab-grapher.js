@@ -943,7 +943,7 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableLegendButton && options.legendLabels.length > 0) {
       legendButton = buttonLayer.append('a');
       legendButton.attr({
-            "class": "graph-button",
+            "class": "graph-button legend",
             "title": i18n.t("tooltips.legend")
           })
           .on("click", function() {
@@ -959,7 +959,7 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableAutoScaleButton) {
       var autoscaleButton = buttonLayer.append('a');
       autoscaleButton.attr({
-            "class": "graph-button",
+            "class": "graph-button autoscale",
             "title": i18n.t("tooltips.autoscale")
           })
           .on("click", function() {
@@ -976,7 +976,7 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableSelectionButton) {
       selectionButton = buttonLayer.append('a');
       selectionButton.attr({
-            "class": "graph-button",
+            "class": "graph-button selection",
             "title": i18n.t("tooltips.selection")
           })
           .on("click", function() {
@@ -992,7 +992,7 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableDrawButton) {
       drawButton = buttonLayer.append('a');
       drawButton.attr({
-            "class": "graph-button",
+            "class": "graph-button draw",
             "title": i18n.t("tooltips.draw")
           })
           .on("click", function() {
