@@ -86,7 +86,6 @@ function selectDataHandler() {
   case "fake-drawable":
     graph.reset('#chart', getOptions({
       title:  "Fake Data (drawable)",
-
       fontScaleRelativeToParent: false,
       dataType: 'fake',
 
@@ -511,6 +510,16 @@ function selectDataHandler() {
       value2 = Math.sin(twopifreq2 * time) * amplitude2;
       graph.addSamples([[(value1 + value2)], [0-(value1+value2)]]);
     }, 1000*sampleInterval);
+    break;
+
+  case "i18n-example":
+    graph.reset('#chart', getOptions({
+      lang: "pl",
+      enableSelectionButton: true,
+      enableDrawButton: true,
+      enableAutoScaleButton: true,
+      legendLabels: ["test1", "test2"]
+    }));
     break;
   }
 }

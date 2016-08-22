@@ -1,5 +1,11 @@
 {
   "en-US": {
+    "labels": {
+      "autoscale": "Zoom",
+      "draw"     : "Draw",
+      "selection": "Select",
+      "legend"   : "Key"
+    },
     "tooltips": {
         "autoscale": "Show all data (autoscale)",
         "draw"     : "Draw new data points",
@@ -8,9 +14,17 @@
     }
   },
   "pl": {
+    "labels": {
+      "autoscale": "Przybliż",
+      "draw"     : "Rysuj",
+      "selection": "Zaznacz",
+      "legend"   : "Legenda"
+    },
     "tooltips": {
         "autoscale": "Pokaż cały wykres (autoskalowanie)",
-        "selection": "Zaznacz dane do wyeksportowania"
+        "draw"     : "Rysuj nowe punkty",
+        "selection": "Zaznacz dane do wyeksportowania",
+        "legend"   : "Pokaż/ukryj legendę"
     }
   }
 }

@@ -313,6 +313,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
       // The default options for a graph
       default_options = {
+        lang: "en-US",
         // Enables the button layer with: AutoScale...
         showButtons: true,
         // "icons" or "text".
@@ -496,6 +497,7 @@ module.exports = function Graph(idOrElement, options, message) {
     if (opts || !options) {
       options = setupOptions(opts);
     }
+    i18n.lang = options.lang;
 
     initializeLayout(idOrElement, mesg);
 
@@ -952,7 +954,7 @@ module.exports = function Graph(idOrElement, options, message) {
       if (options.buttonsStyle === "icons") {
         legendButton.append("i").attr("class", "icon-list-ul");
       } else {
-        legendButton.text("Key");
+        legendButton.text(i18n.t("labels.legend"));
       }
     }
 
@@ -969,7 +971,7 @@ module.exports = function Graph(idOrElement, options, message) {
       if (options.buttonsStyle === "icons") {
         autoscaleButton.append("i").attr("class", "icon-picture");
       } else {
-        autoscaleButton.text("Zoom");
+        autoscaleButton.text(i18n.t("labels.autoscale"));
       }
     }
 
@@ -985,7 +987,7 @@ module.exports = function Graph(idOrElement, options, message) {
       if (options.buttonsStyle === "icons") {
         selectionButton.append("i").attr("class", "icon-cut");
       } else {
-        selectionButton.text("Select");
+        selectionButton.text(i18n.t("labels.selection"));
       }
     }
 
@@ -1001,7 +1003,7 @@ module.exports = function Graph(idOrElement, options, message) {
       if (options.buttonsStyle === "icons") {
         drawButton.append("i").attr("class", "icon-pencil");
       } else {
-        drawButton.text("Draw");
+        drawButton.text(i18n.t("labels.draw"));
       }
     }
 
@@ -3166,6 +3168,12 @@ function getTranslation(lang, key) {
 },{"../locales/translations.json":4}],4:[function(require,module,exports){
 module.exports={
   "en-US": {
+    "labels": {
+      "autoscale": "Zoom",
+      "draw"     : "Draw",
+      "selection": "Select",
+      "legend"   : "Key"
+    },
     "tooltips": {
         "autoscale": "Show all data (autoscale)",
         "draw"     : "Draw new data points",
@@ -3174,9 +3182,17 @@ module.exports={
     }
   },
   "pl": {
+    "labels": {
+      "autoscale": "Przybliż",
+      "draw"     : "Rysuj",
+      "selection": "Zaznacz",
+      "legend"   : "Legenda"
+    },
     "tooltips": {
         "autoscale": "Pokaż cały wykres (autoskalowanie)",
-        "selection": "Zaznacz dane do wyeksportowania"
+        "draw"     : "Rysuj nowe punkty",
+        "selection": "Zaznacz dane do wyeksportowania",
+        "legend"   : "Pokaż/ukryj legendę"
     }
   }
 }
