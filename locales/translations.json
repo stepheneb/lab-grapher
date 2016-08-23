@@ -7,10 +7,24 @@
       "legend"   : "Key"
     },
     "tooltips": {
-        "autoscale": "Show all data (autoscale)",
-        "draw"     : "Draw new data points",
-        "selection": "Select data for export",
-        "legend"   : "Show/hide the legend"
+      "autoscale": "Show all data (autoscale)",
+      "draw"     : "Draw new data points",
+      "selection": "Select data for export",
+      "legend"   : "Show/hide the legend"
+    }
+  },
+  "es": {
+    "labels": {
+      "autoscale": "Zoom",
+      "draw"     : "Graficar",
+      "selection": "Elegir",
+      "legend"   : "Leyenda"
+    },
+    "tooltips": {
+      "autoscale": "Mostrar todos los datos (autoescala)",
+      "draw"     : "Graficar nuevos puntos",
+      "selection": "Seleccionar datos para exportar",
+      "legend"   : "Mostrar/Ocultar la leyenda"
     }
   },
   "pl": {
