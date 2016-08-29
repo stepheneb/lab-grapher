@@ -313,7 +313,6 @@ module.exports = function Graph(idOrElement, options, message) {
 
       // The default options for a graph
       default_options = {
-        lang: "en-US",
         // Enables the button layer with: AutoScale...
         showButtons: true,
         // "icons" or "text".
@@ -497,7 +496,13 @@ module.exports = function Graph(idOrElement, options, message) {
     if (opts || !options) {
       options = setupOptions(opts);
     }
-    i18n.lang = options.lang;
+    if (options.lang) {
+      // Set language only if it's explicitly defined, don't use any default value.
+      // Language can be also set by client library using global object:
+      // LabGrapher.i18n.lang = 'es'
+      // Default option could overwrite that.
+      i18n.lang = options.lang;
+    }
 
     initializeLayout(idOrElement, mesg);
 
@@ -3175,10 +3180,24 @@ module.exports={
       "legend"   : "Key"
     },
     "tooltips": {
-        "autoscale": "Show all data (autoscale)",
-        "draw"     : "Draw new data points",
-        "selection": "Select data for export",
-        "legend"   : "Show/hide the legend"
+      "autoscale": "Show all data (autoscale)",
+      "draw"     : "Draw new data points",
+      "selection": "Select data for export",
+      "legend"   : "Show/hide the legend"
+    }
+  },
+  "es": {
+    "labels": {
+      "autoscale": "Zoom",
+      "draw"     : "Graficar",
+      "selection": "Elegir",
+      "legend"   : "Leyenda"
+    },
+    "tooltips": {
+      "autoscale": "Mostrar todos los datos (autoescala)",
+      "draw"     : "Graficar nuevos puntos",
+      "selection": "Seleccionar datos para exportar",
+      "legend"   : "Mostrar/Ocultar la leyenda"
     }
   },
   "pl": {
