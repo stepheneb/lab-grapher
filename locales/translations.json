@@ -2,43 +2,57 @@
   "en-US": {
     "labels": {
       "autoscale": "Zoom",
-      "draw"     : "Draw",
+      "draw": "Draw",
       "selection": "Select",
-      "legend"   : "Key"
+      "legend": "Key"
     },
     "tooltips": {
       "autoscale": "Show all data (autoscale)",
-      "draw"     : "Draw new data points",
+      "draw": "Draw new data points",
       "selection": "Select data for export",
-      "legend"   : "Show/hide the legend"
+      "legend": "Show/hide the legend"
     }
   },
   "es": {
     "labels": {
       "autoscale": "Zoom",
-      "draw"     : "Graficar",
+      "draw": "Graficar",
       "selection": "Elegir",
-      "legend"   : "Leyenda"
+      "legend": "Leyenda"
     },
     "tooltips": {
       "autoscale": "Mostrar todos los datos (autoescala)",
-      "draw"     : "Graficar nuevos puntos",
+      "draw": "Graficar nuevos puntos",
       "selection": "Seleccionar datos para exportar",
-      "legend"   : "Mostrar/Ocultar la leyenda"
+      "legend": "Mostrar/Ocultar la leyenda"
     }
   },
   "pl": {
     "labels": {
       "autoscale": "Przybliż",
-      "draw"     : "Rysuj",
+      "draw": "Rysuj",
       "selection": "Zaznacz",
-      "legend"   : "Legenda"
+      "legend": "Legenda"
     },
     "tooltips": {
-        "autoscale": "Pokaż cały wykres (autoskalowanie)",
-        "draw"     : "Rysuj nowe punkty",
-        "selection": "Zaznacz dane do wyeksportowania",
-        "legend"   : "Pokaż/ukryj legendę"
+      "autoscale": "Pokaż cały wykres (autoskalowanie)",
+      "draw": "Rysuj nowe punkty",
+      "selection": "Zaznacz dane do wyeksportowania",
+      "legend": "Pokaż/ukryj legendę"
+    }
+  },
+  "ru": {
+    "labels": {
+      "autoscale": "Масштабировать",
+      "draw": "Рисовать",
+      "selection": "Выбрать",
+      "legend": "Ключ"
+    },
+    "tooltips": {
+      "autoscale": "Показать все данные (автоматическое масштабированиe)",
+      "draw": "Показать новые данные",
+      "selection": "Выбрать данные для экспорта",
+      "legend": "Показать/скрыть описание"
     }
   }
 }
