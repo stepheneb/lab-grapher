@@ -13,6 +13,20 @@
       "legend": "Show/hide the legend"
     }
   },
+   "it-it": {
+    "labels": {
+      "autoscale": "Zoom",
+      "draw": "Disegnare",
+      "selection": "Selezionare",
+      "legend": "Chiave"
+    },
+    "tooltips": {
+      "autoscale": "Mostra tutti i dati (autoscala)",
+      "draw": "Disegnare nuovi punti dati",
+      "selection": "Seleziona i dati per l'esportazione",
+      "legend": "Mostra / nascondi la leggenda"
+    }
+  },
   "es": {
     "labels": {
       "autoscale": "Zoom",
