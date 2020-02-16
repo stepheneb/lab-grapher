@@ -33,7 +33,11 @@ function graphWithBrushUpdateEvent(graph, extent) {
 }
 
 function graphWithBrushClearEvent(graph) {
-  graph.brushControl().clear();
+  var bc = graph.brushControl();
+  if (d3.event && d3.event.selection) {
+    d3.event.selection = null;
+  };
+  // bc.clear();
   graph.brushListener()();
   return graph;
 }
@@ -173,7 +177,8 @@ suite.addBatch({
     "and has_selection is true": {
       topic(getTopicGraph) {
         return function () {
-          return getTopicGraph().selectionDomain([1, 2]);
+          var tg = getTopicGraph();
+          return tg.selectionDomain([1, 2]);
         };
       },
 

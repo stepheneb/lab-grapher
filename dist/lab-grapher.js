@@ -2223,8 +2223,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function updateBrushElement() {
     if (has_selection && selection_visible) {
-      brush_control = brush_control || d3.svg.brush()
-        .x(xScale)
+      brush_control = brush_control || d3.brushX()
         .extent([selection_region.xmin || 0, selection_region.xmax || 0])
         .on("brush", brushListener);
 
@@ -2956,7 +2955,7 @@ module.exports = function Graph(idOrElement, options, message) {
     },
 
     /**
-      Read-only getter for the d3 brush control (d3.svg.brush() function) used to implement
+      Read-only getter for the d3 brush control (d3.brush() function) used to implement
       selection region manipulation.
     */
     brushControl: function () {
