@@ -5,12 +5,13 @@
   "main": "event-router.js",
   "dependencies": {},
   "devDependencies": {
-    "browserify": ">= 2.35 < 3.0",
-    "mocha": "~1.15.1",
-    "vows": "~0.7.0",
-    "jquery": "~1.8.3",
-    "d3": "~3.3.11",
-    "jsdom": "~0.8.9"
+    "browserify": "~16.5.0",
+    "canvas": "^2.6.1",
+    "d3": "~3.5.17",
+    "jquery": "~3.4.1",
+    "jsdom": "~16.1.0",
+    "mocha": "~1.21.5",
+    "vows": "~0.8.3"
   },
   "scripts": {
     "build": "mkdir -p dist && browserify main.js --standalone Lab-grapher  > dist/lab-grapher.js",

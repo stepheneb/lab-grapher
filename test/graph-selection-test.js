@@ -1,23 +1,29 @@
-var vows   = require("vows");
+var vows = require("vows");
 var assert = require("assert");
-var jsdom  = require("jsdom");
-var graph  = require("../lib/graph");
+// var jsdom = require("jsdom");
+var graph = require("../lib/graph");
 
-document = jsdom.jsdom("<html><body></body></html>");
-window = document.createWindow();
+const { JSDOM } = require("jsdom");
+
+const dom = new JSDOM("<html><head><style>div{font-size:16px;height:400px;width:600px;}</style></head><body><div></div></body></html>");
+
+window = dom.window;
+document = window.document;
 navigator = window.navigator;
 screen = window.screen;
 
-$ = require("jquery").create(window);
+$ = require('jQuery');
+
 // We can't type: d3 = require("d3"), because node D3 wrapper creates its own document
-// that is unavailable for external code. We have to create own document manually and 
+// that is unavailable for external code. We have to create own document manually and
 // just call browser version of d3 (d3/d3.js).
-require("d3/d3");
+d3 = require("d3/d3");
 
 var suite = vows.describe("grapher/graph-selection");
 
 function getBaseGraph() {
-  return graph( $('<div>').width(500).height(500)[0] ).xmin(0).xmax(10);
+  var div = $('<div>').width(500).height(500)[0];
+  return graph(div).xmin(0).xmax(10);
 }
 
 function graphWithBrushUpdateEvent(graph, extent) {
@@ -35,228 +41,229 @@ function graphWithBrushClearEvent(graph) {
 suite.addBatch({
 
   "initially": {
-    topic: function() {
-      return getBaseGraph();
+    topic() {
+      var graph = getBaseGraph();
+      return graph;
     },
 
     "the has_selection property": {
-      topic: function(graph) {
+      topic(graph) {
         return graph.hasSelection();
       },
-      "should be false": function(topic) {
-        assert.strictEqual( topic, false );
+      "should be false": function (topic) {
+        assert.strictEqual(topic, false);
       }
     },
 
     "the selection domain": {
-      topic: function(graph) {
+      topic(graph) {
         return graph.selectionDomain();
       },
-      "should be null": function(topic) {
-        assert.strictEqual( topic, null );
+      "should be null": function (topic) {
+        assert.strictEqual(topic, null);
       }
     },
 
     "the selection_visible property": {
-      topic: function(graph) {
+      topic(graph) {
         return graph.selectionVisible();
       },
-      "should be false": function(topic) {
-        assert.strictEqual( topic, false );
+      "should be false": function (topic) {
+        assert.strictEqual(topic, false);
       }
     },
 
     "the selection_enabled property": {
-      topic: function(graph) {
+      topic(graph) {
         return graph.selectionEnabled();
       },
-      "should be true": function(topic) {
-        assert.strictEqual( topic, true );
+      "should be true": function (topic) {
+        assert.strictEqual(topic, true);
       }
     }
   },
 
   "when selection domain is set to null, for \"no selection\"": {
-    topic: function() {
+    topic() {
       return getBaseGraph().selectionDomain(null);
     },
     "the has_selection property": {
-      topic: function(graph) {
+      topic(graph) {
         return graph.hasSelection();
       },
-      "should be false": function(topic) {
-        assert.strictEqual( topic, false );
+      "should be false": function (topic) {
+        assert.strictEqual(topic, false);
       }
     },
     "the selection domain": {
-      topic: function(graph) {
+      topic(graph) {
         return graph.selectionDomain();
       },
-      "should be null": function(topic) {
-        assert.strictEqual( topic, null );
+      "should be null": function (topic) {
+        assert.strictEqual(topic, null);
       }
     }
   },
 
   "when selection domain is set to [], for \"empty selection\"": {
-    topic: function() {
+    topic() {
       return getBaseGraph().selectionDomain([]);
     },
     "the has_selection property": {
-      topic: function(graph) {
+      topic(graph) {
         return graph.hasSelection();
       },
-      "should be true": function(topic) {
-        assert.strictEqual( topic, true );
+      "should be true": function (topic) {
+        assert.strictEqual(topic, true);
       }
     },
     "the selection domain": {
-      topic: function(graph) {
+      topic(graph) {
         return graph.selectionDomain();
       },
-      "should be []": function(topic) {
-        assert.deepEqual( topic, [] );
+      "should be []": function (topic) {
+        assert.deepEqual(topic, []);
       }
     }
   },
 
   "when selection domain is set to [1, 2]": {
-    topic: function() {
+    topic() {
       return getBaseGraph().selectionDomain([1, 2]);
     },
     "the has_selection property": {
-      topic: function(graph) {
+      topic(graph) {
         return graph.hasSelection();
       },
-      "should be true": function(topic) {
-        assert.strictEqual( topic, true );
+      "should be true": function (topic) {
+        assert.strictEqual(topic, true);
       }
     },
     "the selection domain": {
-      topic: function(graph) {
+      topic(graph) {
         return graph.selectionDomain();
       },
-      "should be [1, 2]": function(topic) {
-        assert.deepEqual( topic, [1,2] );
+      "should be [1, 2]": function (topic) {
+        assert.deepEqual(topic, [1, 2]);
       }
     }
   },
 
   "when selection_visible is true": {
-    topic: function() {
+    topic() {
       // This topic is a *function* that creates a graph (with a particular setup), so that each
       // subtopic can create an independent graph instance which inherits the setup defined by this
       // topic. (Without doing this, all subtopics and would mutate a single graph instance set up
       // by this topic, which leads to chaos, not to mention incorrect test results.)
-      return function() {
+      return function () {
         return getBaseGraph().selectionVisible(true);
       };
     },
 
     "the selection_enabled property": {
-      topic: function(getTopicGraph) {
+      topic(getTopicGraph) {
         return getTopicGraph().selectionEnabled();
       },
 
-      "should be true": function(topic) {
-        assert.strictEqual( topic, true );
+      "should be true": function (topic) {
+        assert.strictEqual(topic, true);
       }
     },
 
     "and has_selection is true": {
-      topic: function(getTopicGraph) {
-        return function() {
-          return getTopicGraph().selectionDomain([1,2]);
+      topic(getTopicGraph) {
+        return function () {
+          return getTopicGraph().selectionDomain([1, 2]);
         };
       },
 
       "the brush element": {
-        topic: function(getTopicGraph) {
+        topic(getTopicGraph) {
           return getTopicGraph().elem().select('.brush');
         },
-        "should be visible": function(topic) {
-          assert.equal( topic.style('display'), 'inline' );
+        "should be visible": function (topic) {
+          assert.equal(topic.style('display'), 'inline');
         },
 
-        "should allow pointer-events": function(topic) {
-          assert.equal( topic.style('pointer-events'), 'all' );
+        "should allow pointer-events": function (topic) {
+          assert.equal(topic.style('pointer-events'), 'all');
         }
       },
 
       "the d3 brush control": {
-        topic: function(getTopicGraph) {
+        topic(getTopicGraph) {
           return getTopicGraph().brushControl();
         },
-        "should listen for d3 brush events": function(topic) {
-          assert.isFunction( topic.on('brush') );
+        "should listen for d3 brush events": function (topic) {
+          assert.isFunction(topic.on('brush'));
         }
       },
 
       "and when has_selection subsequently becomes false": {
-        topic: function(getTopicGraph) {
-          return function() {
+        topic(getTopicGraph) {
+          return function () {
             return getTopicGraph().selectionDomain(null);
           };
         },
         "the brush element": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             return getTopicGraph().elem().select('.brush');
           },
-          "should not be visible": function(topic) {
-            assert.equal( topic.style('display'), 'none' );
+          "should not be visible": function (topic) {
+            assert.equal(topic.style('display'), 'none');
           }
         }
       },
 
       "and when selection_visible subsequently becomes false": {
-        topic: function(getTopicGraph) {
-          return function() {
+        topic(getTopicGraph) {
+          return function () {
             return getTopicGraph().selectionVisible(false);
           };
         },
         "the brush element": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             return getTopicGraph().elem().select('.brush');
           },
-          "should not be visible": function(topic) {
-            assert.equal( topic.style('display'), 'none' );
+          "should not be visible": function (topic) {
+            assert.equal(topic.style('display'), 'none');
           }
         }
       },
 
       "and when selection_enabled subsequently becomes false": {
-        topic: function(getTopicGraph) {
-          return function() {
+        topic(getTopicGraph) {
+          return function () {
             return getTopicGraph().selectionEnabled(false);
           };
         },
         "the brush element": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             return getTopicGraph().elem().select('.brush');
           },
-          "should not be visible": function(topic) {
-            assert.equal( topic.style('display'), 'inline' );
+          "should not be visible": function (topic) {
+            assert.equal(topic.style('display'), 'inline');
           },
-          "should not allow pointer-events": function(topic) {
-            assert.equal( topic.style('pointer-events'), 'none' );
+          "should not allow pointer-events": function (topic) {
+            assert.equal(topic.style('pointer-events'), 'none');
           }
         },
 
         "and selection_enabled subsequently becomes true again": {
-          topic: function(getTopicGraph) {
-            return function() {
+          topic(getTopicGraph) {
+            return function () {
               return getTopicGraph().selectionEnabled(true);
             };
           },
           "the brush element": {
-            topic: function(getTopicGraph) {
+            topic(getTopicGraph) {
               return getTopicGraph().elem().select('.brush');
             },
-            "should be visible": function(topic) {
-              assert.equal( topic.style('display'), 'inline' );
+            "should be visible": function (topic) {
+              assert.equal(topic.style('display'), 'inline');
             },
-            "should allow pointer-events": function(topic) {
-              assert.equal( topic.style('pointer-events'), 'all' );
+            "should allow pointer-events": function (topic) {
+              assert.equal(topic.style('pointer-events'), 'all');
             }
           }
         }
@@ -264,8 +271,8 @@ suite.addBatch({
     },
 
     "and the selection domain is set to [15, 16]": {
-      topic: function(getTopicGraph) {
-        return function(cb) {
+      topic(getTopicGraph) {
+        return function (cb) {
           var graph = getTopicGraph().selectionDomain([15, 16]);
           // allow topics to pass this.callback to getTopicGraph, and allow the vows
           // to see the arguments passed to the selectionListener, by making sure
@@ -273,7 +280,7 @@ suite.addBatch({
           if (cb) {
             graph.selectionListener(function cb2() {
               var args = [].splice.call(arguments, 0);
-              cb.apply(null, [null].concat(args) );
+              cb.apply(null, [null].concat(args));
             });
           }
           return graph;
@@ -281,36 +288,36 @@ suite.addBatch({
       },
 
       "the d3 brush control's extent": {
-        topic: function(getTopicGraph) {
+        topic(getTopicGraph) {
           return getTopicGraph().brushControl().extent();
         },
-        "should be [15, 16]": function(topic) {
-          assert.deepEqual( topic, [15, 16] );
+        "should be [15, 16]": function (topic) {
+          assert.deepEqual(topic, [15, 16]);
         }
       },
 
       "and when the selection domain is programmatically updated to [10, 12]": {
-        topic: function(getTopicGraph) {
-          return function(cb) {
+        topic(getTopicGraph) {
+          return function (cb) {
             return getTopicGraph(cb).selectionDomain([10, 12]);
           };
         },
 
         "the d3 brush control's extent": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             return getTopicGraph().brushControl().extent();
           },
-          "should update to [10, 12]": function(topic) {
-            assert.deepEqual( topic, [10, 12] );
+          "should update to [10, 12]": function (topic) {
+            assert.deepEqual(topic, [10, 12]);
           }
         },
 
         "the selection listener": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             getTopicGraph(this.callback);
           },
-          "should be called back with [10, 12]": function(domain) {
-            assert.deepEqual( domain, [10, 12] );
+          "should be called back with [10, 12]": function (domain) {
+            assert.deepEqual(domain, [10, 12]);
           }
         }
 
@@ -319,18 +326,18 @@ suite.addBatch({
       },
 
       "and when the selection domain is programmatically updated to null": {
-        topic: function(getTopicGraph) {
-          return function(cb) {
+        topic(getTopicGraph) {
+          return function (cb) {
             return getTopicGraph(cb).selectionDomain(null);
           };
         },
 
         "the selection listener": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             getTopicGraph(this.callback);
           },
-          "should be called back with null": function(domain) {
-            assert.strictEqual( domain, null );
+          "should be called back with null": function (domain) {
+            assert.strictEqual(domain, null);
           }
         }
 
@@ -339,77 +346,77 @@ suite.addBatch({
       },
 
       "and a brush event is fired, with brush extent [11, 13]": {
-        topic: function(getTopicGraph) {
-          return function(cb) {
+        topic(getTopicGraph) {
+          return function (cb) {
             return graphWithBrushUpdateEvent(getTopicGraph(cb), [11, 13]);
           };
         },
 
         "the selection domain": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             return getTopicGraph().selectionDomain();
           },
-          "should update to [11, 13]": function(topic) {
-            assert.deepEqual( topic, [11, 13] );
+          "should update to [11, 13]": function (topic) {
+            assert.deepEqual(topic, [11, 13]);
           }
         },
 
         "the selection listener": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             getTopicGraph(this.callback);
           },
-          "should be called back with [11, 13]": function(domain) {
-            assert.deepEqual( domain, [11, 13] );
+          "should be called back with [11, 13]": function (domain) {
+            assert.deepEqual(domain, [11, 13]);
           }
         }
       },
 
       "and a brush event is fired, with the brush extent cleared": {
-        topic: function(getTopicGraph) {
-          return function(cb) {
+        topic(getTopicGraph) {
+          return function (cb) {
             return graphWithBrushClearEvent(getTopicGraph(cb));
           };
         },
 
         "the selection domain": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             return getTopicGraph().selectionDomain();
           },
-          "should be updated to []": function(topic) {
-            assert.deepEqual( topic, [] );
+          "should be updated to []": function (topic) {
+            assert.deepEqual(topic, []);
           }
         },
 
         "the selection listener": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             getTopicGraph(this.callback);
           },
-          "should be called back with []": function(domain) {
-            assert.deepEqual( domain, [] );
+          "should be called back with []": function (domain) {
+            assert.deepEqual(domain, []);
           }
         }
 
       },
 
       "with selection_enabled set to false": {
-        topic: function(getTopicGraph) {
-          return function() {
+        topic(getTopicGraph) {
+          return function () {
             return getTopicGraph().selectionEnabled(false);
           };
         },
         "and a brush event is fired, with brush extent [11, 13]": {
-          topic: function(getTopicGraph) {
-            return function() {
+          topic(getTopicGraph) {
+            return function () {
               return graphWithBrushUpdateEvent(getTopicGraph(), [11, 13]);
             };
           },
 
           "the selection domain": {
-            topic: function(getTopicGraph) {
+            topic(getTopicGraph) {
               return getTopicGraph().selectionDomain();
             },
-            "should remain [15, 16]": function(topic) {
-              assert.deepEqual( topic, [15, 16] );
+            "should remain [15, 16]": function (topic) {
+              assert.deepEqual(topic, [15, 16]);
             }
           }
         }
@@ -418,62 +425,61 @@ suite.addBatch({
   },
 
   "when the graph is initialized": {
-    topic: function() {
-      return function() {
+    topic() {
+      return function () {
         return getBaseGraph().selectionVisible(false);
       };
     },
 
     "and the selection domain is [15, 16]": {
-      topic: function(getTopicGraph) {
-        return function() {
+      topic(getTopicGraph) {
+        return function () {
           return getTopicGraph().selectionDomain([15, 16]);
         };
       },
 
       "the selection_visible property": {
-        topic: function(getTopicGraph) {
+        topic(getTopicGraph) {
           return getTopicGraph().selectionVisible();
         },
-        "should be false": function(topic) {
-          assert.strictEqual( topic, false );
+        "should be false": function (topic) {
+          assert.strictEqual(topic, false);
         }
       },
 
       "the d3 brush control": {
-        topic: function(getTopicGraph) {
+        topic(getTopicGraph) {
           // Topics that return undefined (equivalently, that don't return a value)
           // must use this.callback to pass the topic to vows.
           // Additionally, the first argument to this.callback indicates whether
           // an error was thrown by the topic function and therefore must be null
           // see https://github.com/cloudhead/vows/issues/187
 
-          this.callback( null, getTopicGraph().brushControl() );
+          this.callback(null, getTopicGraph().brushControl());
         },
-        "should not yet be defined": function(topic) {
-          assert.isUndefined( topic );
+        "should not yet be defined": function (topic) {
+          assert.isUndefined(topic);
         }
       },
 
       "when selection_visible does become true": {
-        topic: function(getTopicGraph) {
-          return function() {
+        topic(getTopicGraph) {
+          return function () {
             return getTopicGraph().selectionVisible(true);
           };
         },
 
         "the d3 brush control's extent": {
-          topic: function(getTopicGraph) {
+          topic(getTopicGraph) {
             return getTopicGraph().brushControl().extent();
           },
-          "should be [15, 16]": function(topic) {
-            assert.deepEqual( topic, [15, 16] );
+          "should be [15, 16]": function (topic) {
+            assert.deepEqual(topic, [15, 16]);
           }
         }
       }
     }
   }
-
 });
 
 suite.export(module);

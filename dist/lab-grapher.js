@@ -1,4 +1,4 @@
-!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.LabGrapher=e():"undefined"!=typeof global?global.LabGrapher=e():"undefined"!=typeof self&&(self.LabGrapher=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.LabGrapher = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 module.exports.numberWidth = function(elem, cx, cy, fontSizeInPixels, numberStr) {
   var testSVG,
       testText,
@@ -83,408 +83,407 @@ var axis = require('./axis');
 var i18n = require('./i18n');
 
 module.exports = function Graph(idOrElement, options, message) {
-  var api = {},   // Public API object to be returned.
+  var api = {}, // Public API object to be returned.
 
-      // D3 selection of the containing DOM element the graph is placed in
-      elem,
+    // D3 selection of the containing DOM element the graph is placed in
+    elem,
 
-      // Regular representation of containing DOM element the graph is placed in
-      node,
+    // Regular representation of containing DOM element the graph is placed in
+    node,
 
-      // JQuerified version of DOM element
-      $node,
+    // JQuerified version of DOM element
+    $node,
 
-      // Size of containing DOM element
-      cx, cy,
+    // Size of containing DOM element
+    cx, cy,
 
-      // Calculated padding between edges of DOM container and interior plot area of graph.
-      padding,
+    // Calculated padding between edges of DOM container and interior plot area of graph.
+    padding,
 
-      // Object containing width and height in pixels of interior plot area of graph
-      size,
+    // Object containing width and height in pixels of interior plot area of graph
+    size,
 
-      // D3 objects representing SVG elements/containers in graph
-      svg,
-      vis,
-      plot,
-      viewbox,
-      title,
-      xlabel,
-      ylabel,
-      selectedRulerX,
-      selectedRulerY,
+    // D3 objects representing SVG elements/containers in graph
+    svg,
+    vis,
+    plot,
+    viewbox,
+    title,
+    xlabel,
+    ylabel,
+    selectedRulerX,
+    selectedRulerY,
 
-      // Strings used as tooltips when labels are visible but are truncated because
-      // they are too big to be rendered into the space the graph allocates
-      titleTooltip,
+    // Strings used as tooltips when labels are visible but are truncated because
+    // they are too big to be rendered into the space the graph allocates
+    titleTooltip,
 
-      // Instantiated D3 scale functions
-      // currently either d3.scale.linear, d3.scale.log, or d3.scale.pow
-      xScale,
-      yScale,
+    // Instantiated D3 scale functions
+    // currently either d3.scale.linear, d3.scale.log, or d3.scale.pow
+    xScale,
+    yScale,
 
-      // The approximate number of gridlines in the plot, passed to d3.scale.ticks() function
-      xTickCount,
-      yTickCount,
+    // The approximate number of gridlines in the plot, passed to d3.scale.ticks() function
+    xTickCount,
+    yTickCount,
 
-      // Instantiated D3 line function: d3.svg.line()
-      line,
+    // Instantiated D3 line function: d3.svg.line()
+    line,
 
-      // numeric format functions wrapping the d3.format() functions
-      fx,
-      fy,
+    // numeric format functions wrapping the d3.format() functions
+    fx,
+    fy,
 
-      // Instantiated D3 numeric format functions: d3.format()
-      fx_d3,
-      fy_d3,
+    // Instantiated D3 numeric format functions: d3.format()
+    fx_d3,
+    fy_d3,
 
-      // Function for stroke styling of major and minor grid lines
-      gridStroke = function(d) { return d ? "#ccc" : "#666"; },
+    // Function for stroke styling of major and minor grid lines
+    gridStroke = function (d) { return d ? "#ccc" : "#666"; },
 
-      // Functions for translation of grid lines and associated numeric labels
-      tx = function(d) { return "translate(" + xScale(d) + ",0)"; },
-      ty = function(d) { return "translate(0," + yScale(d) + ")"; },
+    // Functions for translation of grid lines and associated numeric labels
+    tx = function (d) { return "translate(" + xScale(d) + ",0)"; },
+    ty = function (d) { return "translate(0," + yScale(d) + ")"; },
 
-      // Div created and placed with z-index above all other graph layers that holds
-      // graph action/mode buttons.
-      buttonLayer,
-      legendLayer,
-      legendButton,
-      selectionButton,
-      drawButton,
+    // Div created and placed with z-index above all other graph layers that holds
+    // graph action/mode buttons.
+    buttonLayer,
+    legendLayer,
+    legendButton,
+    selectionButton,
+    drawButton,
 
-      // div created above everything but the button layer for holding annotations
-      annotationLayer,
+    // div created above everything but the button layer for holding annotations
+    annotationLayer,
 
-      // Div created and placed with z-index under all other graph layers
-      background,
+    // Div created and placed with z-index under all other graph layers
+    background,
 
-      // Div created and placed with z-index under title.
-      // It isn't styled by default, but it can be done by custom theme.
-      titleBackground,
+    // Div created and placed with z-index under title.
+    // It isn't styled by default, but it can be done by custom theme.
+    titleBackground,
 
-      // Optional string which can be displayed in background of interior plot area of graph.
-      notification,
+    // Optional string which can be displayed in background of interior plot area of graph.
+    notification,
 
-      // Optonal set of annotations that can be added dynamically to call out features of a graph
-      annotations = [],
+    // Optonal set of annotations that can be added dynamically to call out features of a graph
+    annotations = [],
 
-      // An array of strings holding 0 or more lines for the title of the graph
-      titles = [],
+    // An array of strings holding 0 or more lines for the title of the graph
+    titles = [],
 
-      // D3 selection containing canvas
-      graphCanvas,
+    // D3 selection containing canvas
+    graphCanvas,
 
-      // HTML5 Canvas object containing just plotted lines
-      gcanvas,
-      gctx,
-      canvasFillStyle = "rgba(255,255,255, 0.0)",
+    // HTML5 Canvas object containing just plotted lines
+    gcanvas,
+    gctx,
+    canvasFillStyle = "rgba(255,255,255, 0.0)",
 
-      // The style of the cursor when hovering over a sample.point marker.
-      // The cursor changes depending on the operations that can be performed.
-      markerCursorStyle,
+    // The style of the cursor when hovering over a sample.point marker.
+    // The cursor changes depending on the operations that can be performed.
+    markerCursorStyle,
 
-      // Metrics calculated to support layout of titles, axes as
-      // well as text and numeric labels for axes.
-      fontSizeInPixels,
-      halfFontSizeInPixels,
-      quarterFontSizeInPixels,
-      titleFontSizeInPixels,
-      axisFontSizeInPixels,
-      xlabelFontSizeInPixels,
-      ylabelFontSizeInPixels,
+    // Metrics calculated to support layout of titles, axes as
+    // well as text and numeric labels for axes.
+    fontSizeInPixels,
+    halfFontSizeInPixels,
+    quarterFontSizeInPixels,
+    titleFontSizeInPixels,
+    axisFontSizeInPixels,
+    xlabelFontSizeInPixels,
+    ylabelFontSizeInPixels,
 
-      // Array objects containing width and height of X and Y axis labels
-      xlabelMetrics,
-      ylabelMetrics,
+    // Array objects containing width and height of X and Y axis labels
+    xlabelMetrics,
+    ylabelMetrics,
 
-      // Width of widest numeric labels on X and Y axes
-      xAxisNumberWidth,
-      yAxisNumberWidth,
+    // Width of widest numeric labels on X and Y axes
+    xAxisNumberWidth,
+    yAxisNumberWidth,
 
-      // Height of numeric labels on X and Y axes
-      xAxisNumberHeight,
-      yAxisNumberHeight,
+    // Height of numeric labels on X and Y axes
+    xAxisNumberHeight,
+    yAxisNumberHeight,
 
-      // Padding necessary for X and Y axis labels to leave enough room for numeric labels
-      xAxisVerticalPadding,
-      yAxisHorizontalPadding,
+    // Padding necessary for X and Y axis labels to leave enough room for numeric labels
+    xAxisVerticalPadding,
+    yAxisHorizontalPadding,
 
-      // Padding necessary between right side of interior plot and edge of graph so
-      // make room for numeric lanel on right edge of X axis.
-      xAxisLabelHorizontalPadding,
+    // Padding necessary between right side of interior plot and edge of graph so
+    // make room for numeric lanel on right edge of X axis.
+    xAxisLabelHorizontalPadding,
 
-      // Baselines calculated for positioning of X and Y axis labels.
-      xAxisLabelBaseline,
-      yAxisLabelBaseline,
+    // Baselines calculated for positioning of X and Y axis labels.
+    xAxisLabelBaseline,
+    yAxisLabelBaseline,
 
-      // Thickness of draggable areas for rescaling axes, these surround numeric labels
-      xAxisDraggableHeight,
-      yAxisDraggableWidth,
+    // Thickness of draggable areas for rescaling axes, these surround numeric labels
+    xAxisDraggableHeight,
+    yAxisDraggableWidth,
 
-      // D3 SVG rects used to implement axis dragging
-      xAxisDraggable,
-      yAxisDraggable,
+    // D3 SVG rects used to implement axis dragging
+    xAxisDraggable,
+    yAxisDraggable,
 
-      // Strings used as tooltips when numeric axis draggables are visible but responsive
-      // layout system has removed the axis labels because of small size of graph.
-      xAxisDraggableTooltip,
-      yAxisDraggableTooltip,
+    // Strings used as tooltips when numeric axis draggables are visible but responsive
+    // layout system has removed the axis labels because of small size of graph.
+    xAxisDraggableTooltip,
+    yAxisDraggableTooltip,
 
-      // Used to calculate styles for markers appearing on samples/points (normally circles)
-      markerRadius,
-      markerStrokeWidth,
+    // Used to calculate styles for markers appearing on samples/points (normally circles)
+    markerRadius,
+    markerStrokeWidth,
 
-      // Stroke width used for lines in graph
-      lineWidth,
+    // Stroke width used for lines in graph
+    lineWidth,
 
-      // Used to categorize size of graphs in responsive layout mode where
-      // certain graph chrome is removed when graph is rendered smaller.
-      sizeType = {
-        category: "medium",
-        value: 3,
-        icon: 120,
-        tiny: 240,
-        small: 480,
-        medium: 960,
-        large: 1920
-      },
+    // Used to categorize size of graphs in responsive layout mode where
+    // certain graph chrome is removed when graph is rendered smaller.
+    sizeType = {
+      category: "medium",
+      value: 3,
+      icon: 120,
+      tiny: 240,
+      small: 480,
+      medium: 960,
+      large: 1920
+    },
 
-      // Padding of a title when it's placed on the left side.
-      titleLeftPadding = "10px",
+    // Padding of a title when it's placed on the left side.
+    titleLeftPadding = "10px",
 
-      // State variables indicating whether an axis drag operation is in place.
-      // NaN values are used to indicate operation not in progress and
-      // checked like this: if (!isNaN(downx)) { resacle operation in progress }
+    // State variables indicating whether an axis drag operation is in place.
+    // NaN values are used to indicate operation not in progress and
+    // checked like this: if (!isNaN(downx)) { resacle operation in progress }
+    //
+    // When drag/rescale operation is occuring values contain plot
+    // coordinates of start of drag (0 is a valid value).
+    downx = NaN,
+    downy = NaN,
+
+    // State variable indicating whether a data point is being dragged.
+    // When data point drag operation is occuring value contain two element
+    // array wiith plot coordinates of drag position.
+    draggedPoint = null,
+
+    // When a data point is selected contains two element array wiith plot coordinates
+    // of selected data point.
+    selected = null,
+
+    // An array of data points in the plot which are near the cursor.
+    // Normally used to temporarily display data point markers when cursor
+    // is nearby when markAllDataPoints is disabled.
+    selectable = [],
+
+    // An array containing two-element arrays consisting of X and Y values for samples/points
+    points = [],
+
+    // Consumers of points that have been added by user clicks
+    pointListeners = [],
+
+    // An array containing 1 or more points arrays to be plotted. Data is not indexed here
+    // and sorted when "sortPoints" option is enabled.
+    pointArray,
+
+    // Keeps the same set of points like pointArray, but data is not sorted, but provides
+    // indexing instead.
+    pointArrayIndexed,
+
+    // Current extent of points plotted by graph.
+    pointsXMin,
+    pointsXMax,
+    pointsYMin,
+    pointsYMax,
+
+    // Index into points array for current sample/point.
+    // Normally references data point last added.
+    // Current sample can refer to earlier points. This is
+    // represented in the view by using a desaturated styling for
+    // plotted data after te currentSample.
+    currentSample,
+
+    // When graphing data samples as opposed to [x, y] data pairs contains
+    // the fixed time interval between subsequent samples.
+    sampleInterval,
+
+    // Normally data sent to graph as samples starts at an X value of 0
+    // A different starting x value can be set
+    dataSampleStart,
+
+    // The default options for a graph
+    default_options = {
+      // Enables the button layer with: AutoScale...
+      showButtons: true,
+      // "icons" or "text".
+      buttonsStyle: "icons",
+      // "vertical" (overlaps with the plotting area) or "horizontal" (right below the title).
+      buttonsLayout: "vertical",
+
+      // Whether or not to show the graph's legend
+      legendVisible: false,
+
+      // Responsive Layout provides progressive removal of
+      // graph elements when size gets smaller
+      responsiveLayout: false,
+
+      // Font sizes for graphs are normally specified using ems.
+      // When fontScaleRelativeToParent to true the font-size of the
+      // containing element is set based on the size of the containing
+      // element. hs means whn the containing element is smaller the
+      // font-size of the labels in the graph will be smaller.
+      fontScaleRelativeToParent: true,
+      hideAxisValues: false,
+
+      enableAutoScaleButton: true,
+      enableAxisScaling: true,
+      enableZooming: true,
+
+      enableSelectionButton: false,
+      clearSelectionOnLeavingSelectMode: false,
+
+      enableDrawButton: false,
+      enableLegendButton: true,
+
+      titlePosition: "center", // or "left"
+
+      drawIndex: 0,
+
       //
-      // When drag/rescale operation is occuring values contain plot
-      // coordinates of start of drag (0 is a valid value).
-      downx = NaN,
-      downy = NaN,
-
-      // State variable indicating whether a data point is being dragged.
-      // When data point drag operation is occuring value contain two element
-      // array wiith plot coordinates of drag position.
-      draggedPoint = null,
-
-      // When a data point is selected contains two element array wiith plot coordinates
-      // of selected data point.
-      selected = null,
-
-      // An array of data points in the plot which are near the cursor.
-      // Normally used to temporarily display data point markers when cursor
-      // is nearby when markAllDataPoints is disabled.
-      selectable = [],
-
-      // An array containing two-element arrays consisting of X and Y values for samples/points
-      points = [],
-
-      // Consumers of points that have been added by user clicks
-      pointListeners = [],
-
-      // An array containing 1 or more points arrays to be plotted. Data is not indexed here
-      // and sorted when "sortPoints" option is enabled.
-      pointArray,
-
-      // Keeps the same set of points like pointArray, but data is not sorted, but provides
-      // indexing instead.
-      pointArrayIndexed,
-
-      // Current extent of points plotted by graph.
-      pointsXMin,
-      pointsXMax,
-      pointsYMin,
-      pointsYMax,
-
-      // Index into points array for current sample/point.
-      // Normally references data point last added.
-      // Current sample can refer to earlier points. This is
-      // represented in the view by using a desaturated styling for
-      // plotted data after te currentSample.
-      currentSample,
-
-      // When graphing data samples as opposed to [x, y] data pairs contains
-      // the fixed time interval between subsequent samples.
-      sampleInterval,
-
+      // dataType can be either 'points or 'samples'
+      //
+      dataType: 'points',
+      //
+      // dataType: 'points'
+      //
+      // Arrays of two-element arrays of x, y data pairs, this is the internal
+      // format the graphers uses to represent data.
+      dataPoints: [],
+      //
+      // dataType: 'samples'
+      //
+      // An array of samples (or an array or arrays of samples)
+      dataSamples: [],
+      // The constant time interval between sample values
+      sampleInterval: 1,
       // Normally data sent to graph as samples starts at an X value of 0
       // A different starting x value can be set
-      dataSampleStart,
+      dataSampleStart: 0,
 
-      // The default options for a graph
-      default_options = {
-        // Enables the button layer with: AutoScale...
-        showButtons: true,
-        // "icons" or "text".
-        buttonsStyle: "icons",
-        // "vertical" (overlaps with the plotting area) or "horizontal" (right below the title).
-        buttonsLayout: "vertical",
+      // If true then all points added to graph will be sorted by X coordinate.
+      sortPoints: true,
 
-        // Whether or not to show the graph's legend
-        legendVisible: false,
+      // title can be a string or an array of strings, if an
+      // array of strings each element is on a separate line.
+      title: "graph",
 
-        // Responsive Layout provides progressive removal of
-        // graph elements when size gets smaller
-        responsiveLayout: false,
+      // The labels for the axes, these are separate from the numeric labels.
+      xlabel: "x-axis",
+      ylabel: "y-axis",
 
-        // Font sizes for graphs are normally specified using ems.
-        // When fontScaleRelativeToParent to true the font-size of the
-        // containing element is set based on the size of the containing
-        // element. hs means whn the containing element is smaller the
-        // font-size of the labels in the graph will be smaller.
-        fontScaleRelativeToParent: true,
-        hideAxisValues: false,
+      // Initial extent of the X and Y axes.
+      xmax: 10,
+      xmin: 0,
+      ymax: 10,
+      ymin: 0,
 
-        enableAutoScaleButton: true,
-        enableAxisScaling: true,
-        enableZooming: true,
+      // Auto-scaling of X axis when at least one point exceeds current domain.
+      autoScaleX: true,
+      autoScaleY: true,
+      autoScalePadding: 0.3,
 
-        enableSelectionButton: false,
-        clearSelectionOnLeavingSelectMode: false,
+      // Approximate values for how many gridlines should appear on the axes.
+      xTickCount: 10,
+      yTickCount: 10,
 
-        enableDrawButton: false,
-        enableLegendButton: true,
+      // The formatter strings used to convert numbers into strings.
+      // see: https://github.com/mbostock/d3/wiki/Formatting#wiki-d3_format
+      xFormatter: ".3s",
+      yFormatter: ".3s",
 
-        titlePosition: "center", // or "left"
+      // Scale type: options are:
+      //   linear: https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-linear
+      //   log:    https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-log
+      //   pow:    https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-pow
+      xscale: 'linear',
+      yscale: 'linear',
 
-        drawIndex: 0,
+      // Used when scale type is set to "pow"
+      xscaleExponent: 0.5,
+      yscaleExponent: 0.5,
 
-        //
-        // dataType can be either 'points or 'samples'
-        //
-        dataType: 'points',
-        //
-        // dataType: 'points'
-        //
-        // Arrays of two-element arrays of x, y data pairs, this is the internal
-        // format the graphers uses to represent data.
-        dataPoints:      [],
-        //
-        // dataType: 'samples'
-        //
-        // An array of samples (or an array or arrays of samples)
-        dataSamples:     [],
-        // The constant time interval between sample values
-        sampleInterval:  1,
-        // Normally data sent to graph as samples starts at an X value of 0
-        // A different starting x value can be set
-        dataSampleStart: 0,
+      // How many samples/points over which a graph shift should take place
+      // when the data being plotted gets close to the edge of the X axis.
+      axisShift: 10,
 
-        // If true then all points added to graph will be sorted by X coordinate.
-        sortPoints:      true,
+      // selectablePoints: false,
 
-        // title can be a string or an array of strings, if an
-        // array of strings each element is on a separate line.
-        title:          "graph",
+      // true if data points should be marked ... currently marked with a circle.
+      markAllDataPoints: false,
 
-        // The labels for the axes, these are separate from the numeric labels.
-        xlabel:         "x-axis",
-        ylabel:         "y-axis",
+      // only show circles when hovering near them with the mouse or
+      // tapping near then on a tablet
+      markNearbyDataPoints: false,
 
-        // Initial extent of the X and Y axes.
-        xmax:            10,
-        xmin:            0,
-        ymax:            10,
-        ymin:            0,
+      // number of circles to show on each side of the central point
+      extraCirclesVisibleOnHover: 2,
 
-        // Auto-scaling of X axis when at least one point exceeds current domain.
-        autoScaleX:       true,
-        autoScaleY:       true,
-        autoScalePadding: 0.3,
+      // true to show dashed horizontal and vertical rulers when a circle is selected
+      showRulersOnSelection: false,
 
-        // Approximate values for how many gridlines should appear on the axes.
-        xTickCount:      10,
-        yTickCount:      10,
+      // width of the line used for plotting
+      lineWidth: 2.0,
 
-        // The formatter strings used to convert numbers into strings.
-        // see: https://github.com/mbostock/d3/wiki/Formatting#wiki-d3_format
-        xFormatter:      ".3s",
-        yFormatter:      ".3s",
+      // Enable values of data points to be changed by selecting and dragging.
+      dataChange: false,
 
-        // Scale type: options are:
-        //   linear: https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-linear
-        //   log:    https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-log
-        //   pow:    https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-pow
-        xscale:         'linear',
-        yscale:         'linear',
+      // Enables adding of data to a graph by option/alt clicking in the graph.
+      addData: false,
 
-        // Used when scale type is set to "pow"
-        xscaleExponent:  0.5,
-        yscaleExponent:  0.5,
+      // Set value to a string and it will be rendered in background of graph.
+      notification: false,
 
-        // How many samples/points over which a graph shift should take place
-        // when the data being plotted gets close to the edge of the X axis.
-        axisShift:       10,
+      // Render lines between samples/points
+      lines: true,
 
-        // selectablePoints: false,
+      // Render vertical bars extending up to samples/points
+      bars: false,
 
-        // true if data points should be marked ... currently marked with a circle.
-        markAllDataPoints:   false,
+      // Callback, called after autoscale button is clicked
+      onAutoscale: null,
 
-        // only show circles when hovering near them with the mouse or
-        // tapping near then on a tablet
-        markNearbyDataPoints: false,
+      // Callack, called after X or Y axis is changed (due to any reason, e.g. manual or auto-scaling)
+      onXDomainChange: null,
+      onYDomainChange: null,
 
-        // number of circles to show on each side of the central point
-        extraCirclesVisibleOnHover: 2,
+      // The R, G, and B values to be used to plot samples in each data channel. This default can
+      // be overridden at construction time, but the caller must provide colors for each channel.
+      // If there are n channels and m < n provided colors, the last n - m channels will be drawn
+      // using the last color in the list
+      dataColors: [
+        "#a00000", // channel 0   (red)
+        "#2ca000", // channel 1   (green-yellow)
+        "#2c00a0" // channels 2+ (blue-purple)
+      ],
 
-        // true to show dashed horizontal and vertical rulers when a circle is selected
-        showRulersOnSelection: false,
+      // An array of strings to be paired with the data colors to build a legend
+      legendLabels: []
+    },
 
-        // width of the line used for plotting
-        lineWidth:      2.0,
-
-        // Enable values of data points to be changed by selecting and dragging.
-        dataChange:      false,
-
-        // Enables adding of data to a graph by option/alt clicking in the graph.
-        addData:         false,
-
-        // Set value to a string and it will be rendered in background of graph.
-        notification:    false,
-
-        // Render lines between samples/points
-        lines:           true,
-
-        // Render vertical bars extending up to samples/points
-        bars:            false,
-
-        // Callback, called after autoscale button is clicked
-        onAutoscale:     null,
-
-        // Callack, called after X or Y axis is changed (due to any reason, e.g. manual or auto-scaling)
-        onXDomainChange: null,
-        onYDomainChange: null,
-
-        // The R, G, and B values to be used to plot samples in each data channel. This default can
-        // be overridden at construction time, but the caller must provide colors for each channel.
-        // If there are n channels and m < n provided colors, the last n - m channels will be drawn
-        // using the last color in the list
-        dataColors: [
-          "#a00000",     // channel 0   (red)
-          "#2ca000",     // channel 1   (green-yellow)
-          "#2c00a0"      // channels 2+ (blue-purple)
-        ],
-
-        // An array of strings to be paired with the data colors to build a legend
-        legendLabels: []
-      },
-
-      // brush selection variables
-      selection_region = {
-        xmin: null,
-        xmax: null,
-        ymin: null,
-        ymax: null
-      },
-      has_selection = false,
-      selection_visible = false,
-      selection_enabled = true,
-      selection_listener,
-      draw_enabled = false,
-      brush_element,
-      brush_control;
-
+    // brush selection variables
+    selection_region = {
+      xmin: null,
+      xmax: null,
+      ymin: null,
+      ymax: null
+    },
+    has_selection = false,
+    selection_visible = false,
+    selection_enabled = true,
+    selection_listener,
+    draw_enabled = false,
+    brush_element,
+    brush_control;
 
   // ------------------------------------------------------------
   //
@@ -522,7 +521,7 @@ module.exports = function Graph(idOrElement, options, message) {
     lineWidth = options.lineWidth;
 
     size = {
-      "width":  120,
+      "width": 120,
       "height": 120
     };
 
@@ -536,19 +535,19 @@ module.exports = function Graph(idOrElement, options, message) {
     //   scale.ticks(10).map(d3.format('.3r'))
     //   => ["-0.600", "-0.400", "-0.200", "-0.0000000000000000888", "0.200", "0.400", "0.600"]
 
-    fx = function(num) {
+    fx = function (num) {
       var domain = xScale.domain(),
-          onePercent = Math.abs((domain[1] - domain[0])*0.01);
-      if (Math.abs(0+num) < onePercent) {
+        onePercent = Math.abs((domain[1] - domain[0]) * 0.01);
+      if (Math.abs(0 + num) < onePercent) {
         num = 0;
       }
       return fx_d3(num);
     };
 
-    fy = function(num) {
+    fy = function (num) {
       var domain = yScale.domain(),
-          onePercent = Math.abs((domain[1] - domain[0])*0.01);
-      if (Math.abs(0+num) < onePercent) {
+        onePercent = Math.abs((domain[1] - domain[0]) * 0.01);
+      if (Math.abs(0 + num) < onePercent) {
         num = 0;
       }
       return fy_d3(num);
@@ -560,17 +559,17 @@ module.exports = function Graph(idOrElement, options, message) {
     pointsXMin = pointsYMin = Infinity;
     pointsXMax = pointsYMax = -Infinity;
     pointArray = [];
-    switch(options.dataType) {
-      case "fake":
+    switch (options.dataType) {
+    case "fake":
       points = fakeDataPoints();
       pointArray = [points];
       break;
 
-      case 'points':
+    case 'points':
       resetDataPoints(options.dataPoints);
       break;
 
-      case 'samples':
+    case 'samples':
       resetDataSamples(options.dataSamples, sampleInterval, dataSampleStart);
       break;
     }
@@ -630,18 +629,18 @@ module.exports = function Graph(idOrElement, options, message) {
   function scale(w, h) {
     if (!w && !h) {
       cx = Math.max(elem.property("clientWidth"), 60);
-      cy = Math.max(elem.property("clientHeight"),60);
+      cy = Math.max(elem.property("clientHeight"), 60);
     } else {
       cx = w;
-      node.style.width =  cx +"px";
+      node.style.width = cx + "px";
       if (!h) {
         node.style.height = "100%";
         h = elem.property("clientHeight");
         cy = h;
-        node.style.height = cy +"px";
+        node.style.height = cy + "px";
       } else {
         cy = h;
-        node.style.height = cy +"px";
+        node.style.height = cy + "px";
       }
     }
     calculateSizeType();
@@ -650,25 +649,26 @@ module.exports = function Graph(idOrElement, options, message) {
   function calculateLayout() {
     scale();
 
-    fontSizeInPixels = parseFloat($node.css("font-size"));
+    var fs = $node.css("font-size");
+    fontSizeInPixels = parseFloat();
 
     if (!options.fontScaleRelativeToParent) {
-      $node.css("font-size", 0.5 + sizeType.value/6 + 'em');
+      $node.css("font-size", 0.5 + sizeType.value / 6 + 'em');
     }
 
     fontSizeInPixels = parseFloat($node.css("font-size"));
 
-    halfFontSizeInPixels = fontSizeInPixels/2;
-    quarterFontSizeInPixels = fontSizeInPixels/4;
+    halfFontSizeInPixels = fontSizeInPixels / 2;
+    quarterFontSizeInPixels = fontSizeInPixels / 4;
 
     if (svg === undefined) {
-      titleFontSizeInPixels =  fontSizeInPixels;
-      axisFontSizeInPixels =   fontSizeInPixels;
+      titleFontSizeInPixels = fontSizeInPixels;
+      axisFontSizeInPixels = fontSizeInPixels;
       xlabelFontSizeInPixels = fontSizeInPixels;
       ylabelFontSizeInPixels = fontSizeInPixels;
     } else {
-      titleFontSizeInPixels =  parseFloat($("svg.graph text.title").css("font-size"));
-      axisFontSizeInPixels =   parseFloat($("svg.graph text.axis").css("font-size"));
+      titleFontSizeInPixels = parseFloat($("svg.graph text.title").css("font-size"));
+      axisFontSizeInPixels = parseFloat($("svg.graph text.axis").css("font-size"));
       xlabelFontSizeInPixels = parseFloat($("svg.graph text.xlabel").css("font-size"));
       ylabelFontSizeInPixels = parseFloat($("svg.graph text.ylabel").css("font-size"));
     }
@@ -677,13 +677,13 @@ module.exports = function Graph(idOrElement, options, message) {
     updateScales();
 
     line = d3.svg.line()
-        .x(function(d, i) { return xScale(points[i][0]); })
-        .y(function(d, i) { return yScale(points[i][1]); });
+      .x(function (d, i) { return xScale(points[i][0]); })
+      .y(function (d, i) { return yScale(points[i][1]); });
   }
 
   function setupOptions(options) {
     if (options) {
-      for(var p in default_options) {
+      for (var p in default_options) {
         if (options[p] === undefined) {
           options[p] = default_options[p];
         }
@@ -709,7 +709,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function updateAxesAndSize() {
     xlabelMetrics = [fontSizeInPixels, fontSizeInPixels];
-    ylabelMetrics = [fontSizeInPixels*2, fontSizeInPixels];
+    ylabelMetrics = [fontSizeInPixels * 2, fontSizeInPixels];
     if (xScale !== undefined) {
       // Find the widest X and Y axis labels, as those metrics are going to be used to calculate padding.
       xScale.ticks(xTickCount).forEach(function (tickVal) {
@@ -726,82 +726,82 @@ module.exports = function Graph(idOrElement, options, message) {
       });
     }
 
-    xAxisNumberWidth  = xlabelMetrics[0];
+    xAxisNumberWidth = xlabelMetrics[0];
     xAxisNumberHeight = xlabelMetrics[1];
 
     xAxisLabelHorizontalPadding = xAxisNumberWidth * 0.6;
     xAxisDraggableHeight = xAxisNumberHeight * 1.1;
-    xAxisVerticalPadding = xAxisDraggableHeight + xAxisNumberHeight*1.3;
-    xAxisLabelBaseline = xAxisVerticalPadding-xAxisNumberHeight/3;
+    xAxisVerticalPadding = xAxisDraggableHeight + xAxisNumberHeight * 1.3;
+    xAxisLabelBaseline = xAxisVerticalPadding - xAxisNumberHeight / 3;
 
-    yAxisNumberWidth  = ylabelMetrics[0];
+    yAxisNumberWidth = ylabelMetrics[0];
     yAxisNumberHeight = ylabelMetrics[1];
 
-    yAxisDraggableWidth    = yAxisNumberWidth + xAxisNumberHeight/4;
+    yAxisDraggableWidth = yAxisNumberWidth + xAxisNumberHeight / 4;
     yAxisHorizontalPadding = yAxisDraggableWidth + yAxisNumberHeight;
-    yAxisLabelBaseline     = -(yAxisDraggableWidth+yAxisNumberHeight/4);
+    yAxisLabelBaseline = -(yAxisDraggableWidth + yAxisNumberHeight / 4);
     if (options.hideAxisValues) {
-      xAxisLabelBaseline = xAxisLabelBaseline - xAxisNumberHeight*1.3;
-      yAxisLabelBaseline = -ylabelFontSizeInPixels/4;
+      xAxisLabelBaseline = xAxisLabelBaseline - xAxisNumberHeight * 1.3;
+      yAxisLabelBaseline = -ylabelFontSizeInPixels / 4;
     }
 
-    switch(sizeType.value) {
-      case 0:         // icon
+    switch (sizeType.value) {
+    case 0: // icon
       padding = {
-        "top":    halfFontSizeInPixels,
-        "right":  halfFontSizeInPixels,
-        "bottom": xlabelFontSizeInPixels*1.25,
-        "left":   ylabelFontSizeInPixels*1.25
+        "top": halfFontSizeInPixels,
+        "right": halfFontSizeInPixels,
+        "bottom": xlabelFontSizeInPixels * 1.25,
+        "left": ylabelFontSizeInPixels * 1.25
       };
       break;
 
-      case 1:         // tiny
+    case 1: // tiny
       padding = {
-        "top":    getTopPadding(),
-        "right":  halfFontSizeInPixels,
-        "bottom": xlabelFontSizeInPixels*1.25,
-        "left":   ylabelFontSizeInPixels*1.25
+        "top": getTopPadding(),
+        "right": halfFontSizeInPixels,
+        "bottom": xlabelFontSizeInPixels * 1.25,
+        "left": ylabelFontSizeInPixels * 1.25
       };
       break;
 
-      case 2:         // small
+    case 2: // small
       padding = {
-        "top":    getTopPadding(),
-        "right":  xAxisLabelHorizontalPadding,
-        "bottom": options.hideAxisValues ? xlabelFontSizeInPixels*1.25 : axisFontSizeInPixels*1.25,
-        "left": options.hideAxisValues ? ylabelFontSizeInPixels*1.25 : yAxisNumberWidth*1.25
+        "top": getTopPadding(),
+        "right": xAxisLabelHorizontalPadding,
+        "bottom": options.hideAxisValues ? xlabelFontSizeInPixels * 1.25 : axisFontSizeInPixels * 1.25,
+        "left": options.hideAxisValues ? ylabelFontSizeInPixels * 1.25 : yAxisNumberWidth * 1.25
       };
-      xTickCount = Math.max(6, options.xTickCount/2);
-      yTickCount = Math.max(6, options.yTickCount/2);
+      xTickCount = Math.max(6, options.xTickCount / 2);
+      yTickCount = Math.max(6, options.yTickCount / 2);
       break;
 
-      case 3:         // medium
+    case 3: // medium
       padding = {
-        "top":    getTopPadding(),
-        "right":  xAxisLabelHorizontalPadding,
-        "bottom": options.hideAxisValues ? xlabelFontSizeInPixels*1.25 : (options.xlabel ? xAxisVerticalPadding : axisFontSizeInPixels*1.25),
-        "left": options.hideAxisValues ? ylabelFontSizeInPixels*1.25 : (options.ylabel ? yAxisHorizontalPadding : yAxisNumberWidth)
+        "top": getTopPadding(),
+        "right": xAxisLabelHorizontalPadding,
+        "bottom": options.hideAxisValues ? xlabelFontSizeInPixels * 1.25 : (options.xlabel ? xAxisVerticalPadding : axisFontSizeInPixels * 1.25),
+        "left": options.hideAxisValues ? ylabelFontSizeInPixels * 1.25 : (options.ylabel ? yAxisHorizontalPadding : yAxisNumberWidth)
       };
       break;
 
-      default:         // large
+    default: // large
       padding = {
-        "top":    getTopPadding(),
-        "right":  xAxisLabelHorizontalPadding,
-        "bottom": options.hideAxisValues ? xlabelFontSizeInPixels*1.25 : (options.xlabel ? xAxisVerticalPadding : axisFontSizeInPixels*1.25),
-        "left": options.hideAxisValues ? ylabelFontSizeInPixels*1.25 : (options.ylabel ? yAxisHorizontalPadding : yAxisNumberWidth)
+        "top": getTopPadding(),
+        "right": xAxisLabelHorizontalPadding,
+        "bottom": options.hideAxisValues ? xlabelFontSizeInPixels * 1.25 : (options.xlabel ? xAxisVerticalPadding : axisFontSizeInPixels * 1.25),
+        "left": options.hideAxisValues ? ylabelFontSizeInPixels * 1.25 : (options.ylabel ? yAxisHorizontalPadding : yAxisNumberWidth)
       };
       break;
     }
 
-    if (sizeType.value > 2 ) {
-      padding.top += (titles.length-1) * sizeType.value/3 * sizeType.value/3 * fontSizeInPixels;
+    if (sizeType.value > 2) {
+      padding.top += (titles.length - 1) * sizeType.value / 3 * sizeType.value / 3 * fontSizeInPixels;
     } else {
       titles = [titles[0]];
     }
 
-    size.width  = Math.max(cx - padding.left - padding.right, 60);
-    size.height = Math.max(cy - padding.top  - padding.bottom, 60);
+    size.width = Math.max(cx - padding.left - padding.right, 60);
+    size.height = Math.max(cy - padding.top - padding.bottom, 60);
   }
 
   function calculateSizeType() {
@@ -834,14 +834,14 @@ module.exports = function Graph(idOrElement, options, message) {
     function domainObservingScale(scale, callback) {
       var domain = scale.domain;
       var nice = scale.nice;
-      scale.domain = function() {
+      scale.domain = function () {
         var result = domain.apply(scale, arguments);
         if (arguments.length) {
           callback();
         }
         return result;
       };
-      scale.nice = function() {
+      scale.nice = function () {
         var result = nice.apply(scale, arguments);
         callback();
         return result;
@@ -849,14 +849,14 @@ module.exports = function Graph(idOrElement, options, message) {
       return scale;
     }
 
-    xScale = domainObservingScale(d3.scale[options.xscale](), function() {
+    xScale = domainObservingScale(d3.scale[options.xscale](), function () {
       options.xmin = xScale.domain()[0];
       options.xmax = xScale.domain()[1];
       if (options.onXDomainChange) {
         options.onXDomainChange.call(null, options.xmin, options.xmax);
       }
     });
-    yScale = domainObservingScale(d3.scale[options.yscale](), function() {
+    yScale = domainObservingScale(d3.scale[options.yscale](), function () {
       options.ymin = yScale.domain()[0];
       options.ymax = yScale.domain()[1];
       if (options.onYDomainChange) {
@@ -874,26 +874,26 @@ module.exports = function Graph(idOrElement, options, message) {
   // Update the x-scale.
   function updateXScale() {
     xScale.domain([options.xmin, options.xmax])
-          .range([0, size.width]);
+      .range([0, size.width]);
   }
 
   // Update the y-scale.
   function updateYScale() {
     yScale.domain([options.ymin, options.ymax])
-          .range([size.height, 0]);
+      .range([size.height, 0]);
   }
 
   function fakeDataPoints() {
     var yrange2 = options.yrange / 2,
-        yrange4 = yrange2 / 2,
-        pnts;
+      yrange4 = yrange2 / 2,
+      pnts;
 
-    options.datacount = size.width/30;
+    options.datacount = size.width / 30;
     options.xtic = options.xrange / options.datacount;
     options.ytic = options.yrange / options.datacount;
 
-    pnts = d3.range(options.datacount).map(function(i) {
-      return [i * options.xtic + options.xmin, options.ymin + yrange4 + Math.random() * yrange2 ];
+    pnts = d3.range(options.datacount).map(function (i) {
+      return [i * options.xtic + options.xmin, options.ymin + yrange4 + Math.random() * yrange2];
     });
     return pnts;
   }
@@ -905,12 +905,12 @@ module.exports = function Graph(idOrElement, options, message) {
       currentSample = 0;
       pointArray.forEach(function (arr) {
         if (arr.length > currentSample) {
-          currentSample = arr.length ;
+          currentSample = arr.length;
         }
       });
     }
     if (typeof currentSample !== "number") {
-      currentSample = points.length-1;
+      currentSample = points.length - 1;
     }
     return currentSample;
   }
@@ -918,10 +918,10 @@ module.exports = function Graph(idOrElement, options, message) {
   // converts data samples into an array of points
   function indexedData(samples, interval, start) {
     var i = 0,
-        pnts = [];
+      pnts = [];
     interval = interval || 1;
     start = start || 0;
-    for (i = 0; i < samples.length;  i++) {
+    for (i = 0; i < samples.length; i++) {
       pnts.push([i * interval + start, samples[i]]);
     }
     return pnts;
@@ -939,7 +939,6 @@ module.exports = function Graph(idOrElement, options, message) {
     }
   }
 
-
   function createButtonLayer() {
     buttonLayer = elem.append("div");
 
@@ -950,12 +949,12 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableLegendButton && options.legendLabels.length > 0) {
       legendButton = buttonLayer.append('a');
       legendButton.attr({
-            "class": "graph-button legend",
-            "title": i18n.t("tooltips.legend")
-          })
-          .on("click", function() {
-            toggleLegend();
-          });
+          "class": "graph-button legend",
+          "title": i18n.t("tooltips.legend")
+        })
+        .on("click", function () {
+          toggleLegend();
+        });
       if (options.buttonsStyle === "icons") {
         legendButton.append("i").attr("class", "icon-list-ul");
       } else {
@@ -966,13 +965,13 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableAutoScaleButton) {
       var autoscaleButton = buttonLayer.append('a');
       autoscaleButton.attr({
-            "class": "graph-button autoscale",
-            "title": i18n.t("tooltips.autoscale")
-          })
-          .on("click", function() {
-            autoscale(true);
-            redraw();
-          });
+          "class": "graph-button autoscale",
+          "title": i18n.t("tooltips.autoscale")
+        })
+        .on("click", function () {
+          autoscale(true);
+          redraw();
+        });
       if (options.buttonsStyle === "icons") {
         autoscaleButton.append("i").attr("class", "icon-picture");
       } else {
@@ -983,12 +982,12 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableSelectionButton) {
       selectionButton = buttonLayer.append('a');
       selectionButton.attr({
-            "class": "graph-button selection",
-            "title": i18n.t("tooltips.selection")
-          })
-          .on("click", function() {
-            toggleSelection();
-          });
+          "class": "graph-button selection",
+          "title": i18n.t("tooltips.selection")
+        })
+        .on("click", function () {
+          toggleSelection();
+        });
       if (options.buttonsStyle === "icons") {
         selectionButton.append("i").attr("class", "icon-cut");
       } else {
@@ -999,12 +998,12 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableDrawButton) {
       drawButton = buttonLayer.append('a');
       drawButton.attr({
-            "class": "graph-button draw",
-            "title": i18n.t("tooltips.draw")
-          })
-          .on("click", function() {
-            toggleDraw();
-          });
+          "class": "graph-button draw",
+          "title": i18n.t("tooltips.draw")
+        })
+        .on("click", function () {
+          toggleDraw();
+        });
       if (options.buttonsStyle === "icons") {
         drawButton.append("i").attr("class", "icon-pencil");
       } else {
@@ -1018,20 +1017,22 @@ module.exports = function Graph(idOrElement, options, message) {
   function resizeButtonLayer() {
     if (options.buttonsLayout === "vertical") {
       buttonLayer.style({
-        "top":   padding.top + halfFontSizeInPixels * 0.5 + "px",
+        "top": padding.top + halfFontSizeInPixels * 0.5 + "px",
         "right": padding.right + halfFontSizeInPixels * 0.5 + "px"
       });
       buttonLayer.classed("horizontal", false);
     } else if (options.buttonsLayout === "horizontal") {
       buttonLayer.style({
-        "top":  padding.top - fontSizeInPixels * 1.8 + "px",
+        "top": padding.top - fontSizeInPixels * 1.8 + "px",
         "width": (padding.left + size.width) + "px"
       });
       buttonLayer.classed("horizontal", true);
     }
   }
+
   function createLegendLayer() {
-    var color = "black", item;
+    var color = "black",
+      item;
     legendLayer = elem.append("ul");
 
     legendLayer
@@ -1082,14 +1083,14 @@ module.exports = function Graph(idOrElement, options, message) {
   //
   function renderNewGraph() {
     svg = elem.append("svg")
-        .attr("width",  cx)
-        .attr("height", cy)
-        .attr("class", "graph")
-        .style('z-index', 2);
-        // .attr("tabindex", tabindex || 0);
+      .attr("width", cx)
+      .attr("height", cy)
+      .attr("class", "graph")
+      .style('z-index', 2);
+    // .attr("tabindex", tabindex || 0);
 
     vis = svg.append("g")
-        .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
+      .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
 
     plot = vis.append("rect")
       .attr("class", "plot")
@@ -1121,15 +1122,15 @@ module.exports = function Graph(idOrElement, options, message) {
       .attr("left", 0)
       .attr("width", size.width)
       .attr("height", size.height)
-      .attr("viewBox", "0 0 "+size.width+" "+size.height);
+      .attr("viewBox", "0 0 " + size.width + " " + size.height);
 
     selectedRulerX = viewbox.append("line")
       .attr("stroke", gridStroke)
       .attr("stroke-dasharray", "2,2")
       .attr("y1", 0)
       .attr("y2", size.height)
-      .attr("x1", function() { return selected === null ? 0 : selected[0]; } )
-      .attr("x2", function() { return selected === null ? 0 : selected[0]; } )
+      .attr("x1", function () { return selected === null ? 0 : selected[0]; })
+      .attr("x2", function () { return selected === null ? 0 : selected[0]; })
       .attr("class", "ruler hidden");
 
     selectedRulerY = viewbox.append("line")
@@ -1137,15 +1138,15 @@ module.exports = function Graph(idOrElement, options, message) {
       .attr("stroke-dasharray", "2,2")
       .attr("x1", 0)
       .attr("x2", size.width)
-      .attr("y1", function() { return selected === null ? 0 : selected[1]; } )
-      .attr("y2", function() { return selected === null ? 0 : selected[1]; } )
+      .attr("y1", function () { return selected === null ? 0 : selected[1]; })
+      .attr("y2", function () { return selected === null ? 0 : selected[1]; })
       .attr("class", "ruler hidden");
 
     yAxisDraggable = svg.append("rect")
       .attr("class", "axis axis-y" + (options.enableAxisScaling ? " axis-draggable" : ""))
-      .attr("x", padding.left-yAxisDraggableWidth)
+      .attr("x", padding.left - yAxisDraggableWidth)
       .attr("y", padding.top)
-      .attr("rx", yAxisNumberHeight/6)
+      .attr("rx", yAxisNumberHeight / 6)
       .attr("width", yAxisDraggableWidth)
       .attr("height", size.height)
       .attr("pointer-events", "all")
@@ -1157,8 +1158,8 @@ module.exports = function Graph(idOrElement, options, message) {
     xAxisDraggable = svg.append("rect")
       .attr("class", "axis axis-x" + (options.enableAxisScaling ? " axis-draggable" : ""))
       .attr("x", padding.left)
-      .attr("y", size.height+padding.top)
-      .attr("rx", yAxisNumberHeight/6)
+      .attr("y", size.height + padding.top)
+      .attr("rx", yAxisNumberHeight / 6)
       .attr("width", size.width)
       .attr("height", xAxisDraggableHeight)
       .attr("pointer-events", "all")
@@ -1178,28 +1179,28 @@ module.exports = function Graph(idOrElement, options, message) {
     adjustAxisDraggableFill();
 
     brush_element = viewbox.append("g")
-          .attr("class", "brush");
+      .attr("class", "brush");
 
     // Add the x-axis label
     if (sizeType.value > 2) {
       xlabel = vis.append("text")
-          .attr("class", "axis")
-          .attr("class", "xlabel")
-          .text(options.xlabel)
-          .attr("x", size.width/2)
-          .attr("y", size.height)
-          .attr("dy", xAxisLabelBaseline + "px")
-          .style("text-anchor","middle");
+        .attr("class", "axis")
+        .attr("class", "xlabel")
+        .text(options.xlabel)
+        .attr("x", size.width / 2)
+        .attr("y", size.height)
+        .attr("dy", xAxisLabelBaseline + "px")
+        .style("text-anchor", "middle");
     }
 
     // add y-axis label
     if (sizeType.value > 2) {
       ylabel = vis.append("g").append("text")
-          .attr("class", "axis")
-          .attr("class", "ylabel")
-          .text( options.ylabel)
-          .style("text-anchor","middle")
-          .attr("transform","translate(" + yAxisLabelBaseline + " " + size.height/2+") rotate(-90)");
+        .attr("class", "axis")
+        .attr("class", "ylabel")
+        .text(options.ylabel)
+        .style("text-anchor", "middle")
+        .attr("transform", "translate(" + yAxisLabelBaseline + " " + size.height / 2 + ") rotate(-90)");
       if (sizeType.category === "small") {
         yAxisDraggable.append("title")
           .text(options.ylabel);
@@ -1217,14 +1218,14 @@ module.exports = function Graph(idOrElement, options, message) {
         .attr("height", padding.top - halfFontSizeInPixels * 0.8);
 
       title = svg.selectAll("text")
-        .data(titles, function(d) { return d; });
+        .data(titles, function (d) { return d; });
       title.enter().append("text")
         .attr("class", "title")
-        .text(function(d) { return d; })
+        .text(function (d) { return d; })
         .attr("x", options.titlePosition === "center" ?
-          function() { return padding.left + size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : titleLeftPadding)
+          function () { return padding.left + size.width / 2 - Math.min(size.width, getComputedTextLength(this)) / 2; } : titleLeftPadding)
         .attr("y", titleFontSizeInPixels * 1.1)
-        .attr("dy", function(d, i) { return -i * titleFontSizeInPixels + "px"; });
+        .attr("dy", function (d, i) { return -i * titleFontSizeInPixels + "px"; });
       titleTooltip = title.append("title")
         .text("");
     } else if (options.title) {
@@ -1233,17 +1234,17 @@ module.exports = function Graph(idOrElement, options, message) {
     }
 
     d3.select(node)
-        .on("mousemove.drag", mousemove)
-        .on("touchmove.drag", mousemove)
-        .on("mouseup.drag",   mouseup)
-        .on("touchend.drag",  mouseup);
+      .on("mousemove.drag", mousemove)
+      .on("touchmove.drag", mousemove)
+      .on("mouseup.drag", mouseup)
+      .on("touchend.drag", mouseup);
 
     notification = vis.append("text")
-        .attr("class", "graph-notification")
-        .text(message)
-        .attr("x", size.width/2)
-        .attr("y", size.height/2)
-        .style("text-anchor","middle");
+      .attr("class", "graph-notification")
+      .text(message)
+      .attr("x", size.width / 2)
+      .attr("y", size.height / 2)
+      .style("text-anchor", "middle");
 
     updateMarkers();
     updateRulers();
@@ -1254,7 +1255,7 @@ module.exports = function Graph(idOrElement, options, message) {
   //
   function repaintExistingGraph() {
     vis
-      .attr("width",  cx)
+      .attr("width", cx)
       .attr("height", cy)
       .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
 
@@ -1264,31 +1265,31 @@ module.exports = function Graph(idOrElement, options, message) {
 
     background
       .style({
-        "width":   size.width + "px",
-        "height":  size.height + "px",
-        "top":     padding.top + "px",
-        "left":    padding.left + "px",
+        "width": size.width + "px",
+        "height": size.height + "px",
+        "top": padding.top + "px",
+        "left": padding.left + "px",
         "z-index": 0
       });
 
     viewbox
-        .attr("top", 0)
-        .attr("left", 0)
-        .attr("width", size.width)
-        .attr("height", size.height)
-        .attr("viewBox", "0 0 "+size.width+" "+size.height);
+      .attr("top", 0)
+      .attr("left", 0)
+      .attr("width", size.width)
+      .attr("height", size.height)
+      .attr("viewBox", "0 0 " + size.width + " " + size.height);
 
     yAxisDraggable
-        .attr("x", padding.left-yAxisDraggableWidth)
-        .attr("y", padding.top-yAxisNumberHeight/2)
-        .attr("width", yAxisDraggableWidth)
-        .attr("height", size.height+yAxisNumberHeight);
+      .attr("x", padding.left - yAxisDraggableWidth)
+      .attr("y", padding.top - yAxisNumberHeight / 2)
+      .attr("width", yAxisDraggableWidth)
+      .attr("height", size.height + yAxisNumberHeight);
 
     xAxisDraggable
-        .attr("x", padding.left)
-        .attr("y", size.height+padding.top)
-        .attr("width", size.width)
-        .attr("height", xAxisDraggableHeight);
+      .attr("x", padding.left)
+      .attr("y", size.height + padding.top)
+      .attr("width", size.width)
+      .attr("height", xAxisDraggableHeight);
 
     adjustAxisDraggableFill();
 
@@ -1301,33 +1302,33 @@ module.exports = function Graph(idOrElement, options, message) {
         .attr("height", titleFontSizeInPixels * 1.8 - halfFontSizeInPixels * 0.8);
 
       title
-          .attr("x", options.titlePosition === "center" ?
-                     function() { return padding.left + size.width/2 - Math.min(size.width, getComputedTextLength(this))/2; } : titleLeftPadding)
-          .attr("y", titleFontSizeInPixels * 1.1)
-          .attr("dy", function(d, i) { return -i * titleFontSizeInPixels + "px"; });
+        .attr("x", options.titlePosition === "center" ?
+          function () { return padding.left + size.width / 2 - Math.min(size.width, getComputedTextLength(this)) / 2; } : titleLeftPadding)
+        .attr("y", titleFontSizeInPixels * 1.1)
+        .attr("dy", function (d, i) { return -i * titleFontSizeInPixels + "px"; });
       titleTooltip
-          .text("");
+        .text("");
     } else if (options.title) {
       titleTooltip
-          .text(options.title);
+        .text(options.title);
     }
 
     if (options.xlabel && sizeType.value > 2) {
       xlabel
-          .attr("x", size.width/2)
-          .attr("y", size.height)
-          .attr("dy", xAxisLabelBaseline + "px");
+        .attr("x", size.width / 2)
+        .attr("y", size.height)
+        .attr("dy", xAxisLabelBaseline + "px");
       xAxisDraggableTooltip
-          .text("");
+        .text("");
     } else {
       xAxisDraggableTooltip
-          .text(options.xlabel);
+        .text(options.xlabel);
     }
 
     if (options.ylabel && sizeType.value > 2) {
       var baseline = yAxisLabelBaseline;
       ylabel
-        .attr("transform","translate(" + baseline + " " + size.height/2+") rotate(-90)");
+        .attr("transform", "translate(" + baseline + " " + size.height / 2 + ") rotate(-90)");
       yAxisDraggableTooltip
         .text("");
     } else {
@@ -1336,8 +1337,8 @@ module.exports = function Graph(idOrElement, options, message) {
     }
 
     notification
-      .attr("x", size.width/2)
-      .attr("y", size.height/2);
+      .attr("x", size.width / 2)
+      .attr("y", size.height / 2);
 
     vis.selectAll("g.x").remove();
     vis.selectAll("g.y").remove();
@@ -1364,20 +1365,20 @@ module.exports = function Graph(idOrElement, options, message) {
     if (sizeType.value <= 1) {
       xAxisDraggable
         .style({
-          "fill":       "rgba(196, 196, 196, 0.2)"
+          "fill": "rgba(196, 196, 196, 0.2)"
         });
       yAxisDraggable
         .style({
-          "fill":       "rgba(196, 196, 196, 0.2)"
+          "fill": "rgba(196, 196, 196, 0.2)"
         });
     } else {
       xAxisDraggable
         .style({
-          "fill":       null
+          "fill": null
         });
       yAxisDraggable
         .style({
-          "fill":       null
+          "fill": null
         });
     }
   }
@@ -1399,69 +1400,70 @@ module.exports = function Graph(idOrElement, options, message) {
     repaintExistingGraph();
     // Regenerate x-ticks
     var gx = vis.selectAll("g.x")
-        .data(xScale.ticks(xTickCount), String)
-        .attr("transform", tx);
+      .data(xScale.ticks(xTickCount), String)
+      .attr("transform", tx);
 
     var gxe = gx.enter().insert("g", "a")
-        .attr("class", "x")
-        .attr("transform", tx);
+      .attr("class", "x")
+      .attr("transform", tx);
 
     gxe.append("line")
-        .attr("stroke", gridStroke)
-        .attr("y1", 0)
-        .attr("y2", size.height);
+      .attr("stroke", gridStroke)
+      .attr("y1", 0)
+      .attr("y2", size.height);
 
     if (sizeType.value > 1 && !options.hideAxisValues) {
       gxe.append("text")
-          .attr("class", "axis")
-          .attr("y", size.height)
-          .attr("dy", axisFontSizeInPixels + "px")
-          .attr("text-anchor", "middle")
-          .text(fx)
-          .on("mouseover", function() { d3.select(this).style("font-weight", "bold");})
-          .on("mouseout",  function() { d3.select(this).style("font-weight", "normal");});
+        .attr("class", "axis")
+        .attr("y", size.height)
+        .attr("dy", axisFontSizeInPixels + "px")
+        .attr("text-anchor", "middle")
+        .text(fx)
+        .on("mouseover", function () { d3.select(this).style("font-weight", "bold"); })
+        .on("mouseout", function () { d3.select(this).style("font-weight", "normal"); });
     }
 
     gx.exit().remove();
 
     // Regenerate y-ticks
     var gy = vis.selectAll("g.y")
-        .data(yScale.ticks(yTickCount), String)
-        .attr("transform", ty);
+      .data(yScale.ticks(yTickCount), String)
+      .attr("transform", ty);
 
     var gye = gy.enter().insert("g", "a")
-        .attr("class", "y")
-        .attr("transform", ty)
-        .attr("background-fill", "#FFEEB6");
+      .attr("class", "y")
+      .attr("transform", ty)
+      .attr("background-fill", "#FFEEB6");
 
     gye.append("line")
-        .attr("stroke", gridStroke)
-        .attr("x1", 0)
-        .attr("x2", size.width);
+      .attr("stroke", gridStroke)
+      .attr("x1", 0)
+      .attr("x2", size.width);
 
     if (sizeType.value > 1) {
       if (options.yscale === "log") {
         var gye_length = gye[0].length;
         if (gye_length > 100) {
-          gye = gye.filter(function(d) { return !!d.toString().match(/(\.[0]*|^)[1]/);});
+          gye = gye.filter(function (d) { return !!d.toString().match(/(\.[0]*|^)[1]/); });
         } else if (gye_length > 50) {
-          gye = gye.filter(function(d) { return !!d.toString().match(/(\.[0]*|^)[12]/);});
+          gye = gye.filter(function (d) { return !!d.toString().match(/(\.[0]*|^)[12]/); });
         } else {
-          gye = gye.filter(function(d) {
-            return !!d.toString().match(/(\.[0]*|^)[125]/);});
+          gye = gye.filter(function (d) {
+            return !!d.toString().match(/(\.[0]*|^)[125]/);
+          });
         }
       }
 
-      if(!options.hideAxisValues){
+      if (!options.hideAxisValues) {
         gye.append("text")
           .attr("class", "axis")
-          .attr("x", -axisFontSizeInPixels/4 + "px")
+          .attr("x", -axisFontSizeInPixels / 4 + "px")
           .attr("dy", ".35em")
           .attr("text-anchor", "end")
           .style("cursor", "ns-resize")
           .text(fy)
-          .on("mouseover", function() { d3.select(this).style("font-weight", "bold");})
-          .on("mouseout",  function() { d3.select(this).style("font-weight", "normal");});
+          .on("mouseover", function () { d3.select(this).style("font-weight", "bold"); })
+          .on("mouseout", function () { d3.select(this).style("font-weight", "normal"); });
       }
     }
 
@@ -1472,24 +1474,24 @@ module.exports = function Graph(idOrElement, options, message) {
     // append svg nodes of annotation.type
 
     function annotationAttributes(d) {
-      switch(d.type) {
+      switch (d.type) {
       case "line":
         return {
           stroke: d.data.hasOwnProperty("stroke") ? d.data.stroke : "#f00",
-          x1: d.data.hasOwnProperty('x1') ? xScale(d.data.x1) : 0,
-          x2: d.data.hasOwnProperty('x2') ? xScale(d.data.x2) : size.width,
-          y1: d.data.hasOwnProperty('y1') ? yScale(d.data.y1) : 0,
-          y2: d.data.hasOwnProperty('y2') ? yScale(d.data.y2) : size.height
+            x1: d.data.hasOwnProperty('x1') ? xScale(d.data.x1) : 0,
+            x2: d.data.hasOwnProperty('x2') ? xScale(d.data.x2) : size.width,
+            y1: d.data.hasOwnProperty('y1') ? yScale(d.data.y1) : 0,
+            y2: d.data.hasOwnProperty('y2') ? yScale(d.data.y2) : size.height
         };
       case "bar":
         return {
           stroke: d.data.hasOwnProperty("stroke") ? d.data.stroke : "#f00",
-          fill:   d.data.hasOwnProperty("stroke") ? d.data.stroke : "#f00",
-          x:      d.data.hasOwnProperty('x1') ? xScale(d.data.x1) : 0,
-          y:      d.data.hasOwnProperty('y2') ? yScale(d.data.y2) : 0,
-          width:  d.data.hasOwnProperty('x2') ? xScale(d.data.x2)-xScale(d.data.x1) : size.width,
-          height: d.data.hasOwnProperty('y1') ? yScale(d.data.y1)-yScale(d.data.y2) : size.height,
-          "fill-opacity": 0.5
+            fill: d.data.hasOwnProperty("stroke") ? d.data.stroke : "#f00",
+            x: d.data.hasOwnProperty('x1') ? xScale(d.data.x1) : 0,
+            y: d.data.hasOwnProperty('y2') ? yScale(d.data.y2) : 0,
+            width: d.data.hasOwnProperty('x2') ? xScale(d.data.x2) - xScale(d.data.x1) : size.width,
+            height: d.data.hasOwnProperty('y1') ? yScale(d.data.y1) - yScale(d.data.y2) : size.height,
+            "fill-opacity": 0.5
         };
       }
 
@@ -1498,7 +1500,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
     var annotationTypes = {
       line: "line",
-      bar:  "rect"
+      bar: "rect"
     };
 
     var annotationsSelection = vis.selectAll("g.annotation")
@@ -1508,12 +1510,12 @@ module.exports = function Graph(idOrElement, options, message) {
     annotationsSelection.enter()
       .append("g")
       .attr("class", "annotation")
-      .each(function(d,i){
+      .each(function (d, i) {
         d3.select(this).append(annotationTypes[d.type]);
       });
 
     // update annotation attributes to reflect current graph state
-    annotationsSelection.each(function(d,i){
+    annotationsSelection.each(function (d, i) {
       d3.select(this.childNodes[0]).attr(annotationAttributes(d))
         .call(zoomBehavior());
     });
@@ -1528,7 +1530,6 @@ module.exports = function Graph(idOrElement, options, message) {
   // Rendering: Updating samples/data points in the plot
   //
   // ------------------------------------------------------------
-
 
   //
   // Update plotted data, optionally pass in new samplePoint
@@ -1568,15 +1569,15 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function updateMarkerRadius() {
     var d = xScale.domain(),
-        r = xScale.range();
+      r = xScale.range();
     markerRadius = (r[1] - r[0]) / ((d[1] - d[0]));
     markerRadius = Math.min(Math.max(markerRadius, 4), 8);
-    markerStrokeWidth = markerRadius/3;
+    markerStrokeWidth = markerRadius / 3;
   }
 
   function updateMarkers() {
     var marker,
-        markedPoints = null;
+      markedPoints = null;
     if (options.markAllDataPoints && sizeType.value > 1) {
       markedPoints = [];
       markedPoints = markedPoints.concat.apply(markedPoints, pointArray);
@@ -1590,23 +1591,23 @@ module.exports = function Graph(idOrElement, options, message) {
       updateMarkerRadius();
       marker = vis.select("svg").selectAll("circle").data(markedPoints);
       marker.enter().append("circle")
-          .attr("class", circleClasses)
-          .attr("cx",    function(d) { return xScale(d[0]); })
-          .attr("cy",    function(d) { return yScale(d[1]); })
-          .attr("r", markerRadius)
-          .style("stroke-width", markerStrokeWidth)
-          .style("cursor", markerCursorStyle)
-          .on("mousedown.drag",  dataPointDrag)
-          .on("touchstart.drag", dataPointDrag)
-          .append("title")
-          .text(function(d) { return "( " + fx(d[0]) + ", " + fy(d[1]) + " )"; });
+        .attr("class", circleClasses)
+        .attr("cx", function (d) { return xScale(d[0]); })
+        .attr("cy", function (d) { return yScale(d[1]); })
+        .attr("r", markerRadius)
+        .style("stroke-width", markerStrokeWidth)
+        .style("cursor", markerCursorStyle)
+        .on("mousedown.drag", dataPointDrag)
+        .on("touchstart.drag", dataPointDrag)
+        .append("title")
+        .text(function (d) { return "( " + fx(d[0]) + ", " + fy(d[1]) + " )"; });
 
       marker
-          .attr("class", circleClasses)
-          .attr("cx",    function(d) { return xScale(d[0]); })
-          .attr("cy",    function(d) { return yScale(d[1]); })
-          .select("title")
-          .text(function(d) { return "( " + fx(d[0]) + ", " + fy(d[1]) + " )"; });
+        .attr("class", circleClasses)
+        .attr("cx", function (d) { return xScale(d[0]); })
+        .attr("cy", function (d) { return yScale(d[1]); })
+        .select("title")
+        .text(function (d) { return "( " + fx(d[0]) + ", " + fy(d[1]) + " )"; });
 
       marker.exit().remove();
     }
@@ -1619,22 +1620,21 @@ module.exports = function Graph(idOrElement, options, message) {
       selectedRulerX
         .attr("y1", 0)
         .attr("y2", size.height)
-        .attr("x1", function() { return selected === null ? 0 : xScale(selected[0]); } )
-        .attr("x2", function() { return selected === null ? 0 : xScale(selected[0]); } )
-        .attr("class", function() { return "ruler" + (selected === null ? " hidden" : ""); } );
+        .attr("x1", function () { return selected === null ? 0 : xScale(selected[0]); })
+        .attr("x2", function () { return selected === null ? 0 : xScale(selected[0]); })
+        .attr("class", function () { return "ruler" + (selected === null ? " hidden" : ""); });
 
       selectedRulerY
         .attr("x1", 0)
         .attr("x2", size.width)
-        .attr("y1", function() { return selected === null ? 0 : yScale(selected[1]); } )
-        .attr("y2", function() { return selected === null ? 0 : yScale(selected[1]); } )
-        .attr("class", function() { return "ruler" + (selected === null ? " hidden" : ""); } );
+        .attr("y1", function () { return selected === null ? 0 : yScale(selected[1]); })
+        .attr("y2", function () { return selected === null ? 0 : yScale(selected[1]); })
+        .attr("class", function () { return "ruler" + (selected === null ? " hidden" : ""); });
     } else {
       selectedRulerX.attr("class", "ruler hidden");
       selectedRulerY.attr("class", "ruler hidden");
     }
   }
-
 
   // ------------------------------------------------------------
   //
@@ -1645,10 +1645,10 @@ module.exports = function Graph(idOrElement, options, message) {
   function plotMousemove() {
     if (options.markNearbyDataPoints) {
       var mousePoint = d3.mouse(vis.node()),
-          translatedMousePointX = xScale.invert(Math.max(0, Math.min(size.width, mousePoint[0]))),
-          p,
-          idx, pMin, pMax,
-          i;
+        translatedMousePointX = xScale.invert(Math.max(0, Math.min(size.width, mousePoint[0]))),
+        p,
+        idx, pMin, pMax,
+        i;
       // highlight the central point, and also points to the left and right
       // TODO Handle multiple data sets/lines
       selectable = [];
@@ -1669,16 +1669,16 @@ module.exports = function Graph(idOrElement, options, message) {
   }
 
   function findClosestPointByX(x, line) {
-    if (typeof(line) === "undefined" || line === null) { line = 0; }
+    if (typeof (line) === "undefined" || line === null) { line = 0; }
     // binary search through points.
     // This assumes points is sorted ascending by x value, which for realTime graphs is true.
     points = pointArray[line];
     if (points.length === 0) { return null; }
     var min = 0,
-        max = points.length - 1,
-        mid, p1, p2, p3;
+      max = points.length - 1,
+      mid, p1, p2, p3;
     while (min < max) {
-      mid = Math.floor((min + max)/2.0);
+      mid = Math.floor((min + max) / 2.0);
       if (points[mid][0] < x) {
         min = mid + 1;
       } else {
@@ -1693,9 +1693,9 @@ module.exports = function Graph(idOrElement, options, message) {
     p1 = points[mid - 1];
     p2 = points[mid];
     p3 = points[mid + 1];
-    if (typeof(p1) !== "undefined" && Math.abs(p1[0] - x) <= Math.abs(p2[0] - x)) {
+    if (typeof (p1) !== "undefined" && Math.abs(p1[0] - x) <= Math.abs(p2[0] - x)) {
       return p1;
-    } else if (typeof(p3) === "undefined" || Math.abs(p2[0] - x) <= Math.abs(p3[0] - x)) {
+    } else if (typeof (p3) === "undefined" || Math.abs(p2[0] - x) <= Math.abs(p3[0] - x)) {
       return p2;
     } else {
       return p3;
@@ -1711,7 +1711,7 @@ module.exports = function Graph(idOrElement, options, message) {
       downx = p[0];
       downy = p[0];
       draggedPoint = false;
-    } else if(options.enableAxisScaling) {
+    } else if (options.enableAxisScaling) {
       d3.event.preventDefault();
       d3.select('body').style("cursor", "move");
       if (d3.event.altKey) {
@@ -1731,18 +1731,18 @@ module.exports = function Graph(idOrElement, options, message) {
   }
 
   function notifyPointListeners(action, point) {
-    pointListeners.forEach(function(callback) {
-      callback.call(null,{action: action, point: point});
+    pointListeners.forEach(function (callback) {
+      callback.call(null, { action: action, point: point });
     });
   }
 
   function isPointInsideGraph(p) {
     var graphx = xScale.invert(p[0]),
-        graphy = yScale.invert(p[1]),
-        xAxisStart = xScale.domain()[0],
-        xAxisEnd =   xScale.domain()[1],
-        yAxisStart = yScale.domain()[0],
-        yAxisEnd =   yScale.domain()[1];
+      graphy = yScale.invert(p[1]),
+      xAxisStart = xScale.domain()[0],
+      xAxisEnd = xScale.domain()[1],
+      yAxisStart = yScale.domain()[0],
+      yAxisEnd = yScale.domain()[1];
 
     return graphx >= xAxisStart && graphx <= xAxisEnd && graphy >= yAxisStart && graphy <= yAxisEnd;
   }
@@ -1753,10 +1753,10 @@ module.exports = function Graph(idOrElement, options, message) {
     }
 
     var newpoint = [],
-        newpointIdx,
-        pointsIndexed = pointArrayIndexed[options.drawIndex];
+      newpointIdx,
+      pointsIndexed = pointArrayIndexed[options.drawIndex];
     points = pointArray[options.drawIndex];
-    newpoint[0] = xScale.invert(Math.max(0, Math.min(size.width,  p[0])));
+    newpoint[0] = xScale.invert(Math.max(0, Math.min(size.width, p[0])));
     newpoint[1] = yScale.invert(Math.max(0, Math.min(size.height, p[1])));
     points.push(newpoint);
     pointsIndexed.push(newpoint);
@@ -1766,7 +1766,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
     // update currentSample
     newpointIdx = points.indexOf(newpoint);
-    if (currentSample == points.length-2 || currentSample >= newpointIdx) {
+    if (currentSample == points.length - 2 || currentSample >= newpointIdx) {
       // currentSample was pointing to the last point, so keep it at the last point
       currentSample++;
     }
@@ -1775,20 +1775,20 @@ module.exports = function Graph(idOrElement, options, message) {
     update();
   }
 
-  function isBetween(a,b,p) {
+  function isBetween(a, b, p) {
     return a < p && p <= b;
   }
 
-  function isBetweenReversed(a,b,p) {
+  function isBetweenReversed(a, b, p) {
     return a <= p && p < b;
   }
 
   function clearPointsBetween(x1, x2) {
     var a = x1,
-        b = x2,
-        needsUpdate = false,
-        between = isBetween,
-        i, p, removed, pointsIndexed, newPoints;
+      b = x2,
+      needsUpdate = false,
+      between = isBetween,
+      i, p, removed, pointsIndexed, newPoints;
 
     // Check to make sure a is always smaller than b
     if (x1 > x2) {
@@ -1825,7 +1825,7 @@ module.exports = function Graph(idOrElement, options, message) {
   }
 
   function xAxisDrag() {
-    if(options.enableAxisScaling) {
+    if (options.enableAxisScaling) {
       node.focus();
       document.onselectstart = falseFunction;
       d3.event.preventDefault();
@@ -1835,7 +1835,7 @@ module.exports = function Graph(idOrElement, options, message) {
   }
 
   function yAxisDrag() {
-    if(options.enableAxisScaling) {
+    if (options.enableAxisScaling) {
       node.focus();
       d3.event.preventDefault();
       document.onselectstart = falseFunction;
@@ -1858,18 +1858,18 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function mousemove() {
     var p = d3.mouse(vis.node()),
-        points,
-        index,
-        px,
-        x,
-        nextPoint,
-        prevPoint,
-        minusHalf,
-        plusHalf;
+      points,
+      index,
+      px,
+      x,
+      nextPoint,
+      prevPoint,
+      minusHalf,
+      plusHalf;
 
     // t = d3.event.changedTouches;
 
-    document.onselectstart = function() { return true; };
+    document.onselectstart = function () { return true; };
     d3.event.preventDefault();
     if (draggedPoint) {
       if (options.dataChange) {
@@ -1883,13 +1883,13 @@ module.exports = function Graph(idOrElement, options, message) {
           }
         });
 
-        if (index && index < (points.length-1)) {
+        if (index && index < (points.length - 1)) {
           px = xScale.invert(p[0]);
           x = draggedPoint[0];
-          nextPoint = points[index+1];
-          prevPoint = points[index-1];
-          minusHalf = x - (x - prevPoint[0])/2;
-          plusHalf =  x + (nextPoint[0] - x)/2;
+          nextPoint = points[index + 1];
+          prevPoint = points[index - 1];
+          minusHalf = x - (x - prevPoint[0]) / 2;
+          plusHalf = x + (nextPoint[0] - x) / 2;
           if (px < minusHalf) {
             draggedPoint = prevPoint;
             selected = draggedPoint;
@@ -1904,7 +1904,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
     if (draw_enabled && !isNaN(downx) && !isNaN(downy)) {
       if (isPointInsideGraph(p)) {
-        clearPointsBetween(xScale.invert(Math.max(0, Math.min(size.width,  downx))), xScale.invert(Math.max(0, Math.min(size.width,  p[0]))));
+        clearPointsBetween(xScale.invert(Math.max(0, Math.min(size.width, downx))), xScale.invert(Math.max(0, Math.min(size.width, p[0]))));
         addPointAtMouse(p);
         downx = p[0];
         downy = p[0];
@@ -1935,7 +1935,7 @@ module.exports = function Graph(idOrElement, options, message) {
   function mouseup() {
     d3.select('body').style("cursor", "auto");
     plot.style("cursor", "auto");
-    document.onselectstart = function() { return true; };
+    document.onselectstart = function () { return true; };
     if (!isNaN(downx)) {
       redraw();
       downx = NaN;
@@ -2003,27 +2003,27 @@ module.exports = function Graph(idOrElement, options, message) {
     var dMax = scale.domain()[1];
     var domainChanged = false;
     // Like Math.pow but returns a value with the same sign as x: pow(-1, 0.5) -> -1
-    var pow = function(x, exponent) {
+    var pow = function (x, exponent) {
       return x < 0 ? -Math.pow(-x, exponent) : Math.pow(x, exponent);
     };
     // Convert min, max to a linear scale, and set 'transform' to the function that
     // converts the new min, max to the relevant scale.
     var transform;
     switch (options[axis + "scale"]) {
-      case 'linear':
-        transform = function(x) { return x; };
-        break;
-      case 'log':
-        minVal = Math.log(minVal) / Math.log(10);
-        maxVal = Math.log(maxVal) / Math.log(10);
-        transform = function(x) { return Math.pow(10, x); };
-        break;
-      case 'pow':
-        var scaleExponent = options[axis + "scaleExponent"];
-        minVal = pow(minVal, scaleExponent);
-        maxVal = pow(maxVal, scaleExponent);
-        transform = function(x) { return pow(x, 1 / scaleExponent); };
-        break;
+    case 'linear':
+      transform = function (x) { return x; };
+      break;
+    case 'log':
+      minVal = Math.log(minVal) / Math.log(10);
+      maxVal = Math.log(maxVal) / Math.log(10);
+      transform = function (x) { return Math.pow(10, x); };
+      break;
+    case 'pow':
+      var scaleExponent = options[axis + "scaleExponent"];
+      minVal = pow(minVal, scaleExponent);
+      maxVal = pow(maxVal, scaleExponent);
+      transform = function (x) { return pow(x, 1 / scaleExponent); };
+      break;
     }
 
     var pad = (maxVal - minVal) * padding;
@@ -2085,7 +2085,7 @@ module.exports = function Graph(idOrElement, options, message) {
       if (!has_selection) {
         return null;
       }
-      if (selection_region.xmax === Infinity && selection_region.xmin === Infinity ) {
+      if (selection_region.xmax === Infinity && selection_region.xmin === Infinity) {
         return [];
       }
       return [selection_region.xmin, selection_region.xmax];
@@ -2095,13 +2095,11 @@ module.exports = function Graph(idOrElement, options, message) {
 
     if (a === null) {
       has_selection = false;
-    }
-    else if (a.length === 0) {
+    } else if (a.length === 0) {
       has_selection = true;
       selection_region.xmin = Infinity;
       selection_region.xmax = Infinity;
-    }
-    else {
+    } else {
       has_selection = true;
       selection_region.xmin = a[0];
       selection_region.xmax = a[1];
@@ -2213,7 +2211,7 @@ module.exports = function Graph(idOrElement, options, message) {
       // Note there is a brush.empty() method, but it still reports true after the
       // brush extent has been programatically updated.
       extent = brush_control.extent();
-      selectionDomain( extent[0] !== extent[1] ? extent : [] );
+      selectionDomain(extent[0] !== extent[1] ? extent : []);
     }
   }
 
@@ -2229,7 +2227,7 @@ module.exports = function Graph(idOrElement, options, message) {
         .style('display', 'inline')
         .style('pointer-events', selection_enabled ? 'all' : 'none')
         .selectAll("rect")
-          .attr("height", size.height);
+        .attr("height", size.height);
 
     } else {
       brush_element.style('display', 'none');
@@ -2295,9 +2293,9 @@ module.exports = function Graph(idOrElement, options, message) {
         // Reposition while we're at it
         legendLayer
           .style({
-            "top":     padding.top + halfFontSizeInPixels + "px",
-            "right":   padding.right + halfFontSizeInPixels +
-                       (options.showButtons && options.buttonsLayout === "vertical" ? buttonLayer.property('clientWidth') : 0) + "px"
+            "top": padding.top + halfFontSizeInPixels + "px",
+            "right": padding.right + halfFontSizeInPixels +
+              (options.showButtons && options.buttonsLayout === "vertical" ? buttonLayer.property('clientWidth') : 0) + "px"
           });
       } else {
         legendLayer.classed("legend-invisible", true);
@@ -2323,10 +2321,10 @@ module.exports = function Graph(idOrElement, options, message) {
       .attr("class", "overlay")
       .style({
         "position": "absolute",
-        "width":    size.width + "px",
-        "height":   size.height + "px",
-        "top":      padding.top + "px",
-        "left":     padding.left + "px",
+        "width": size.width + "px",
+        "height": size.height + "px",
+        "top": padding.top + "px",
+        "left": padding.left + "px",
         "z-index": 1
       });
     gcanvas = graphCanvas.node();
@@ -2351,7 +2349,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function setupCanvasContext() {
     if (gcanvas.getContext) {
-      gctx = gcanvas.getContext( '2d' );
+      gctx = gcanvas.getContext('2d');
       gctx.globalCompositeOperation = "source-over";
       gctx.lineWidth = lineWidth;
       gctx.fillStyle = canvasFillStyle;
@@ -2366,28 +2364,28 @@ module.exports = function Graph(idOrElement, options, message) {
   //
   function updateCanvasFromPoints(samplePoint) {
     var i, j, len,
-        dx,
-        px, py,
-        index,
-        yOrigin = yScale(0.00001),
-        lines = options.lines,
-        bars = options.bars,
-        pointsLength,
-        numberOfLines = pointArray.length,
-        xAxisStart,
-        xAxisEnd,
-        pointStop,
-        start;
+      dx,
+      px, py,
+      index,
+      yOrigin = yScale(0.00001),
+      lines = options.lines,
+      bars = options.bars,
+      pointsLength,
+      numberOfLines = pointArray.length,
+      xAxisStart,
+      xAxisEnd,
+      pointStop,
+      start;
 
     // hack for lack of canvas support in jsdom tests
-    if (typeof gcanvas.getContext === "undefined" ) { return; }
+    if (typeof gcanvas.getContext === "undefined") { return; }
 
     setCurrentSample(samplePoint);
     clearCanvas();
     gctx.fillRect(0, 0, gcanvas.width, gcanvas.height);
     gctx.lineWidth = lineWidth;
     xAxisStart = xScale.domain()[0];
-    xAxisEnd =   xScale.domain()[1];
+    xAxisEnd = xScale.domain()[1];
     start = Math.max(0, xAxisStart);
     if (lines) {
       for (i = 0; i < numberOfLines; i++) {
@@ -2431,8 +2429,8 @@ module.exports = function Graph(idOrElement, options, message) {
         // ... or until one point past xAxisEnd
         if (index < pointsLength && dx < xAxisEnd) {
           setStrokeColor(i, true);
-          gctx.lineWidth = lineWidth/2;
-          for (;index < pointsLength; index++) {
+          gctx.lineWidth = lineWidth / 2;
+          for (; index < pointsLength; index++) {
             if (points[index][0] == null || points[index][1] == null) { continue; }
             dx = points[index][0];
             px = xScale(dx);
@@ -2450,7 +2448,7 @@ module.exports = function Graph(idOrElement, options, message) {
         pointsLength = points.length;
         setStrokeColor(i);
         pointStop = samplePoint - 1;
-        for (index=start; index < pointStop; index++) {
+        for (index = start; index < pointStop; index++) {
           if (points[index][0] == null || points[index][1] == null) { continue; }
           px = xScale(points[index][0]);
           py = yScale(points[index][1]);
@@ -2462,10 +2460,10 @@ module.exports = function Graph(idOrElement, options, message) {
           gctx.lineTo(px, py);
           gctx.stroke();
         }
-        pointStop = points.length-1;
+        pointStop = points.length - 1;
         if (index < pointStop) {
           setStrokeColor(i, true);
-          for (;index < pointStop; index++) {
+          for (; index < pointStop; index++) {
             if (points[index][0] == null || points[index][1] == null) { continue; }
             px = xScale(points[index][0]);
             py = yScale(points[index][1]);
@@ -2486,7 +2484,7 @@ module.exports = function Graph(idOrElement, options, message) {
           if (points[j][0] != null && points[j][1] != null && points[j][0] >= xAxisStart) { break; }
           index++;
         }
-        if (index > 0) { --index; }
+        if (index > 0) {--index; }
         if (index >= pointsLength) { continue; }
         setFillColor(i);
         // plot all ... or until one point past xAxisEnd
@@ -2503,7 +2501,7 @@ module.exports = function Graph(idOrElement, options, message) {
         // ... or until one point past xAxisEnd
         if (index < pointsLength && dx < xAxisEnd) {
           setFillColor(i, true);
-          for (;index < pointsLength; index++) {
+          for (; index < pointsLength; index++) {
             if (points[index][0] == null || points[index][1] == null) { continue; }
             dx = points[index][0];
             px = xScale(dx);
@@ -2522,7 +2520,7 @@ module.exports = function Graph(idOrElement, options, message) {
   }
 
   function setFillColor(i, afterSamplePoint) {
-    gctx.fillStyle   = getDataColor(i);
+    gctx.fillStyle = getDataColor(i);
     gctx.globalAlpha = afterSamplePoint ? 0.4 : 1.0;
   }
 
@@ -2557,13 +2555,12 @@ module.exports = function Graph(idOrElement, options, message) {
     updateOrRescale();
   }
 
-
   // Add a point [x, y] by processing sample (Y value) synthesizing
   // X value from sampleInterval and number of points
   function addSample(sample) {
     var index = points.length,
-        xvalue = (index * sampleInterval) + dataSampleStart,
-        point = [ xvalue, sample ];
+      xvalue = (index * sampleInterval) + dataSampleStart,
+      point = [xvalue, sample];
     points.push(point);
     setCurrentSample("last");
     updateOrRescale();
@@ -2578,9 +2575,9 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function comparePoints(a, b) {
     if (a[0] < b[0])
-       return -1;
+      return -1;
     if (a[0] > b[0])
-       return 1;
+      return 1;
     return 0;
   }
 
@@ -2596,7 +2593,7 @@ module.exports = function Graph(idOrElement, options, message) {
     var prevPoint = points[newPointIdx - 1];
     var nextPoint = points[newPointIdx + 1];
     if ((prevPoint && prevPoint[0] > newPoint[0]) ||
-        (nextPoint && newPoint[0] > nextPoint[0])) {
+      (nextPoint && newPoint[0] > nextPoint[0])) {
       points.sort(comparePoints);
     }
   }
@@ -2679,7 +2676,7 @@ module.exports = function Graph(idOrElement, options, message) {
   // synthesizing the X value from sampleInterval interval and number of points.
   function addDataSamples(datasamples) {
     var start,
-        i;
+      i;
     if (Object.prototype.toString.call(datasamples[0]) === "[object Array]") {
       for (i = 0; i < datasamples.length; i++) {
         if (!pointArray[i]) { pointArray.push([]); }
@@ -2704,7 +2701,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function copyNonNull(array) {
     var ret = [];
-    array.forEach(function(element) {
+    array.forEach(function (element) {
       if (element == null || element[0] == null || element[1] == null) return;
       ret.push(element);
     });
@@ -2713,7 +2710,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function copyNonNullKeepIndexing(array) {
     var ret = [];
-    array.forEach(function(element, idx) {
+    array.forEach(function (element, idx) {
       if (element == null || element[0] == null || element[1] == null) return;
       ret[idx] = element;
     });
@@ -2741,13 +2738,17 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function resetDataPoints(datapoints) {
 
-    pointsXMin = pointsYMin =  Infinity;
+    pointsXMin = pointsYMin = Infinity;
     pointsXMax = pointsYMax = -Infinity;
     pointArray = [];
     pointArrayIndexed = [];
     if (!datapoints || datapoints.length === 0) {
-      pointArray = [[]];
-      pointArrayIndexed = [[]];
+      pointArray = [
+        []
+      ];
+      pointArrayIndexed = [
+        []
+      ];
     } else if (Object.prototype.toString.call(datapoints[0]) === "[object Array]") {
       for (var i = 0; i < datapoints.length; i++) {
         pointArray.push(copyNonNull(datapoints[i]));
@@ -2772,7 +2773,7 @@ module.exports = function Graph(idOrElement, options, message) {
     if (Object.prototype.toString.call(datasamples[0]) === "[object Array]") {
       for (var i = 0; i < datasamples.length; i++) {
         pointArray.push(indexedData(datasamples[i], interval, start));
-        pointArray[pointArray.length-1].forEach(updatePointsExtent);
+        pointArray[pointArray.length - 1].forEach(updatePointsExtent);
       }
       points = pointArray[0];
     } else {
@@ -2784,7 +2785,6 @@ module.exports = function Graph(idOrElement, options, message) {
     dataSampleStart = start;
   }
 
-
   function resetSamples(datasamples) {
     resetDataSamples(datasamples, sampleInterval, dataSampleStart);
   }
@@ -2792,8 +2792,8 @@ module.exports = function Graph(idOrElement, options, message) {
   function deletePoint(pointIndex, arrayIndex) {
     if (!arrayIndex) { arrayIndex = 0; }
     var pointsIndexed = pointArrayIndexed[arrayIndex],
-        origPts = points.slice(),
-        deleted, newPoints;
+      origPts = points.slice(),
+      deleted, newPoints;
     if (pointsIndexed.length) {
       deleted = pointsIndexed[pointIndex].slice();
       pointsIndexed[pointIndex][0] = null;
@@ -2803,7 +2803,7 @@ module.exports = function Graph(idOrElement, options, message) {
       processPointsArray(newPoints);
       pointArray[arrayIndex] = newPoints;
       if (currentSample >= points.length) {
-        currentSample = points.length-1;
+        currentSample = points.length - 1;
       }
     }
     points = pointArray[0];
@@ -2820,8 +2820,8 @@ module.exports = function Graph(idOrElement, options, message) {
       if (!selected) return false;
       if (evt.type === "keydown") {
         switch (evt.keyCode) {
-          case 8:   // backspace
-          case 46:  // delete
+        case 8: // backspace
+        case 46: // delete
           if (options.dataChange) {
             var i = points.indexOf(selected);
             deletePoint(i);
@@ -2927,25 +2927,25 @@ module.exports = function Graph(idOrElement, options, message) {
   // Public API to instantiated Graph
   //
   api = {
-    update:               update,
-    repaint:              renderGraph,
-    reset:                reset,
-    redraw:               redraw,
-    resize:               resize,
-    notify:               notify,
+    update: update,
+    repaint: renderGraph,
+    reset: reset,
+    redraw: redraw,
+    resize: resize,
+    notify: notify,
 
     // selection brush api
-    selectionDomain:      selectionDomain,
-    selectionVisible:     selectionVisible,
-    selectionListener:    selectionListener,
-    selectionEnabled:     selectionEnabled,
-    hasSelection:         hasSelection,
+    selectionDomain: selectionDomain,
+    selectionVisible: selectionVisible,
+    selectionListener: selectionListener,
+    selectionEnabled: selectionEnabled,
+    hasSelection: hasSelection,
 
     /**
       Read only getter for the d3 selection referencing the DOM elements containing the d3
       brush used to implement selection region manipulation.
     */
-    brushElement: function() {
+    brushElement: function () {
       return brush_element;
     },
 
@@ -2953,33 +2953,33 @@ module.exports = function Graph(idOrElement, options, message) {
       Read-only getter for the d3 brush control (d3.svg.brush() function) used to implement
       selection region manipulation.
     */
-    brushControl: function() {
+    brushControl: function () {
       return brush_control;
     },
 
     /**
       Read-only getter for the internal listener to the d3 'brush' event.
     */
-    brushListener: function() {
+    brushListener: function () {
       return brushListener;
     },
 
     /**
       Allow consumption of points added/removed to graph through clicking
       */
-    addPointListener: function(callback) {
+    addPointListener: function (callback) {
       pointListeners.push(callback);
     },
 
-    clearPointListeners: function() {
+    clearPointListeners: function () {
       pointListeners.length = 0;
     },
 
     // specific update functions ???
-    scale:                scale,
-    updateOrRescale:      updateOrRescale,
+    scale: scale,
+    updateOrRescale: updateOrRescale,
 
-    xDomain: function(_) {
+    xDomain: function (_) {
       if (!arguments.length) return [options.xmin, options.xmax];
       options.xmin = _[0];
       options.xmax = _[1];
@@ -2990,7 +2990,7 @@ module.exports = function Graph(idOrElement, options, message) {
       return api;
     },
 
-    yDomain: function(_) {
+    yDomain: function (_) {
       if (!arguments.length) return [options.ymin, options.ymax];
       options.ymin = _[0];
       options.ymax = _[1];
@@ -3001,7 +3001,7 @@ module.exports = function Graph(idOrElement, options, message) {
       return api;
     },
 
-    xmin: function(_) {
+    xmin: function (_) {
       if (!arguments.length) return options.xmin;
       options.xmin = _;
       options.xrange = options.xmax - options.xmin;
@@ -3012,7 +3012,7 @@ module.exports = function Graph(idOrElement, options, message) {
       return api;
     },
 
-    xmax: function(_) {
+    xmax: function (_) {
       if (!arguments.length) return options.xmax;
       options.xmax = _;
       options.xrange = options.xmax - options.xmin;
@@ -3023,7 +3023,7 @@ module.exports = function Graph(idOrElement, options, message) {
       return api;
     },
 
-    ymin: function(_) {
+    ymin: function (_) {
       if (!arguments.length) return options.ymin;
       options.ymin = _;
       options.yrange = options.ymax - options.ymin;
@@ -3034,7 +3034,7 @@ module.exports = function Graph(idOrElement, options, message) {
       return api;
     },
 
-    ymax: function(_) {
+    ymax: function (_) {
       if (!arguments.length) return options.ymax;
       options.ymax = _;
       options.yrange = options.ymax - options.ymin;
@@ -3045,47 +3045,47 @@ module.exports = function Graph(idOrElement, options, message) {
       return api;
     },
 
-    xLabel: function(_) {
+    xLabel: function (_) {
       if (!arguments.length) return options.xlabel;
       options.xlabel = _;
       updateXlabel();
       return api;
     },
 
-    yLabel: function(_) {
+    yLabel: function (_) {
       if (!arguments.length) return options.ylabel;
       options.ylabel = _;
       updateYlabel();
       return api;
     },
 
-    title: function(_) {
+    title: function (_) {
       if (!arguments.length) return options.title;
       options.title = _;
       updateTitle();
       return api;
     },
 
-    width: function(_) {
+    width: function (_) {
       if (!arguments.length) return size.width;
       size.width = _;
       return api;
     },
 
-    height: function(_) {
+    height: function (_) {
       if (!arguments.length) return size.height;
       size.height = _;
       return api;
     },
 
-    elem: function(_) {
+    elem: function (_) {
       if (!arguments.length) return elem;
       elem = d3.select(_);
       initialize(elem);
       return api;
     },
 
-    numberOfPoints: function() {
+    numberOfPoints: function () {
       if (points) {
         return points.length;
       } else {
@@ -3093,28 +3093,28 @@ module.exports = function Graph(idOrElement, options, message) {
       }
     },
 
-    addAnnotation: function(annotation) {
+    addAnnotation: function (annotation) {
       annotations.push(annotation);
       redraw();
     },
 
-    resetAnnotations: function() {
+    resetAnnotations: function () {
       annotations.length = 0;
       redraw();
     },
 
     // Programmatically the same actions as clicking the autoscale button. Note that we sometimes
     // use autoscale internally with its 'fit' argument set to false.
-    autoscale: function() {
+    autoscale: function () {
       autoscale(true);
     },
 
     // Point data consist of an array (or arrays) of [x,y] arrays.
-    addPoints:     addPoints,
+    addPoints: addPoints,
     replacePoints: replacePoints,
-    addPoint:      addPoint,
-    resetPoints:   resetDataPoints,
-    deletePoint:   function(i, idx) {
+    addPoint: addPoint,
+    resetPoints: resetDataPoints,
+    deletePoint: function (i, idx) {
       deletePoint(i, idx);
       update();
     },
@@ -3122,9 +3122,9 @@ module.exports = function Graph(idOrElement, options, message) {
     // Sample data consists of an array (or an array or arrays) of samples.
     // The interval between samples is assumed to have already been set
     // by specifying options.sampleInterval when creating the graph.
-    addSamples:    addSamples,
-    addSample:     addSample,
-    resetSamples:  resetSamples
+    addSamples: addSamples,
+    addSample: addSample,
+    resetSamples: resetSamples
 
   };
 
@@ -3252,7 +3252,5 @@ module.exports = require('./lib/graph');
 // before calling Graph constructor.
 module.exports.i18n = require('./lib/i18n');
 
-},{"./lib/graph":2,"./lib/i18n":3}]},{},[5])
-(5)
+},{"./lib/graph":2,"./lib/i18n":3}]},{},[5])(5)
 });
-;
