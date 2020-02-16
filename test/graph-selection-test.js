@@ -17,7 +17,7 @@ $ = require('jQuery');
 // We can't type: d3 = require("d3"), because node D3 wrapper creates its own document
 // that is unavailable for external code. We have to create own document manually and
 // just call browser version of d3 (d3/d3.js).
-d3 = require("d3/d3");
+d3 = require("d3");
 
 var suite = vows.describe("grapher/graph-selection");
 
