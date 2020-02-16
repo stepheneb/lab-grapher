@@ -7,26 +7,26 @@
 // ------------------------------------------------------------
 
 var graph,
-    selectSize = document.getElementById('select-size'),
-    selectData = document.getElementById('select-data'),
-    DEFAULT_GRAPH = "earth-surface-temperature",
-    hash = document.location.hash || "#" + DEFAULT_GRAPH,
-    interactive_url = hash.substr(1, hash.length),
+  selectSize = document.getElementById('select-size'),
+  selectData = document.getElementById('select-data'),
+  DEFAULT_GRAPH = "earth-surface-temperature",
+  hash = document.location.hash || "#" + DEFAULT_GRAPH,
+  interactive_url = hash.substr(1, hash.length),
 
-    // used in the streaming examples
-    timerId,
-    maxtime,
-    twopi = Math.PI * 2,
-    frequency1,
-    amplitude1,
-    frequency2,
-    amplitude2,
-    twopifreq2,
-    time,
-    count,
-    value1,
-    value2,
-    stopStreaming = false;
+  // used in the streaming examples
+  timerId,
+  maxtime,
+  twopi = Math.PI * 2,
+  frequency1,
+  amplitude1,
+  frequency2,
+  amplitude2,
+  twopifreq2,
+  time,
+  count,
+  value1,
+  value2,
+  stopStreaming = false;
 
 document.location.hash = hash;
 selectData.value = interactive_url;
@@ -65,10 +65,10 @@ function selectDataHandler() {
   if (!graph) {
     graph = LabGrapher('#chart');
   }
-  switch(selectData.value) {
+  switch (selectData.value) {
   case "fake":
     graph.reset('#chart', getOptions({
-      title:  "Fake Data",
+      title: "Fake Data",
 
       fontScaleRelativeToParent: false,
       dataType: 'fake',
@@ -78,14 +78,14 @@ function selectDataHandler() {
       addData: true
     }));
     graph.clearPointListeners();
-    graph.addPointListener(function(evt){
+    graph.addPointListener(function (evt) {
       console.log("clicked point (" + evt.action + "): " + evt.point);
     });
     break;
 
   case "fake-drawable":
     graph.reset('#chart', getOptions({
-      title:  "Fake Data (drawable)",
+      title: "Fake Data (drawable)",
       fontScaleRelativeToParent: false,
       dataType: 'fake',
 
@@ -101,23 +101,28 @@ function selectDataHandler() {
 
   case "stair-steps":
     graph.reset('#chart', getOptions({
-      title:  "Stair-Step Data",
+      title: "Stair-Step Data",
       xlabel: "Distance",
       ylabel: "Height",
-      xmax:   14,
-      xmin:   0,
-      ymax:   20,
-      ymin:   8,
+      xmax: 14,
+      xmin: 0,
+      ymax: 20,
+      ymin: 8,
 
       fontScaleRelativeToParent: false,
       dataType: 'points',
       dataPoints: [
         [
-          [0, 10], [2, 10],
-          [2, 12], [4, 12],
-          [4, 14], [6, 14],
-          [6, 16], [8, 16],
-          [8, 18], [10, 18]
+          [0, 10],
+          [2, 10],
+          [2, 12],
+          [4, 12],
+          [4, 14],
+          [6, 14],
+          [6, 16],
+          [8, 16],
+          [8, 18],
+          [10, 18]
         ]
       ],
 
@@ -135,13 +140,13 @@ function selectDataHandler() {
         })
       ];
       graph.reset('#chart', getOptions({
-        title:  "Earth's Surface Temperature: years 500-2009",
+        title: "Earth's Surface Temperature: years 500-2009",
         xlabel: "Year",
         ylabel: "Degrees C",
-        xmax:   2000,
-        xmin:   500,
-        ymax:   15,
-        ymin:   13,
+        xmax: 2000,
+        xmin: 500,
+        ymax: 15,
+        ymin: 13,
         xFormatter: ".3r",
         yFormatter: ".1f",
         legendLabels: ["temperature"],
@@ -165,16 +170,16 @@ function selectDataHandler() {
     break;
 
   case "world-population":
-    d3.json("data/world-population.json", function(data) {
+    d3.json("data/world-population.json", function (data) {
       var worldPopulation = [data.worldPopulation.data];
       graph.reset('#chart', getOptions({
-        title:  "World Population, Historical and Projected: 10,000 BCE to 2050",
+        title: "World Population, Historical and Projected: 10,000 BCE to 2050",
         xlabel: "Year",
         ylabel: "Population (Millions)",
-        xmax:   2500,
-        xmin:   -10000,
-        ymax:   20000,
-        ymin:   0,
+        xmax: 2500,
+        xmin: -10000,
+        ymax: 20000,
+        ymin: 0,
 
         fontScaleRelativeToParent: false,
         dataType: 'points',
@@ -187,18 +192,18 @@ function selectDataHandler() {
     break;
 
   case "world-population-semi-log":
-    d3.json("data/world-population.json", function(data) {
+    d3.json("data/world-population.json", function (data) {
       var worldPopulation = [data.worldPopulation.data];
       graph.reset('#chart', getOptions({
-        title:  "World Population, Historical and Projected: 10,000 BCE to 2050 (semi-log)",
+        title: "World Population, Historical and Projected: 10,000 BCE to 2050 (semi-log)",
         xlabel: "Year",
         ylabel: "Population (Millions)",
-        xmax:   2500,
-        xmin:   -10000,
-        ymax:   20000,
-        ymin:   0.1,
+        xmax: 2500,
+        xmin: -10000,
+        ymax: 20000,
+        ymin: 0.1,
         xFormatter: ".3r",
-        yscale: "log",
+        yscale: "scaleLog",
 
         fontScaleRelativeToParent: false,
         dataType: 'points',
@@ -211,12 +216,12 @@ function selectDataHandler() {
     break;
 
   case "md2d-center-of-mass":
-    d3.text("data/cm-random-walk.csv", "text/csv", function(text) {
+    d3.text("data/cm-random-walk.csv", "text/csv", function (text) {
       var data = d3.csv.parseRows(text);
       data.length = 5000;
-      var randomWalk = [data.map(function(e) { return [Number(e[1]), Number(e[2])]; })];
+      var randomWalk = [data.map(function (e) { return [Number(e[1]), Number(e[2])]; })];
       graph.reset('#chart', getOptions({
-        title:  [
+        title: [
           "Constrained random walk of center of mass of Lab molecular simulation",
           "(L-J forces only; 50 atoms; no thermostat; initial temperature = \"5\")"
         ],
@@ -227,10 +232,10 @@ function selectDataHandler() {
         dataType: 'points',
         dataPoints: randomWalk,
 
-        xmax:   50,
-        xmin:   -50,
-        ymax:   50,
-        ymin:   -50,
+        xmax: 50,
+        xmin: -50,
+        ymax: 50,
+        ymin: -50,
         markAllDataPoints: false,
         strokeWidth: 1,
         dataChange: false
@@ -241,13 +246,13 @@ function selectDataHandler() {
   case "streaming":
     maxtime = 20;
     graph.reset('#chart', getOptions({
-      title:  "Sin Waves",
+      title: "Sin Waves",
       xlabel: "Time",
       ylabel: "Amplitude",
-      xmax:   maxtime,
-      xmin:   0,
-      ymax:   2,
-      ymin:   -2,
+      xmax: maxtime,
+      xmin: 0,
+      ymax: 2,
+      ymin: -2,
 
       fontScaleRelativeToParent: false,
       dataType: 'points',
@@ -267,9 +272,9 @@ function selectDataHandler() {
     amplitude2 = 0.2;
     twopifreq2 = twopi * frequency2;
     time = 0,
-    lastSample = 0;
+      lastSample = 0;
 
-    d3.timer(function(elapsed) {
+    d3.timer(function (elapsed) {
       time = (time + (elapsed - lastSample) / 1000);
       lastSample = elapsed;
       if (stopStreaming) { return true; }
@@ -281,20 +286,20 @@ function selectDataHandler() {
     break;
 
   case "earth-surface-temperature-samples":
-    d3.json("data/surface-temperature-data.json", function(data) {
+    d3.json("data/surface-temperature-data.json", function (data) {
       var surfaceTemperatures = [
-        data.global_temperatures.temperature_anomolies.map(function(e) {
+        data.global_temperatures.temperature_anomolies.map(function (e) {
           return e[1] + data.global_temperatures.global_surface_temperature_1961_1990;
         })
       ];
       graph.reset('#chart', getOptions({
-        title:  "Earth's Surface Temperature: years 500-2009",
+        title: "Earth's Surface Temperature: years 500-2009",
         xlabel: "Year",
         ylabel: "Degrees C",
-        xmax:   2100,
-        xmin:   400,
-        ymax:   15,
-        ymin:   13,
+        xmax: 2100,
+        xmin: 400,
+        ymax: 15,
+        ymin: 13,
         xFormatter: ".3r",
         yFormatter: ".1f",
 
@@ -311,18 +316,17 @@ function selectDataHandler() {
     });
     break;
 
-
   case "realtime-markers":
     maxtime = 10;
     sampleInterval = 0.05;
     graph.reset('#chart', getOptions({
-      title:  "Sin Waves",
+      title: "Sin Waves",
       xlabel: "Time",
       ylabel: "Amplitude",
-      xmax:   maxtime+0.6,
-      xmin:   0,
-      ymax:   1.6,
-      ymin:   -1.6,
+      xmax: maxtime + 0.6,
+      xmin: 0,
+      ymax: 1.6,
+      ymin: -1.6,
 
       fontScaleRelativeToParent: false,
 
@@ -351,27 +355,27 @@ function selectDataHandler() {
     time = 0;
     count = 0;
 
-    timerId = setInterval(function() {
+    timerId = setInterval(function () {
       count++;
       time = count * sampleInterval;
       if (time > maxtime || stopStreaming) { clearInterval(timerId); }
       value1 = Math.sin(twopifreq1 * time) * amplitude1;
       value2 = Math.sin(twopifreq2 * time) * amplitude2;
       graph.addSamples([value1 + value2]);
-    }, 1000*sampleInterval);
+    }, 1000 * sampleInterval);
     break;
 
   case "realtime-markers-drawable":
     maxtime = 10;
     sampleInterval = 0.05;
     graph.reset('#chart', getOptions({
-      title:  "Sin Waves",
+      title: "Sin Waves",
       xlabel: "Time",
       ylabel: "Amplitude",
-      xmax:   maxtime+0.6,
-      xmin:   0,
-      ymax:   1.6,
-      ymin:   -1.6,
+      xmax: maxtime + 0.6,
+      xmin: 0,
+      ymax: 1.6,
+      ymin: -1.6,
 
       fontScaleRelativeToParent: false,
 
@@ -402,27 +406,27 @@ function selectDataHandler() {
     time = 0;
     count = 0;
 
-    timerId = setInterval(function() {
+    timerId = setInterval(function () {
       count++;
       time = count * sampleInterval;
       if (time > maxtime || stopStreaming) { clearInterval(timerId); }
       value1 = Math.sin(twopifreq1 * time) * amplitude1;
       value2 = Math.sin(twopifreq2 * time) * amplitude2;
       graph.addSamples([value1 + value2]);
-    }, 1000*sampleInterval);
+    }, 1000 * sampleInterval);
     break;
 
   case "multiline-realtime-markers":
     maxtime = 10;
     sampleInterval = 0.05;
     graph.reset('#chart', getOptions({
-      title:  "Sin Waves",
+      title: "Sin Waves",
       xlabel: "Time",
       ylabel: "Amplitude",
-      xmax:   maxtime+0.6,
-      xmin:   0,
-      ymax:   1.6,
-      ymin:   -1.6,
+      xmax: maxtime + 0.6,
+      xmin: 0,
+      ymax: 1.6,
+      ymin: -1.6,
 
       fontScaleRelativeToParent: false,
 
@@ -451,27 +455,30 @@ function selectDataHandler() {
     time = 0;
     count = 0;
 
-    timerId = setInterval(function() {
+    timerId = setInterval(function () {
       count++;
       time = count * sampleInterval;
       if (time > maxtime || stopStreaming) { clearInterval(timerId); }
       value1 = Math.sin(twopifreq1 * time) * amplitude1;
       value2 = Math.sin(twopifreq2 * time) * amplitude2;
-      graph.addSamples([[(value1 + value2)], [0-(value1+value2)]]);
-    }, 1000*sampleInterval);
+      graph.addSamples([
+        [(value1 + value2)],
+        [0 - (value1 + value2)]
+      ]);
+    }, 1000 * sampleInterval);
     break;
 
   case "multiline-realtime-markers-drawable":
     maxtime = 10;
     sampleInterval = 0.05;
     graph.reset('#chart', getOptions({
-      title:  "Sin Waves",
+      title: "Sin Waves",
       xlabel: "Time",
       ylabel: "Amplitude",
-      xmax:   maxtime+0.6,
-      xmin:   0,
-      ymax:   1.6,
-      ymin:   -1.6,
+      xmax: maxtime + 0.6,
+      xmin: 0,
+      ymax: 1.6,
+      ymin: -1.6,
 
       fontScaleRelativeToParent: false,
 
@@ -502,14 +509,17 @@ function selectDataHandler() {
     time = 0;
     count = 0;
 
-    timerId = setInterval(function() {
+    timerId = setInterval(function () {
       count++;
       time = count * sampleInterval;
       if (time > maxtime || stopStreaming) { clearInterval(timerId); }
       value1 = Math.sin(twopifreq1 * time) * amplitude1;
       value2 = Math.sin(twopifreq2 * time) * amplitude2;
-      graph.addSamples([[(value1 + value2)], [0-(value1+value2)]]);
-    }, 1000*sampleInterval);
+      graph.addSamples([
+        [(value1 + value2)],
+        [0 - (value1 + value2)]
+      ]);
+    }, 1000 * sampleInterval);
     break;
 
   case "i18n-example":
@@ -540,51 +550,51 @@ function getOptions(otherOptions) {
 }
 
 function addVerticalAnnotation() {
-  var x = graph.xmin() + Math.random()*(graph.xmax() - graph.xmin());
+  var x = graph.xmin() + Math.random() * (graph.xmax() - graph.xmin());
   graph.addAnnotation({
     type: "line",
     data: {
       x1: x,
       x2: x,
-      stroke: "rgb(" + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + ")"
+      stroke: "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")"
     }
   });
 }
 
 function addHorizontalAnnotation() {
-  var y = graph.ymin() + Math.random()*(graph.ymax() - graph.ymin());
+  var y = graph.ymin() + Math.random() * (graph.ymax() - graph.ymin());
   graph.addAnnotation({
     type: "line",
     data: {
       y1: y,
       y2: y,
-      stroke: "rgb(" + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + ")"
+      stroke: "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")"
     }
   });
 }
 
 function addVerticalBarAnnotation() {
-  var x1 = graph.xmin() + Math.random()*(graph.xmax() - graph.xmin()),
-      x2 = x1 + Math.random()*(graph.xmax() - x1);
+  var x1 = graph.xmin() + Math.random() * (graph.xmax() - graph.xmin()),
+    x2 = x1 + Math.random() * (graph.xmax() - x1);
   graph.addAnnotation({
     type: "bar",
     data: {
       x1: x1,
       x2: x2,
-      stroke: "rgb(" + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + ")"
+      stroke: "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")"
     }
   });
 }
 
 function addHorizontalBarAnnotation() {
-  var y1 = graph.ymin() + Math.random()*(graph.ymax() - graph.ymin()),
-      y2 = y1 + Math.random()*(graph.ymax() - y1);
+  var y1 = graph.ymin() + Math.random() * (graph.ymax() - graph.ymin()),
+    y2 = y1 + Math.random() * (graph.ymax() - y1);
   graph.addAnnotation({
     type: "bar",
     data: {
       y1: y1,
       y2: y2,
-      stroke: "rgb(" + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + "," + Math.floor(Math.random()*256) + ")"
+      stroke: "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")"
     }
   });
 }
@@ -605,4 +615,3 @@ function handleFontSizeChange() {
 }
 $("#font-size-input").on("change", handleFontSizeChange);
 handleFontSizeChange();
-

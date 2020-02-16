@@ -119,15 +119,18 @@ module.exports = function Graph(idOrElement, options, message) {
     titleTooltip,
 
     // Instantiated D3 scale functions
-    // currently either d3.scale.linear, d3.scale.log, or d3.scale.pow
+    // currently either d3.scaleLinear, d3.scaleLog, or d3.scalePow
     xScale,
     yScale,
+
+    // Instantiated D3 zoomBehavior function
+    zoomBehavior,
 
     // The approximate number of gridlines in the plot, passed to d3.scale.ticks() function
     xTickCount,
     yTickCount,
 
-    // Instantiated D3 line function: d3.svg.line()
+    // Instantiated D3 line function: d3.line()
     line,
 
     // numeric format functions wrapping the d3.format() functions
@@ -405,10 +408,10 @@ module.exports = function Graph(idOrElement, options, message) {
       //   linear: https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-linear
       //   log:    https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-log
       //   pow:    https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-pow
-      xscale: 'linear',
-      yscale: 'linear',
+      xscale: 'scaleLinear',
+      yscale: 'scaleLinear',
 
-      // Used when scale type is set to "pow"
+      // Used when scale type is set to "scalePow"
       xscaleExponent: 0.5,
       yscaleExponent: 0.5,
 
@@ -526,6 +529,8 @@ module.exports = function Graph(idOrElement, options, message) {
     };
 
     setupScales();
+
+    zoomBehavoir = d3.zoom();
 
     fx_d3 = d3.format(options.xFormatter);
     fy_d3 = d3.format(options.yFormatter);
@@ -676,7 +681,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
     updateScales();
 
-    line = d3.svg.line()
+    line = d3.line()
       .x(function (d, i) { return xScale(points[i][0]); })
       .y(function (d, i) { return yScale(points[i][1]); });
   }
@@ -849,14 +854,14 @@ module.exports = function Graph(idOrElement, options, message) {
       return scale;
     }
 
-    xScale = domainObservingScale(d3.scale[options.xscale](), function () {
+    xScale = domainObservingScale(d3[options.xscale](), function () {
       options.xmin = xScale.domain()[0];
       options.xmax = xScale.domain()[1];
       if (options.onXDomainChange) {
         options.onXDomainChange.call(null, options.xmin, options.xmax);
       }
     });
-    yScale = domainObservingScale(d3.scale[options.yscale](), function () {
+    yScale = domainObservingScale(d3[options.yscale](), function () {
       options.ymin = yScale.domain()[0];
       options.ymax = yScale.domain()[1];
       if (options.onYDomainChange) {
@@ -949,12 +954,12 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableLegendButton && options.legendLabels.length > 0) {
       legendButton = buttonLayer.append('a');
       legendButton.attr({
-          "class": "graph-button legend",
-          "title": i18n.t("tooltips.legend")
-        })
-        .on("click", function () {
-          toggleLegend();
-        });
+        "class": "graph-button legend",
+        "title": i18n.t("tooltips.legend")
+      });
+      legendButton.on("click", function () {
+        toggleLegend();
+      });
       if (options.buttonsStyle === "icons") {
         legendButton.append("i").attr("class", "icon-list-ul");
       } else {
@@ -965,13 +970,13 @@ module.exports = function Graph(idOrElement, options, message) {
     if (options.enableAutoScaleButton) {
       var autoscaleButton = buttonLayer.append('a');
       autoscaleButton.attr({
-          "class": "graph-button autoscale",
-          "title": i18n.t("tooltips.autoscale")
-        })
-        .on("click", function () {
-          autoscale(true);
-          redraw();
-        });
+        "class": "graph-button autoscale",
+        "title": i18n.t("tooltips.autoscale")
+      });
+      autoscaleButton.on("click", function () {
+        autoscale(true);
+        redraw();
+      });
       if (options.buttonsStyle === "icons") {
         autoscaleButton.append("i").attr("class", "icon-picture");
       } else {
@@ -984,10 +989,10 @@ module.exports = function Graph(idOrElement, options, message) {
       selectionButton.attr({
           "class": "graph-button selection",
           "title": i18n.t("tooltips.selection")
-        })
-        .on("click", function () {
-          toggleSelection();
         });
+      selectionButton.on("click", function () {
+        toggleSelection();
+      });
       if (options.buttonsStyle === "icons") {
         selectionButton.append("i").attr("class", "icon-cut");
       } else {
@@ -1000,10 +1005,10 @@ module.exports = function Graph(idOrElement, options, message) {
       drawButton.attr({
           "class": "graph-button draw",
           "title": i18n.t("tooltips.draw")
-        })
-        .on("click", function () {
-          toggleDraw();
         });
+      drawButton.on("click", function () {
+        toggleDraw();
+      });
       if (options.buttonsStyle === "icons") {
         drawButton.append("i").attr("class", "icon-pencil");
       } else {
@@ -1102,10 +1107,10 @@ module.exports = function Graph(idOrElement, options, message) {
       .on("mousedown", plotDrag)
       .on("touchstart", plotDrag);
 
-    plot.call(zoomBehavior());
+    plot.call(applyZoomBehavior());
 
-    background = elem.append("div")
-      .attr("class", "background")
+    background = elem.append("div");
+    background.attr("class", "background")
       .style({
         "width": size.width + "px",
         "height": size.height + "px",
@@ -1383,9 +1388,10 @@ module.exports = function Graph(idOrElement, options, message) {
     }
   }
 
-  function zoomBehavior() {
+  function applyZoomBehavior() {
     if (options.enableZooming) {
-      return d3.behavior.zoom().x(xScale).y(yScale).on("zoom", redraw)
+      return d3.zoom().on("zoom", redraw);
+      // return d3.zoom().x(xScale).y(yScale).on("zoom", redraw)
     } else {
       // noop
       return function () {};
@@ -1441,7 +1447,7 @@ module.exports = function Graph(idOrElement, options, message) {
       .attr("x2", size.width);
 
     if (sizeType.value > 1) {
-      if (options.yscale === "log") {
+      if (options.yscale === "scaleLog") {
         var gye_length = gye[0].length;
         if (gye_length > 100) {
           gye = gye.filter(function (d) { return !!d.toString().match(/(\.[0]*|^)[1]/); });
@@ -1517,11 +1523,11 @@ module.exports = function Graph(idOrElement, options, message) {
     // update annotation attributes to reflect current graph state
     annotationsSelection.each(function (d, i) {
       d3.select(this.childNodes[0]).attr(annotationAttributes(d))
-        .call(zoomBehavior());
+        .call(applyZoomBehavior());
     });
 
     annotationsSelection.exit().remove();
-    plot.call(zoomBehavior());
+    plot.call(applyZoomBehavior());
     update();
   }
 
@@ -2010,15 +2016,15 @@ module.exports = function Graph(idOrElement, options, message) {
     // converts the new min, max to the relevant scale.
     var transform;
     switch (options[axis + "scale"]) {
-    case 'linear':
+    case 'scaleLinear':
       transform = function (x) { return x; };
       break;
-    case 'log':
+    case 'scaleLog':
       minVal = Math.log(minVal) / Math.log(10);
       maxVal = Math.log(maxVal) / Math.log(10);
       transform = function (x) { return Math.pow(10, x); };
       break;
-    case 'pow':
+    case 'scalePow':
       var scaleExponent = options[axis + "scaleExponent"];
       minVal = pow(minVal, scaleExponent);
       maxVal = pow(maxVal, scaleExponent);
