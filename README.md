@@ -10,6 +10,16 @@ Before you can build...
 
 Once you have those, you can build with `npm run build`.
 
+Developing with automatic browser-sync reloading.
+
+Start a local web server and load the example with [gulpjs](https://gulpjs.com/) and [Browsersync](https://browsersync.io/docs/gulp): `npm run gulp`.
+
+The example will be running at: http://localhost:3000/index.html
+
+Changes made to javascript files in `./lib` will automatically start the build process and update `./dist/lab-grapher.js`.
+
+Changes made in files in `./examples`, `./css`, or `/dist` will cause the index.html page in the browser to reload.
+
 ## Dependencies ##
 
 lab-grapher depends on the following libraries:
