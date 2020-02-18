@@ -125,6 +125,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
     // Instantiated D3 zoomBehavior function
     zoomBehavior,
+    plotZoom,
 
     // The approximate number of gridlines in the plot, passed to d3.scale.ticks() function
     xTickCount,
@@ -405,9 +406,9 @@ module.exports = function Graph(idOrElement, options, message) {
       yFormatter: ".3s",
 
       // Scale type: options are:
-      //   linear: https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-linear
-      //   log:    https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-log
-      //   pow:    https://github.com/mbostock/d3/wiki/Quantitative-Scales#wiki-pow
+      //   scaleLinear: https://github.com/d3/d3-scale/blob/v1.0.7/README.md#linear-scales
+      //   scaleLog:    https://github.com/d3/d3-scale/blob/v1.0.7/README.md#log-scales
+      //   scalePow:    https://github.com/d3/d3-scale/blob/v1.0.7/README.md#power-scales
       xscale: 'scaleLinear',
       yscale: 'scaleLinear',
 
@@ -455,13 +456,15 @@ module.exports = function Graph(idOrElement, options, message) {
       // Callback, called after autoscale button is clicked
       onAutoscale: null,
 
-      // Callack, called after X or Y axis is changed (due to any reason, e.g. manual or auto-scaling)
+      // Callack, called after X or Y axis is changed (due to any reason,
+      // e.g. manual or auto-scaling)
       onXDomainChange: null,
       onYDomainChange: null,
 
-      // The R, G, and B values to be used to plot samples in each data channel. This default can
-      // be overridden at construction time, but the caller must provide colors for each channel.
-      // If there are n channels and m < n provided colors, the last n - m channels will be drawn
+      // The R, G, and B values to be used to plot samples in each data channel.
+      // This default can be overridden at construction time, but the caller
+      // must provide colors for each channel. If there are n channels and
+      // m < n provided colors, the last n - m channels will be drawn
       // using the last color in the list
       dataColors: [
         "#a00000", // channel 0   (red)
@@ -530,7 +533,7 @@ module.exports = function Graph(idOrElement, options, message) {
 
     setupScales();
 
-    zoomBehavoir = d3.zoom();
+    // zoomBehavoir = d3.zoom();
 
     fx_d3 = d3.format(options.xFormatter);
     fy_d3 = d3.format(options.yFormatter);
@@ -833,8 +836,8 @@ module.exports = function Graph(idOrElement, options, message) {
     }
   }
 
-  // Setup xScale, yScale, making sure that options.xmax/xmin/ymax/ymin always reflect changes to
-  // the relevant domains.
+  // Setup xScale, yScale, making sure that options.xmax/xmin/ymax/ymin always
+  // reflect changes to the relevant domains.
   function setupScales() {
     function domainObservingScale(scale, callback) {
       var domain = scale.domain;
@@ -953,10 +956,9 @@ module.exports = function Graph(idOrElement, options, message) {
 
     if (options.enableLegendButton && options.legendLabels.length > 0) {
       legendButton = buttonLayer.append('a');
-      legendButton.attr({
-        "class": "graph-button legend",
-        "title": i18n.t("tooltips.legend")
-      });
+      legendButton
+        .attr("class", "graph-button legend")
+        .attr("title", i18n.t("tooltips.legend"));
       legendButton.on("click", function () {
         toggleLegend();
       });
@@ -969,10 +971,9 @@ module.exports = function Graph(idOrElement, options, message) {
 
     if (options.enableAutoScaleButton) {
       var autoscaleButton = buttonLayer.append('a');
-      autoscaleButton.attr({
-        "class": "graph-button autoscale",
-        "title": i18n.t("tooltips.autoscale")
-      });
+      autoscaleButton
+        .attr("class", "graph-button autoscale")
+        .attr("title", i18n.t("tooltips.autoscale"));
       autoscaleButton.on("click", function () {
         autoscale(true);
         redraw();
@@ -986,10 +987,9 @@ module.exports = function Graph(idOrElement, options, message) {
 
     if (options.enableSelectionButton) {
       selectionButton = buttonLayer.append('a');
-      selectionButton.attr({
-          "class": "graph-button selection",
-          "title": i18n.t("tooltips.selection")
-        });
+      selectionButton
+        .attr("class", "graph-button selection")
+        .attr("title", i18n.t("tooltips.selection"));
       selectionButton.on("click", function () {
         toggleSelection();
       });
@@ -1002,10 +1002,9 @@ module.exports = function Graph(idOrElement, options, message) {
 
     if (options.enableDrawButton) {
       drawButton = buttonLayer.append('a');
-      drawButton.attr({
-          "class": "graph-button draw",
-          "title": i18n.t("tooltips.draw")
-        });
+      drawButton
+        .attr("class", "graph-button draw")
+        .attr("title", i18n.t("tooltips.draw"));
       drawButton.on("click", function () {
         toggleDraw();
       });
@@ -1021,16 +1020,15 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function resizeButtonLayer() {
     if (options.buttonsLayout === "vertical") {
-      buttonLayer.style({
-        "top": padding.top + halfFontSizeInPixels * 0.5 + "px",
-        "right": padding.right + halfFontSizeInPixels * 0.5 + "px"
-      });
+      buttonLayer
+        .style("top", padding.top + halfFontSizeInPixels * 0.5 + "px")
+        .style("right", padding.right + halfFontSizeInPixels * 0.5 + "px");
+
       buttonLayer.classed("horizontal", false);
     } else if (options.buttonsLayout === "horizontal") {
-      buttonLayer.style({
-        "top": padding.top - fontSizeInPixels * 1.8 + "px",
-        "width": (padding.left + size.width) + "px"
-      });
+      buttonLayer
+        .style("top", padding.top - fontSizeInPixels * 1.8 + "px")
+        .style("width", (padding.left + size.width) + "px");
       buttonLayer.classed("horizontal", true);
     }
   }
@@ -1069,12 +1067,10 @@ module.exports = function Graph(idOrElement, options, message) {
 
   function resizeAnnotationLayer() {
     annotationLayer
-      .style({
-        "width": size.width + "px",
-        "height": size.height + "px",
-        "top": padding.top + "px",
-        "left": padding.left + "px"
-      });
+      .style("width", size.width + "px")
+      .style("height", size.height + "px")
+      .style("top", padding.top + "px")
+      .style("left", padding.left + "px");
   }
 
   // ------------------------------------------------------------
@@ -1107,17 +1103,17 @@ module.exports = function Graph(idOrElement, options, message) {
       .on("mousedown", plotDrag)
       .on("touchstart", plotDrag);
 
-    plot.call(applyZoomBehavior());
+    if (options.enableZooming) {
+      plot.call(plotZoom);
+    }
 
     background = elem.append("div");
     background.attr("class", "background")
-      .style({
-        "width": size.width + "px",
-        "height": size.height + "px",
-        "top": padding.top + "px",
-        "left": padding.left + "px",
-        "z-index": 0
-      });
+      .style("width", size.width + "px")
+      .style("height", size.height + "px")
+      .style("top", padding.top + "px")
+      .style("left", padding.left + "px")
+      .style("z-index", 0);
 
     createGraphCanvas();
 
@@ -1269,13 +1265,11 @@ module.exports = function Graph(idOrElement, options, message) {
       .attr("height", size.height);
 
     background
-      .style({
-        "width": size.width + "px",
-        "height": size.height + "px",
-        "top": padding.top + "px",
-        "left": padding.left + "px",
-        "z-index": 0
-      });
+      .style("width", size.width + "px")
+      .style("height", size.height + "px")
+      .style("top", padding.top + "px")
+      .style("left", padding.left + "px")
+      .style("z-index", 0);
 
     viewbox
       .attr("top", 0)
@@ -1369,33 +1363,113 @@ module.exports = function Graph(idOrElement, options, message) {
   function adjustAxisDraggableFill() {
     if (sizeType.value <= 1) {
       xAxisDraggable
-        .style({
-          "fill": "rgba(196, 196, 196, 0.2)"
-        });
+        .style("fill", "rgba(196, 196, 196, 0.2)");
       yAxisDraggable
-        .style({
-          "fill": "rgba(196, 196, 196, 0.2)"
-        });
+        .style("fill", "rgba(196, 196, 196, 0.2)");
     } else {
       xAxisDraggable
-        .style({
-          "fill": null
-        });
+        .style("fill", null);
       yAxisDraggable
-        .style({
-          "fill": null
-        });
+        .style("fill", null);
     }
   }
 
-  function applyZoomBehavior() {
+  // var zoom = d3.zoom()
+  // .scaleExtent([1, 40])
+  // .translateExtent([
+  //   [-100, -100],
+  //   [200 + 90, 100 + 100]
+  // ])
+  // .on("zoom", zoomed);
+
+  function returnZoomFunc() {
     if (options.enableZooming) {
-      return d3.zoom().on("zoom", redraw);
+      var zoom = d3.zoom()
+        .clickDistance(20)
+        .on("zoom", zoomed);
+      return zoom;
       // return d3.zoom().x(xScale).y(yScale).on("zoom", redraw)
     } else {
       // noop
       return function () {};
     }
+  }
+
+  plotZoom = d3.zoom()
+    .clickDistance(20)
+    .on("start", plotZoomStarted)
+    .on("zoom", plotZoomed)
+    .on("end", plotZoomEnded);
+
+  function zstats(msg) {
+    var transform = d3.event.transform;
+    var sourceEvent = d3.event.sourceEvent;
+    console.log("plotZoomStarted");
+    console.log("transform.x: " + transform.x);
+    console.log("sourceEvent.x: " + sourceEvent.x);
+    console.log("sourceEvent.movementX " + sourceEvent.movementX);
+  }
+
+  var startZoomX
+  var startZoomXDomain;
+  var previousZoomX;
+
+  var startZoomY
+  var startZoomYDomain;
+  var previousZoomY;
+
+  function plotZoomStarted() {
+    console.log("--started--");
+    zstats("plotZoomStarted");
+    startZoomX = d3.event.sourceEvent.clientX;
+    startZoomY = d3.event.sourceEvent.clientY;
+    startZoomXDomain = [...xScale.domain()];
+    startZoomYDomain = [...yScale.domain()];
+  }
+
+  function plotZoomEnded() {
+    zstats("plotZoomEnded");
+    console.log("--ended--");
+    startZoomX = null;
+    previousZoomX = null;
+    startZoomXDomain = null;
+    startZoomY = null;
+    previousZoomY = null;
+    startZoomYDomain = null;
+  }
+
+  function plotZoomed() {
+    zstats("plotZoomed");
+    // var transform = d3.zoomTransform(this);
+    var transform = d3.event.transform;
+    var xd1 = xScale.domain();
+    var dx, clientX = d3.event.sourceEvent.clientX;
+
+    var yd1 = yScale.domain();
+    var y, clientY = d3.event.sourceEvent.clientY;
+
+    if (previousZoomX) {
+      dx = xScale.invert(previousZoomX) - xScale.invert(clientX);
+      previousZoomX = clientX;
+    } else {
+      dx = xScale.invert(startZoomX) - xScale.invert(clientX);
+    }
+
+    if (previousZoomY) {
+      dy = yScale.invert(previousZoomY) - yScale.invert(clientY);
+      previousZoomY = clientY;
+    } else {
+      dy = yScale.invert(startZoomY) - yScale.invert(clientY);
+    }
+
+    console.log("before zoom: xScale.domain(): " + xd1);
+    console.log("dx: " + dx);
+    xScale.domain([startZoomXDomain[0] + dx, startZoomXDomain[1] + dx]);
+
+    yScale.domain([startZoomYDomain[0] + dy, startZoomYDomain[1] + dy]);
+
+    redraw();
+    console.log("....");
   }
 
   //
@@ -1521,13 +1595,15 @@ module.exports = function Graph(idOrElement, options, message) {
       });
 
     // update annotation attributes to reflect current graph state
-    annotationsSelection.each(function (d, i) {
-      d3.select(this.childNodes[0]).attr(annotationAttributes(d))
-        .call(applyZoomBehavior());
-    });
+    // annotationsSelection.each(function (d, i) {
+    //   d3.select(this.childNodes[0]).attr(annotationAttributes(d))
+    //     .call(applyZoomBehavior());
+    // });
 
     annotationsSelection.exit().remove();
-    plot.call(applyZoomBehavior());
+    if (options.enableZooming) {
+      plot.call(plotZoom);
+    }
     update();
   }
 
@@ -1989,8 +2065,8 @@ module.exports = function Graph(idOrElement, options, message) {
       ret = undefined;
     }
 
-    // Only call callback if there's what we think of as an "autoscale was clicked" event, which
-    // specifically means the case that fit == true
+    // Only call callback if there's what we think of as an "autoscale was
+    // clicked" event, which specifically means the case that fit == true
     if (fit && options.onAutoscale) {
       options.onAutoscale.call(null);
     }
@@ -2297,11 +2373,9 @@ module.exports = function Graph(idOrElement, options, message) {
         legendLayer.classed("legend-invisible", false);
         // Reposition while we're at it
         legendLayer
-          .style({
-            "top": padding.top + halfFontSizeInPixels + "px",
-            "right": padding.right + halfFontSizeInPixels +
-              (options.showButtons && options.buttonsLayout === "vertical" ? buttonLayer.property('clientWidth') : 0) + "px"
-          });
+          .style("top", padding.top + halfFontSizeInPixels + "px")
+          .style("right", padding.right + halfFontSizeInPixels +
+            (options.showButtons && options.buttonsLayout === "vertical" ? buttonLayer.property('clientWidth') : 0) + "px");
       } else {
         legendLayer.classed("legend-invisible", true);
       }
@@ -2324,14 +2398,13 @@ module.exports = function Graph(idOrElement, options, message) {
   function resizeCanvas() {
     graphCanvas
       .attr("class", "overlay")
-      .style({
-        "position": "absolute",
-        "width": size.width + "px",
-        "height": size.height + "px",
-        "top": padding.top + "px",
-        "left": padding.left + "px",
-        "z-index": 1
-      });
+      .style("position", "absolute")
+      .style("width", size.width + "px")
+      .style("height", size.height + "px")
+      .style("top", padding.top + "px")
+      .style("left", padding.left + "px")
+      .style("z-index", 1);
+
     gcanvas = graphCanvas.node();
     gcanvas.width = size.width;
     gcanvas.height = size.height;
